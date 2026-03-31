@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="Tasks" />
+  <meta name="apple-mobile-web-app-title" content="My Tasks" />
   <meta name="theme-color" content="#0f0f0f" />
-  <title>Tasks</title>
+  <title>My Tasks</title>
   <link rel="manifest" href="manifest.json" />
   <link rel="apple-touch-icon" href="icon-192.png" />
   <style>
@@ -41,438 +41,310 @@
     }
 
     #app {
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-      max-width: 480px;
-      margin: 0 auto;
+      display: flex; flex-direction: column;
+      height: 100%; max-width: 480px; margin: 0 auto;
     }
 
-    /* ── SCREENS ── */
-    .screen {
-      display: none;
-      flex-direction: column;
-      flex: 1;
-      overflow: hidden;
-    }
+    .screen { display: none; flex-direction: column; flex: 1; overflow: hidden; }
     .screen.active { display: flex; }
 
     .screen-body {
-      flex: 1;
-      overflow-y: auto;
+      flex: 1; overflow-y: auto;
       -webkit-overflow-scrolling: touch;
-      padding: 16px 16px calc(16px + var(--safe-bottom));
+      padding: 16px 16px 40px;
     }
 
-    /* ── HEADER ── */
+    /* HEADER */
     .header {
       padding: calc(var(--safe-top) + 20px) 20px 16px;
       border-bottom: 1px solid var(--border);
       background: var(--bg);
-      position: sticky;
-      top: 0;
-      z-index: 10;
     }
-    .header-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .header h1 {
-      font-size: 26px;
-      font-weight: 600;
-      letter-spacing: -0.5px;
-    }
-    .header .subtitle {
-      font-size: 12px;
-      color: var(--text-muted);
-      font-family: 'DM Mono', monospace;
-      margin-top: 2px;
-    }
-    .accent-dot {
-      display: inline-block;
-      width: 8px; height: 8px;
-      background: var(--accent);
-      border-radius: 50%;
-      margin-right: 6px;
-    }
+    .header h1 { font-size: 26px; font-weight: 600; letter-spacing: -0.5px; }
+    .header .subtitle { font-size: 12px; color: var(--text-muted); font-family: 'DM Mono', monospace; margin-top: 2px; }
+    .accent-dot { display: inline-block; width: 8px; height: 8px; background: var(--accent); border-radius: 50%; margin-right: 6px; }
 
-    /* ── ADD TASK BAR ── */
+    /* ADD BAR */
     .add-bar {
-      display: flex;
-      gap: 8px;
-      padding: 12px 16px;
-      background: var(--bg);
-      border-bottom: 1px solid var(--border);
+      display: flex; gap: 8px; padding: 12px 16px;
+      background: var(--bg); border-bottom: 1px solid var(--border);
     }
     .add-bar input {
-      flex: 1;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 10px 14px;
-      color: var(--text);
-      font-size: 15px;
-      font-family: 'DM Sans', sans-serif;
-      outline: none;
+      flex: 1; background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px; padding: 10px 14px; color: var(--text);
+      font-size: 15px; font-family: 'DM Sans', sans-serif; outline: none;
       transition: border-color 0.2s;
     }
     .add-bar input:focus { border-color: var(--accent); }
     .add-bar input::placeholder { color: var(--text-muted); }
     .btn-add {
-      background: var(--accent);
-      color: #0f0f0f;
-      border: none;
-      border-radius: 10px;
-      width: 42px; height: 42px;
-      font-size: 22px;
-      cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      font-weight: 600;
-      flex-shrink: 0;
-      transition: transform 0.1s, opacity 0.2s;
+      background: var(--accent); color: #0f0f0f; border: none;
+      border-radius: 10px; width: 42px; height: 42px; font-size: 22px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      font-weight: 600; flex-shrink: 0; transition: transform 0.1s;
     }
     .btn-add:active { transform: scale(0.92); }
 
-    /* ── TASK LIST ── */
+    /* SELECTION PROGRESS BAR */
+    .selection-bar {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 16px; background: var(--bg); border-bottom: 1px solid var(--border);
+    }
+    .sel-label {
+      font-size: 12px; font-family: 'DM Mono', monospace;
+      color: var(--text-muted); white-space: nowrap;
+    }
+    .sel-label span { color: var(--accent); }
+    .progress-track {
+      flex: 1; height: 3px; background: var(--border);
+      border-radius: 2px; overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%; background: var(--accent);
+      border-radius: 2px; transition: width 0.3s ease;
+    }
+
+    /* TASK LIST */
     .task-list { display: flex; flex-direction: column; gap: 8px; }
 
     .task-item {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 14px 14px 14px 16px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 14px 12px 14px 14px;
+      display: flex; align-items: center; gap: 11px;
       transition: background 0.15s, border-color 0.15s;
       animation: slideIn 0.2s ease;
     }
+    .task-item.selected-task { border-color: var(--accent); background: rgba(200,240,96,0.06); }
+
     @keyframes slideIn {
       from { opacity: 0; transform: translateY(6px); }
       to   { opacity: 1; transform: translateY(0); }
     }
-    .task-item:active { background: var(--surface2); }
 
-    .task-check {
-      width: 22px; height: 22px;
-      border-radius: 50%;
-      border: 2px solid var(--border);
-      flex-shrink: 0;
-      cursor: pointer;
+    /* square checkbox for selection */
+    .sq-check {
+      width: 22px; height: 22px; border-radius: 6px;
+      border: 2px solid var(--border); flex-shrink: 0; cursor: pointer;
       display: flex; align-items: center; justify-content: center;
       transition: border-color 0.2s, background 0.2s;
     }
-    .task-check.checked {
-      background: var(--accent);
-      border-color: var(--accent);
-    }
-    .task-check.checked::after {
-      content: '';
-      width: 6px; height: 10px;
-      border: 2px solid #0f0f0f;
-      border-top: none; border-left: none;
+    .sq-check.checked { background: var(--accent); border-color: var(--accent); }
+    .sq-check.checked::after {
+      content: ''; width: 6px; height: 10px;
+      border: 2px solid #0f0f0f; border-top: none; border-left: none;
       transform: rotate(45deg) translateY(-1px);
     }
-    .task-label {
-      flex: 1;
-      font-size: 15px;
-      line-height: 1.4;
-      color: var(--text);
-      transition: color 0.2s;
-    }
-    .task-label.done {
-      color: var(--text-muted);
-      text-decoration: line-through;
-    }
-    .task-actions { display: flex; gap: 6px; }
-    .btn-icon {
-      background: none;
-      border: none;
-      color: var(--text-muted);
-      cursor: pointer;
-      padding: 4px;
-      border-radius: 6px;
-      font-size: 16px;
+
+    /* circle checkbox for done */
+    .circ-check {
+      width: 22px; height: 22px; border-radius: 50%;
+      border: 2px solid var(--border); flex-shrink: 0; cursor: pointer;
       display: flex; align-items: center; justify-content: center;
-      transition: color 0.15s, background 0.15s;
+      transition: border-color 0.2s, background 0.2s;
     }
-    .btn-icon:active { background: var(--surface2); color: var(--text); }
-    .btn-icon.danger:active { color: var(--danger); }
-
-    /* ── SELECT BUTTON ── */
-    .btn-select {
-      background: var(--accent-dim);
-      border: 1px solid rgba(200,240,96,0.25);
-      color: var(--accent);
-      border-radius: 8px;
-      padding: 4px 10px;
-      font-size: 12px;
-      font-family: 'DM Mono', monospace;
-      cursor: pointer;
-      transition: background 0.15s;
-      white-space: nowrap;
-    }
-    .btn-select:active { background: rgba(200,240,96,0.22); }
-    .btn-select.selected {
-      background: var(--accent);
-      color: #0f0f0f;
-      border-color: var(--accent);
+    .circ-check.checked { background: var(--accent); border-color: var(--accent); }
+    .circ-check.checked::after {
+      content: ''; width: 6px; height: 10px;
+      border: 2px solid #0f0f0f; border-top: none; border-left: none;
+      transform: rotate(45deg) translateY(-1px);
     }
 
-    /* ── SECTION LABEL ── */
-    .section-label {
-      font-size: 11px;
-      font-family: 'DM Mono', monospace;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin: 20px 0 10px;
-    }
-    .section-label:first-child { margin-top: 0; }
+    .task-label { flex: 1; font-size: 15px; line-height: 1.4; }
+    .task-label.done { color: var(--text-muted); text-decoration: line-through; }
 
-    /* ── EMPTY STATE ── */
-    .empty {
-      text-align: center;
-      padding: 48px 24px;
-      color: var(--text-muted);
+    .btn-icon {
+      background: none; border: none; color: var(--text-muted);
+      cursor: pointer; padding: 4px; border-radius: 6px; font-size: 16px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: color 0.15s;
     }
+    .btn-icon:active { color: var(--danger); }
+
+    /* CONFIRM BAR */
+    .confirm-bar {
+      padding: 12px 16px calc(16px + var(--safe-bottom));
+      background: var(--bg); border-top: 1px solid var(--border);
+    }
+    .confirm-btn {
+      width: 100%; padding: 15px; border-radius: 12px; border: none;
+      font-size: 16px; font-weight: 600; font-family: 'DM Sans', sans-serif;
+      cursor: default; transition: background 0.2s, color 0.2s, transform 0.1s;
+      background: var(--surface2); color: var(--text-muted);
+    }
+    .confirm-btn.ready { background: var(--accent); color: #0f0f0f; cursor: pointer; }
+    .confirm-btn.ready:active { transform: scale(0.98); }
+
+    /* EMPTY */
+    .empty { text-align: center; padding: 48px 24px; color: var(--text-muted); }
     .empty .icon { font-size: 40px; margin-bottom: 12px; opacity: 0.4; }
     .empty p { font-size: 14px; line-height: 1.6; }
 
-    /* ── CURRENT SCREEN ── */
-    .current-item {
-      background: var(--surface);
-      border: 1px solid var(--accent);
-      border-radius: 12px;
-      padding: 16px;
-      animation: slideIn 0.2s ease;
-      position: relative;
-      overflow: hidden;
+    /* CURRENT SCREEN */
+    .current-header-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 16px; background: var(--bg); border-bottom: 1px solid var(--border);
     }
-    .current-item::before {
-      content: '';
-      position: absolute;
-      left: 0; top: 0; bottom: 0;
-      width: 3px;
-      background: var(--accent);
-    }
-    .current-item-label {
-      font-size: 16px;
-      font-weight: 500;
-      padding-left: 4px;
-    }
-    .current-item-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-top: 10px;
-      padding-left: 4px;
-    }
-    .current-badge {
-      font-size: 11px;
-      font-family: 'DM Mono', monospace;
-      color: var(--accent);
-      opacity: 0.7;
-    }
-    .btn-remove-current {
-      background: none;
-      border: 1px solid var(--border);
-      color: var(--text-muted);
-      border-radius: 8px;
-      padding: 4px 10px;
-      font-size: 12px;
-      font-family: 'DM Mono', monospace;
-      cursor: pointer;
+    .current-stats { font-size: 12px; font-family: 'DM Mono', monospace; color: var(--text-muted); }
+    .current-stats span { color: var(--accent); }
+    .btn-sm {
+      background: none; border: 1px solid var(--border); color: var(--text-muted);
+      border-radius: 8px; padding: 5px 12px; font-size: 12px;
+      font-family: 'DM Mono', monospace; cursor: pointer;
       transition: border-color 0.15s, color 0.15s;
     }
-    .btn-remove-current:active { border-color: var(--danger); color: var(--danger); }
+    .btn-sm:active { border-color: var(--danger); color: var(--danger); }
 
-    .current-count-bar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 16px;
-      padding: 10px 14px;
-      background: var(--surface);
-      border-radius: 10px;
-      border: 1px solid var(--border);
+    .current-item {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 14px 12px 14px 14px;
+      display: flex; align-items: center; gap: 11px;
+      animation: slideIn 0.2s ease; transition: opacity 0.2s;
     }
-    .current-count-bar span {
-      font-size: 13px;
-      color: var(--text-dim);
-    }
-    .current-count-bar strong {
-      font-family: 'DM Mono', monospace;
-      color: var(--accent);
-      font-size: 20px;
-    }
+    .current-item.done-item { opacity: 0.5; }
+    .current-item-label { flex: 1; font-size: 15px; font-weight: 500; line-height: 1.4; }
+    .current-item-label.done { text-decoration: line-through; color: var(--text-muted); }
 
-    /* ── SETTINGS ── */
+    /* SETTINGS */
     .settings-section {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      overflow: hidden;
-      margin-bottom: 20px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 14px; overflow: hidden; margin-bottom: 20px;
     }
     .settings-section-title {
-      font-size: 11px;
-      font-family: 'DM Mono', monospace;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      padding: 14px 16px 8px;
+      font-size: 11px; font-family: 'DM Mono', monospace; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: 1px; padding: 14px 16px 8px;
     }
     .settings-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 14px 16px;
-      border-top: 1px solid var(--border);
-      gap: 12px;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 16px; border-top: 1px solid var(--border); gap: 12px;
     }
-    .settings-row:first-of-type { border-top: none; }
     .settings-row-info { flex: 1; }
     .settings-row-label { font-size: 15px; }
     .settings-row-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
     .toggle {
-      width: 46px; height: 26px;
-      background: var(--border);
-      border-radius: 13px;
-      position: relative;
-      cursor: pointer;
-      transition: background 0.2s;
-      flex-shrink: 0;
-      border: none;
+      width: 46px; height: 26px; background: var(--border); border-radius: 13px;
+      position: relative; cursor: pointer; transition: background 0.2s;
+      flex-shrink: 0; border: none;
     }
     .toggle.on { background: var(--accent); }
     .toggle::after {
-      content: '';
-      position: absolute;
-      width: 20px; height: 20px;
-      background: white;
-      border-radius: 50%;
-      top: 3px; left: 3px;
-      transition: transform 0.2s;
+      content: ''; position: absolute; width: 20px; height: 20px;
+      background: white; border-radius: 50%; top: 3px; left: 3px; transition: transform 0.2s;
     }
     .toggle.on::after { transform: translateX(20px); }
+
+    .stepper { display: flex; align-items: center; gap: 10px; }
+    .stepper-btn {
+      width: 32px; height: 32px; border-radius: 8px;
+      border: 1px solid var(--border); background: var(--surface2);
+      color: var(--text); font-size: 20px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s;
+    }
+    .stepper-btn:active { background: var(--border); }
+    .stepper-val {
+      font-family: 'DM Mono', monospace; font-size: 22px;
+      color: var(--accent); min-width: 30px; text-align: center;
+    }
+
     .btn-danger-row {
-      width: 100%;
-      background: none;
-      border: none;
-      color: var(--danger);
-      font-size: 15px;
-      font-family: 'DM Sans', sans-serif;
-      padding: 14px 16px;
-      text-align: left;
-      cursor: pointer;
+      width: 100%; background: none; border: none; color: var(--danger);
+      font-size: 15px; font-family: 'DM Sans', sans-serif;
+      padding: 14px 16px; text-align: left; cursor: pointer;
       border-top: 1px solid var(--border);
     }
     .btn-danger-row:active { background: rgba(255,94,94,0.08); }
     .app-version {
-      text-align: center;
-      font-size: 12px;
-      font-family: 'DM Mono', monospace;
-      color: var(--text-muted);
-      margin-top: 8px;
+      text-align: center; font-size: 12px;
+      font-family: 'DM Mono', monospace; color: var(--text-muted); margin-top: 8px;
     }
 
-    /* ── TAB BAR ── */
+    /* TAB BAR */
     .tab-bar {
-      display: flex;
-      background: var(--bg);
-      border-top: 1px solid var(--border);
+      display: flex; background: var(--bg); border-top: 1px solid var(--border);
       padding-bottom: var(--safe-bottom);
-      height: calc(var(--tab-h) + var(--safe-bottom));
-      flex-shrink: 0;
+      height: calc(var(--tab-h) + var(--safe-bottom)); flex-shrink: 0;
     }
     .tab {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 4px;
-      cursor: pointer;
-      padding-top: 8px;
-      position: relative;
-      border: none;
-      background: none;
-      color: var(--text-muted);
-      transition: color 0.15s;
+      flex: 1; display: flex; flex-direction: column; align-items: center;
+      justify-content: center; gap: 4px; cursor: pointer; padding-top: 8px;
+      position: relative; border: none; background: none;
+      color: var(--text-muted); transition: color 0.15s;
     }
     .tab.active { color: var(--accent); }
     .tab-icon { font-size: 22px; line-height: 1; }
     .tab-label { font-size: 10px; font-family: 'DM Mono', monospace; letter-spacing: 0.5px; }
     .tab-badge {
-      position: absolute;
-      top: 6px;
-      right: calc(50% - 18px);
-      background: var(--accent);
-      color: #0f0f0f;
-      border-radius: 8px;
-      min-width: 16px; height: 16px;
-      font-size: 10px;
-      font-weight: 600;
+      position: absolute; top: 6px; right: calc(50% - 18px);
+      background: var(--accent); color: #0f0f0f; border-radius: 8px;
+      min-width: 16px; height: 16px; font-size: 10px; font-weight: 600;
       display: flex; align-items: center; justify-content: center;
-      padding: 0 4px;
-      font-family: 'DM Mono', monospace;
+      padding: 0 4px; font-family: 'DM Mono', monospace;
     }
   </style>
 </head>
 <body>
 <div id="app">
 
-  <!-- ── TASKS SCREEN ── -->
+  <!-- TASKS -->
   <div class="screen active" id="screen-tasks">
     <div class="header">
-      <div class="header-row">
-        <div>
-          <h1><span class="accent-dot"></span>All Tasks</h1>
-          <div class="subtitle" id="tasks-subtitle">0 tasks</div>
-        </div>
-      </div>
+      <h1><span class="accent-dot"></span>My Tasks</h1>
+      <div class="subtitle" id="tasks-subtitle">0 tasks</div>
     </div>
     <div class="add-bar">
       <input type="text" id="new-task-input" placeholder="Add a new task…" maxlength="120" />
       <button class="btn-add" id="btn-add-task">+</button>
     </div>
+    <div class="selection-bar">
+      <span class="sel-label"><span id="sel-count">0</span> / <span id="sel-target">3</span> selected</span>
+      <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    </div>
     <div class="screen-body">
       <div class="task-list" id="task-list"></div>
     </div>
+    <div class="confirm-bar">
+      <button class="confirm-btn" id="confirm-btn" onclick="confirmSelection()">Select tasks to confirm</button>
+    </div>
   </div>
 
-  <!-- ── CURRENT SCREEN ── -->
+  <!-- CURRENT -->
   <div class="screen" id="screen-current">
     <div class="header">
-      <div class="header-row">
-        <div>
-          <h1><span class="accent-dot"></span>Current</h1>
-          <div class="subtitle" id="current-subtitle">Your active focus</div>
-        </div>
-      </div>
+      <h1><span class="accent-dot"></span>Current</h1>
+      <div class="subtitle" id="current-subtitle">Your active focus</div>
+    </div>
+    <div class="current-header-bar">
+      <span class="current-stats" id="current-stats">0 tasks</span>
+      <button class="btn-sm" onclick="clearCurrent()">Clear all</button>
     </div>
     <div class="screen-body">
-      <div class="current-count-bar">
-        <span>Selected tasks</span>
-        <strong id="current-count">0</strong>
-      </div>
       <div class="task-list" id="current-list"></div>
     </div>
   </div>
 
-  <!-- ── SETTINGS SCREEN ── -->
+  <!-- SETTINGS -->
   <div class="screen" id="screen-settings">
     <div class="header">
-      <div class="header-row">
-        <div>
-          <h1><span class="accent-dot"></span>Settings</h1>
-          <div class="subtitle">Preferences</div>
-        </div>
-      </div>
+      <h1><span class="accent-dot"></span>Settings</h1>
+      <div class="subtitle">Preferences</div>
     </div>
     <div class="screen-body">
+
+      <div class="settings-section">
+        <div class="settings-section-title">Selection</div>
+        <div class="settings-row">
+          <div class="settings-row-info">
+            <div class="settings-row-label">Minimum tasks (N)</div>
+            <div class="settings-row-sub">Confirm unlocks after selecting this many</div>
+          </div>
+          <div class="stepper">
+            <button class="stepper-btn" onclick="changeN(-1)">−</button>
+            <span class="stepper-val" id="n-display">3</span>
+            <button class="stepper-btn" onclick="changeN(1)">+</button>
+          </div>
+        </div>
+      </div>
+
       <div class="settings-section">
         <div class="settings-section-title">Display</div>
         <div class="settings-row">
@@ -494,26 +366,22 @@
       <div class="settings-section">
         <div class="settings-section-title">Data</div>
         <div class="settings-row">
-          <div class="settings-row-info">
-            <div class="settings-row-label">Total tasks</div>
-          </div>
+          <div class="settings-row-info"><div class="settings-row-label">Total tasks</div></div>
           <span id="stat-total" style="font-family:'DM Mono',monospace;font-size:14px;color:var(--text-dim)">0</span>
         </div>
         <div class="settings-row">
-          <div class="settings-row-info">
-            <div class="settings-row-label">Completed</div>
-          </div>
+          <div class="settings-row-info"><div class="settings-row-label">Completed</div></div>
           <span id="stat-done" style="font-family:'DM Mono',monospace;font-size:14px;color:var(--accent)">0</span>
         </div>
         <button class="btn-danger-row" onclick="clearCompleted()">Clear completed tasks</button>
         <button class="btn-danger-row" onclick="clearAll()">Clear all tasks</button>
       </div>
 
-      <div class="app-version">tasks / v1.0.0</div>
+      <div class="app-version">my tasks / v1.0.0</div>
     </div>
   </div>
 
-  <!-- ── TAB BAR ── -->
+  <!-- TAB BAR -->
   <nav class="tab-bar">
     <button class="tab active" data-screen="tasks" onclick="switchTab('tasks')">
       <span class="tab-icon">☰</span>
@@ -533,102 +401,104 @@
 </div>
 
 <script>
-  // ── STATE ──
   let tasks = [];
-  let settings = { showDone: true, doneBottom: true };
+  let settings = { showDone: true, doneBottom: true, nTasks: 3 };
 
   function load() {
     try {
-      const t = localStorage.getItem('tasks');
-      const s = localStorage.getItem('settings');
+      const t = localStorage.getItem('mytasks_tasks');
+      const s = localStorage.getItem('mytasks_settings');
       if (t) tasks = JSON.parse(t);
       if (s) settings = { ...settings, ...JSON.parse(s) };
     } catch(e) {}
   }
 
   function save() {
-    localStorage.setItem('tasks', JSON.stringify(tasks));
-    localStorage.setItem('settings', JSON.stringify(settings));
+    localStorage.setItem('mytasks_tasks', JSON.stringify(tasks));
+    localStorage.setItem('mytasks_settings', JSON.stringify(settings));
   }
 
-  function uid() {
-    return Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
-  }
+  function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+  function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-  // ── RENDERING ──
-  function render() {
-    renderTasks();
-    renderCurrent();
-    renderSettings();
-    updateBadges();
-    save();
-  }
+  function render() { renderTasks(); renderCurrent(); renderSettings(); updateBadges(); save(); }
 
-  function sortedTasks() {
-    if (!settings.doneBottom) return [...tasks];
-    return [...tasks].sort((a, b) => {
-      if (a.done === b.done) return 0;
-      return a.done ? 1 : -1;
-    });
+  function getSorted() {
+    let list = [...tasks];
+    if (settings.doneBottom) list.sort((a,b) => a.done === b.done ? 0 : a.done ? 1 : -1);
+    return list;
   }
 
   function renderTasks() {
     const list = document.getElementById('task-list');
-    const subtitle = document.getElementById('tasks-subtitle');
-    let visible = sortedTasks();
-    if (!settings.showDone) visible = visible.filter(t => !t.done);
+    const selected = tasks.filter(t => t.selected);
+    const n = settings.nTasks;
+    const count = selected.length;
+    const ready = count >= n;
 
-    subtitle.textContent = `${tasks.length} task${tasks.length !== 1 ? 's' : ''}`;
+    document.getElementById('tasks-subtitle').textContent = `${tasks.length} task${tasks.length !== 1 ? 's' : ''}`;
+    document.getElementById('sel-count').textContent = count;
+    document.getElementById('sel-target').textContent = n;
+    document.getElementById('progress-fill').style.width = Math.min(count / n, 1) * 100 + '%';
+
+    const btn = document.getElementById('confirm-btn');
+    if (ready) {
+      btn.className = 'confirm-btn ready';
+      btn.textContent = `Confirm ${count} Task${count !== 1 ? 's' : ''} →`;
+    } else {
+      btn.className = 'confirm-btn';
+      btn.textContent = count === 0 ? 'Select tasks to confirm' : `Select ${n - count} more to confirm`;
+    }
+
+    let visible = getSorted();
+    if (!settings.showDone) visible = visible.filter(t => !t.done);
 
     if (visible.length === 0) {
       list.innerHTML = `<div class="empty"><div class="icon">✓</div><p>No tasks yet.<br>Add one above.</p></div>`;
       return;
     }
 
-    list.innerHTML = visible.map(task => `
-      <div class="task-item" id="task-${task.id}">
-        <div class="task-check ${task.done ? 'checked' : ''}" onclick="toggleDone('${task.id}')"></div>
-        <span class="task-label ${task.done ? 'done' : ''}">${escHtml(task.text)}</span>
-        <div class="task-actions">
-          <button class="btn-select ${task.current ? 'selected' : ''}" onclick="toggleCurrent('${task.id}')">
-            ${task.current ? 'Added' : '+ Current'}
-          </button>
-          <button class="btn-icon danger" onclick="deleteTask('${task.id}')">✕</button>
-        </div>
+    list.innerHTML = visible.map(t => `
+      <div class="task-item${t.selected ? ' selected-task' : ''}">
+        <div class="sq-check${t.selected ? ' checked' : ''}" onclick="toggleSelected('${t.id}')"></div>
+        <span class="task-label${t.done ? ' done' : ''}">${escHtml(t.text)}</span>
+        <div class="circ-check${t.done ? ' checked' : ''}" onclick="toggleDone('${t.id}')"></div>
+        <button class="btn-icon" onclick="deleteTask('${t.id}')">✕</button>
       </div>
     `).join('');
   }
 
   function renderCurrent() {
     const list = document.getElementById('current-list');
-    const count = document.getElementById('current-count');
-    const subtitle = document.getElementById('current-subtitle');
     const current = tasks.filter(t => t.current);
+    const doneCount = current.filter(t => t.done).length;
 
-    count.textContent = current.length;
-    subtitle.textContent = current.length > 0
+    document.getElementById('current-subtitle').textContent = current.length > 0
       ? `${current.length} task${current.length !== 1 ? 's' : ''} in focus`
-      : 'No tasks selected yet';
+      : 'No tasks confirmed yet';
+    document.getElementById('current-stats').innerHTML = `<span>${doneCount}</span> / ${current.length} done`;
 
     if (current.length === 0) {
-      list.innerHTML = `<div class="empty"><div class="icon">◎</div><p>No current tasks.<br>Go to Tasks and tap <strong>+ Current</strong>.</p></div>`;
+      list.innerHTML = `<div class="empty"><div class="icon">◎</div><p>No current tasks.<br>Select at least ${settings.nTasks} on the Tasks tab and tap Confirm.</p></div>`;
       return;
     }
 
-    list.innerHTML = current.map((task, i) => `
-      <div class="current-item">
-        <div class="current-item-label">${escHtml(task.text)}</div>
-        <div class="current-item-footer">
-          <span class="current-badge">#${String(i + 1).padStart(2, '0')}</span>
-          <button class="btn-remove-current" onclick="toggleCurrent('${task.id}')">Remove</button>
-        </div>
+    let sorted = [...current];
+    if (settings.doneBottom) sorted.sort((a,b) => a.done === b.done ? 0 : a.done ? 1 : -1);
+
+    list.innerHTML = sorted.map(t => `
+      <div class="current-item${t.done ? ' done-item' : ''}">
+        <div class="sq-check${t.done ? ' checked' : ''}" onclick="toggleDone('${t.id}')"></div>
+        <span class="current-item-label${t.done ? ' done' : ''}">${escHtml(t.text)}</span>
+        <button class="btn-icon" onclick="removeFromCurrent('${t.id}')">✕</button>
       </div>
     `).join('');
   }
 
   function renderSettings() {
-    document.getElementById('toggle-show-done').className = `toggle ${settings.showDone ? 'on' : ''}`;
-    document.getElementById('toggle-done-bottom').className = `toggle ${settings.doneBottom ? 'on' : ''}`;
+    document.getElementById('toggle-show-done').className = `toggle${settings.showDone ? ' on' : ''}`;
+    document.getElementById('toggle-done-bottom').className = `toggle${settings.doneBottom ? ' on' : ''}`;
+    document.getElementById('n-display').textContent = settings.nTasks;
     document.getElementById('stat-total').textContent = tasks.length;
     document.getElementById('stat-done').textContent = tasks.filter(t => t.done).length;
   }
@@ -638,93 +508,62 @@
     const current = tasks.filter(t => t.current).length;
     const bt = document.getElementById('badge-tasks');
     const bc = document.getElementById('badge-current');
-    bt.style.display = pending > 0 ? 'flex' : 'none';
-    bt.textContent = pending;
-    bc.style.display = current > 0 ? 'flex' : 'none';
-    bc.textContent = current;
+    bt.style.display = pending > 0 ? 'flex' : 'none'; bt.textContent = pending;
+    bc.style.display = current > 0 ? 'flex' : 'none'; bc.textContent = current;
   }
 
-  function escHtml(str) {
-    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  }
-
-  // ── ACTIONS ──
   function addTask(text) {
-    text = text.trim();
-    if (!text) return;
-    tasks.unshift({ id: uid(), text, done: false, current: false });
+    text = text.trim(); if (!text) return;
+    tasks.unshift({ id: uid(), text, done: false, selected: false, current: false });
     render();
   }
 
-  function toggleDone(id) {
-    const t = tasks.find(t => t.id === id);
-    if (t) { t.done = !t.done; if (!t.done) {} }
+  function toggleSelected(id) { const t = tasks.find(t=>t.id===id); if(t) t.selected=!t.selected; render(); }
+  function toggleDone(id) { const t = tasks.find(t=>t.id===id); if(t) t.done=!t.done; render(); }
+  function deleteTask(id) { tasks = tasks.filter(t=>t.id!==id); render(); }
+  function removeFromCurrent(id) { const t = tasks.find(t=>t.id===id); if(t) t.current=false; render(); }
+
+  function confirmSelection() {
+    const selected = tasks.filter(t => t.selected);
+    if (selected.length < settings.nTasks) return;
+    tasks.forEach(t => { t.current = false; });
+    selected.forEach(t => { t.current = true; t.selected = false; });
     render();
+    switchTab('current');
   }
 
-  function toggleCurrent(id) {
-    const t = tasks.find(t => t.id === id);
-    if (t) t.current = !t.current;
-    render();
-  }
-
-  function deleteTask(id) {
-    tasks = tasks.filter(t => t.id !== id);
-    render();
-  }
-
-  function toggleSetting(key) {
-    settings[key] = !settings[key];
-    render();
-  }
+  function clearCurrent() { tasks.forEach(t => { t.current = false; }); render(); }
+  function toggleSetting(k) { settings[k] = !settings[k]; render(); }
+  function changeN(d) { settings.nTasks = Math.max(1, Math.min(20, settings.nTasks + d)); render(); }
 
   function clearCompleted() {
-    if (!tasks.some(t => t.done)) return;
-    if (confirm('Remove all completed tasks?')) {
-      tasks = tasks.filter(t => !t.done);
-      render();
-    }
+    if (!tasks.some(t=>t.done)) return;
+    if (confirm('Remove all completed tasks?')) { tasks = tasks.filter(t=>!t.done); render(); }
   }
 
   function clearAll() {
-    if (tasks.length === 0) return;
-    if (confirm('Remove ALL tasks? This cannot be undone.')) {
-      tasks = [];
-      render();
-    }
+    if (!tasks.length) return;
+    if (confirm('Remove ALL tasks? This cannot be undone.')) { tasks = []; render(); }
   }
 
-  // ── NAVIGATION ──
   function switchTab(name) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     document.getElementById(`screen-${name}`).classList.add('active');
     document.querySelector(`[data-screen="${name}"]`).classList.add('active');
-    if (name === 'settings') renderSettings();
   }
 
-  // ── INPUT ──
   document.getElementById('btn-add-task').addEventListener('click', () => {
-    const input = document.getElementById('new-task-input');
-    addTask(input.value);
-    input.value = '';
+    const inp = document.getElementById('new-task-input');
+    addTask(inp.value); inp.value = '';
   });
-
   document.getElementById('new-task-input').addEventListener('keydown', e => {
-    if (e.key === 'Enter') {
-      addTask(e.target.value);
-      e.target.value = '';
-    }
+    if (e.key === 'Enter') { addTask(e.target.value); e.target.value = ''; }
   });
 
-  // ── INIT ──
-  load();
-  render();
+  load(); render();
 
-  // ── SERVICE WORKER ──
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js').catch(() => {});
-  }
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
 </body>
 </html>
