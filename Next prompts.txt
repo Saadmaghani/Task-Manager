@@ -1,0 +1,22 @@
+Claude next prompt:
+
+make the following changes:
+
+1. In the tasks page, you can select less than N_tasks and click the confirm button to go to the current page. However, when selecting the N_tasks +1th task, a popup shows asking "You have already selected N_tasks, do you want to select more?" with a yes and no button. If you select yes then select the N_tasks+1th task. otherwise dont. When selecting another task (the ntasks+2th task and onwawds), dont show the popup and continue to select normally.
+
+2. In the current page, remove the "clear all" row
+
+3. Continue to highlight the selected task in tasks tab even after moving them to the current tab.
+
+4. When the task is marked completed in the current tasks tab, cross them off in the tasks tab but continue to show that it is highlighted.
+
+5. Whenever a new index.html is written with the new updates, the task list is refreshed and all memory is erased. I want the memory to persist through all these iterations.
+
+Now the main logic part which needs to happen on the backend:
+
+1. whenever a task is completed in the current tab, note that it was completed on that date. 
+
+2. Every day at 5 am (or at a set time in settings) the current tab should reset.
+
+3. In the tasks tab, in a small grey font below the task description should show when this task was last completed. 
+
