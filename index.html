@@ -13,37 +13,20 @@
   <script src="https://unpkg.com/dexie@3.2.4/dist/dexie.min.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap');
-
-    /* ── SPRING LIGHT THEME ── */
     :root {
-      --bg:#fdf8f0;            /* warm cream, like morning light */
-      --surface:#ffffff;       /* pure white cards */
-      --surface2:#f4eee2;      /* slightly deeper cream */
-      --surface3:#e8e0cf;      /* warm sand */
-      --border:#e6dec9;        /* soft warm beige */
-      --border-strong:#d4c9ab;
-      --accent:#7ab86e;        /* fresh spring green */
-      --accent-light:#b8e0a8;
-      --accent-dim:rgba(122,184,110,0.12);
-      --text:#2c2a23;          /* warm near-black */
-      --text-muted:#7a7468;    /* soft warm grey */
-      --text-dim:#a8a294;
-      --danger:#d96666;
-      --safe-bottom:env(safe-area-inset-bottom,0px);
-      --safe-top:env(safe-area-inset-top,0px);
-      --tab-h:64px;
+      --bg:#fdf8f0;--surface:#ffffff;--surface2:#f4eee2;--surface3:#e8e0cf;
+      --border:#e6dec9;--border-strong:#d4c9ab;
+      --accent:#7ab86e;--accent-light:#b8e0a8;--accent-dim:rgba(122,184,110,0.12);
+      --text:#2c2a23;--text-muted:#7a7468;--text-dim:#a8a294;--danger:#d96666;
+      --safe-bottom:env(safe-area-inset-bottom,0px);--safe-top:env(safe-area-inset-top,0px);--tab-h:64px;
     }
-
     *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
     html,body{height:100%;width:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;overscroll-behavior:none;user-select:none}
     #app{display:flex;flex-direction:column;height:100%;max-width:480px;margin:0 auto}
     #loading{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:999;font-family:'DM Mono',monospace;font-size:13px;color:var(--text-muted);letter-spacing:2px}
-
     .screen{display:none;flex-direction:column;flex:1;overflow:hidden}
     .screen.active{display:flex}
     .screen-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px 12px 40px}
-
-    /* HEADER */
     .header{padding:calc(var(--safe-top) + 16px) 16px 12px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between}
     .header-left h1{font-size:23px;font-weight:600;letter-spacing:-0.5px;color:var(--text)}
     .header-left .subtitle{font-size:11px;color:var(--text-muted);font-family:'DM Mono',monospace;margin-top:2px}
@@ -51,76 +34,43 @@
     .header-date{text-align:right;font-family:'DM Mono',monospace}
     .header-date .hd-day{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1.2px}
     .header-date .hd-date{font-size:17px;font-weight:500;color:var(--accent);line-height:1.2}
-
-    /* ADD BAR */
     .add-bar{display:flex;gap:8px;padding:10px 12px;border-bottom:1px solid var(--border)}
     .add-bar input{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:10px 13px;color:var(--text);font-size:15px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color 0.2s}
     .add-bar input:focus{border-color:var(--accent)}
     .add-bar input::placeholder{color:var(--text-dim)}
     .btn-add{background:var(--accent);color:white;border:none;border-radius:11px;width:42px;height:42px;font-size:22px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform 0.1s;box-shadow:0 2px 6px rgba(122,184,110,0.25)}
     .btn-add:active{transform:scale(0.91)}
-
-    /* CATEGORY FILTER */
     .cat-filter-bar{display:flex;gap:6px;padding:9px 12px;overflow-x:auto;border-bottom:1px solid var(--border);scrollbar-width:none}
     .cat-filter-bar::-webkit-scrollbar{display:none}
     .cat-chip{flex-shrink:0;padding:5px 13px;border-radius:20px;font-size:12px;font-family:'DM Mono',monospace;border:1.5px solid var(--border);background:var(--surface);color:var(--text-muted);cursor:pointer;transition:all 0.15s;white-space:nowrap}
-
-    /* MODE BARS */
     .mode-bar{display:flex;align-items:center;gap:10px;padding:9px 12px;border-bottom:1px solid var(--border);min-height:38px}
     .sel-label{font-size:12px;font-family:'DM Mono',monospace;color:var(--text-muted);white-space:nowrap}
     .sel-label span{color:var(--accent);font-weight:500}
     .progress-track{flex:1;height:3px;background:var(--surface3);border-radius:2px;overflow:hidden}
     .progress-fill{height:100%;background:var(--accent);border-radius:2px;transition:width 0.3s ease}
-
-    .delete-bar{display:none;align-items:center;justify-content:space-between;padding:9px 12px;border-bottom:1px solid var(--border);background:rgba(217,102,102,0.07)}
-    .delete-bar.active{display:flex}
-    .del-label{font-size:12px;font-family:'DM Mono',monospace;color:var(--danger)}
-    .del-actions{display:flex;gap:8px}
-    .btn-del-cancel{background:var(--surface);border:1px solid var(--border);color:var(--text-muted);border-radius:8px;padding:6px 12px;font-size:12px;font-family:'DM Mono',monospace;cursor:pointer}
-    .btn-del-confirm{background:var(--danger);color:#fff;border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-family:'DM Mono',monospace;cursor:pointer}
-    .btn-del-confirm:disabled{opacity:0.35;cursor:default}
-
-    /* TASK GRID */
     .task-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
-    .task-card{
-      background:var(--surface);
-      border:2px solid var(--border);
-      border-radius:13px;padding:12px 11px;
-      cursor:pointer;
-      transition:background 0.2s,transform 0.1s,border-color 0.2s,color 0.2s;
-      animation:slideIn 0.18s ease;position:relative;
-      min-height:70px;display:flex;flex-direction:column;justify-content:space-between;
-      box-shadow:0 1px 2px rgba(60,50,30,0.04);
-    }
+    .task-card{background:var(--surface);border:2px solid var(--border);border-radius:13px;padding:12px 11px;cursor:pointer;transition:background 0.2s,transform 0.1s,border-color 0.2s,color 0.2s;animation:slideIn 0.18s ease;position:relative;min-height:70px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 1px 2px rgba(60,50,30,0.04)}
     .task-card:active{transform:scale(0.96)}
-    /* selected — filled with category color (or accent green) */
-    .task-card.selected{
-      color:white;
-      box-shadow:0 3px 10px rgba(0,0,0,0.10);
-    }
-    .task-card.selected .task-card-text,
-    .task-card.selected .task-cat-label,
-    .task-card.selected .task-last-done{color:white;opacity:0.95}
-    .task-card.selected .task-last-done{opacity:0.75}
-    .task-card.delete-selected{border-color:var(--danger) !important;background:rgba(217,102,102,0.10)}
+    .task-card.selected{color:white;box-shadow:0 3px 10px rgba(0,0,0,0.10)}
+    .task-card.selected .task-card-text,.task-card.selected .task-cat-label,.task-card.selected .task-last-done,.task-card.selected .task-subtask-count{color:white;opacity:0.95}
+    .task-card.selected .task-last-done,.task-card.selected .task-subtask-count{opacity:0.8}
     @keyframes slideIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
     .task-card-text{font-size:13px;line-height:1.4;word-break:break-word;flex:1;color:var(--text)}
     .task-card-text.done{opacity:0.5;color:var(--text-muted)}
     .task-card-footer{display:flex;align-items:center;justify-content:space-between;margin-top:8px;gap:4px;min-height:14px}
     .task-cat-label{font-size:9px;font-family:'DM Mono',monospace;font-weight:500;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:5px;display:block}
-    .task-last-done{font-size:10px;font-family:'DM Mono',monospace;color:var(--text-dim);line-height:1.2;flex:1}
+    .task-last-done,.task-subtask-count{font-size:10px;font-family:'DM Mono',monospace;color:var(--text-dim);line-height:1.2}
+    .task-subtask-count{display:inline-flex;align-items:center;gap:3px}
     .task-cat-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-
     .confirm-bar{padding:10px 12px calc(11px + var(--safe-bottom));border-top:1px solid var(--border);background:var(--bg)}
     .confirm-btn{width:100%;padding:13px;border-radius:12px;border:none;font-size:15px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:default;transition:all 0.2s,transform 0.1s;background:var(--surface2);color:var(--text-muted)}
     .confirm-btn.ready{background:var(--accent);color:white;cursor:pointer;box-shadow:0 3px 10px rgba(122,184,110,0.3)}
     .confirm-btn.ready:active{transform:scale(0.98)}
-
     .empty{text-align:center;padding:48px 16px;color:var(--text-muted)}
     .empty .icon{font-size:36px;margin-bottom:10px;opacity:0.4}
     .empty p{font-size:13px;line-height:1.6}
 
-    /* CURRENT TAB */
+    /* CURRENT */
     .current-progress-bar{display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--border)}
     .cur-prog-label{font-size:12px;font-family:'DM Mono',monospace;color:var(--text-muted);white-space:nowrap}
     .cur-prog-label span{color:var(--accent);font-weight:500}
@@ -133,29 +83,39 @@
     .sq-check{width:21px;height:21px;border-radius:6px;border:2px solid var(--border-strong);flex-shrink:0;cursor:pointer;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:border-color 0.2s,background 0.2s}
     .sq-check.checked{background:var(--accent);border-color:var(--accent)}
     .sq-check.checked::after{content:'';width:5px;height:9px;border:2px solid white;border-top:none;border-left:none;transform:rotate(45deg) translateY(-1px)}
-    .current-item-label{flex:1;font-size:14px;line-height:1.4;color:var(--text)}
+    .sq-check.locked{cursor:not-allowed;opacity:0.6}
+    .current-item-label{flex:1;font-size:14px;line-height:1.4;color:var(--text);font-weight:500}
+    .current-progress-mini{font-size:11px;font-family:'DM Mono',monospace;color:var(--text-muted);margin-top:2px;font-weight:400}
+    .current-progress-mini span{color:var(--accent);font-weight:500}
     .btn-icon{background:none;border:none;color:var(--text-muted);cursor:pointer;padding:4px;border-radius:6px;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:color 0.15s}
     .btn-icon:active{color:var(--danger)}
 
-    .notes-section{padding:0 12px 11px 46px}
-    .notes-list{display:flex;flex-direction:column;gap:5px;margin-bottom:7px}
-    .note-row{display:flex;align-items:flex-start;gap:8px;cursor:pointer}
-    .note-bullet{width:6px;height:6px;border-radius:50%;background:var(--text-muted);flex-shrink:0;margin-top:6px;transition:background 0.2s}
-    .note-row.done-note .note-bullet{background:var(--text-dim)}
-    .note-text{font-size:12px;line-height:1.5;color:var(--text-muted);flex:1;word-break:break-word}
-    .note-row.done-note .note-text{text-decoration:line-through;color:var(--text-dim);opacity:0.6}
-    .note-add-row{display:flex;align-items:center;gap:8px}
-    .note-add-bullet{width:6px;height:6px;border-radius:50%;border:1.5px solid var(--text-dim);flex-shrink:0;margin-top:1px}
-    .note-input{flex:1;background:none;border:none;border-bottom:1px solid var(--border);color:var(--text);font-size:12px;font-family:'DM Sans',sans-serif;padding:3px 0;outline:none;caret-color:var(--accent)}
-    .note-input::placeholder{color:var(--text-dim)}
+    /* SUBTASKS */
+    .subtasks-section{padding:0 12px 11px 46px}
+    .subtasks-list{display:flex;flex-direction:column;gap:7px;margin-bottom:9px}
+    .subtask-row{display:flex;align-items:flex-start;gap:9px;cursor:pointer;padding:2px 0}
+    .subtask-check{width:15px;height:15px;border-radius:4px;border:1.5px solid var(--text-dim);flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;transition:border-color 0.2s,background 0.2s}
+    .subtask-row.done-sub .subtask-check{background:var(--accent);border-color:var(--accent)}
+    .subtask-row.done-sub .subtask-check::after{content:'';width:3px;height:6px;border:1.5px solid white;border-top:none;border-left:none;transform:rotate(45deg) translateY(-0.5px)}
+    .subtask-text{font-size:12.5px;line-height:1.5;color:var(--text-muted);flex:1;word-break:break-word;padding-top:1px}
+    .subtask-row.done-sub .subtask-text{text-decoration:line-through;color:var(--text-dim);opacity:0.6}
+    .subtask-del{background:none;border:none;color:var(--text-dim);font-size:13px;cursor:pointer;padding:0 4px;opacity:0;transition:opacity 0.15s}
+    .subtask-row:active .subtask-del,.subtask-row:hover .subtask-del{opacity:1}
+    .subtask-add-row{display:flex;align-items:center;gap:9px;margin-top:4px}
+    .subtask-add-bullet{width:15px;height:15px;border-radius:4px;border:1.5px dashed var(--text-dim);flex-shrink:0;margin-top:1px}
+    .subtask-input{flex:1;background:none;border:none;border-bottom:1px solid var(--border);color:var(--text);font-size:12.5px;font-family:'DM Sans',sans-serif;padding:3px 0;outline:none;caret-color:var(--accent)}
+    .subtask-input::placeholder{color:var(--text-dim)}
 
     /* SETTINGS */
     .settings-section{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:16px;box-shadow:0 1px 2px rgba(60,50,30,0.04)}
     .settings-section-title{font-size:11px;font-family:'DM Mono',monospace;color:var(--text-muted);text-transform:uppercase;letter-spacing:1.2px;padding:13px 14px 7px}
-    .settings-row{display:flex;align-items:center;justify-content:space-between;padding:13px 14px;border-top:1px solid var(--border);gap:12px}
+    .settings-row{display:flex;align-items:center;justify-content:space-between;padding:13px 14px;border-top:1px solid var(--border);gap:12px;cursor:default}
+    .settings-row.tappable{cursor:pointer;transition:background 0.12s}
+    .settings-row.tappable:active{background:var(--surface2)}
     .settings-row-info{flex:1}
     .settings-row-label{font-size:14px;color:var(--text)}
     .settings-row-sub{font-size:11px;color:var(--text-muted);margin-top:2px}
+    .row-arrow{color:var(--text-dim);font-size:18px;flex-shrink:0}
     .toggle{width:44px;height:25px;background:var(--surface3);border-radius:13px;position:relative;cursor:pointer;transition:background 0.2s;flex-shrink:0;border:none}
     .toggle.on{background:var(--accent)}
     .toggle::after{content:'';position:absolute;width:19px;height:19px;background:white;border-radius:50%;top:3px;left:3px;transition:transform 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.15)}
@@ -169,7 +129,6 @@
     .btn-danger-row{width:100%;background:none;border:none;color:var(--danger);font-size:14px;font-family:'DM Sans',sans-serif;padding:13px 14px;text-align:left;cursor:pointer;border-top:1px solid var(--border)}
     .btn-danger-row:active{background:rgba(217,102,102,0.06)}
     .app-version{text-align:center;font-size:11px;font-family:'DM Mono',monospace;color:var(--text-dim);margin-top:8px}
-
     .cat-list{padding:0 14px 10px;display:flex;flex-direction:column;gap:8px}
     .cat-row{display:flex;align-items:center;gap:10px}
     .cat-color-swatch{width:18px;height:18px;border-radius:5px;flex-shrink:0;cursor:pointer;border:1.5px solid rgba(0,0,0,0.08)}
@@ -179,7 +138,6 @@
     .btn-cat-del:active{color:var(--danger)}
     .btn-add-cat{margin:6px 14px 12px;padding:9px 14px;background:var(--surface2);border:1px dashed var(--border-strong);border-radius:9px;color:var(--text-muted);font-size:13px;font-family:'DM Mono',monospace;cursor:pointer;text-align:left;display:block;width:calc(100% - 28px)}
     .btn-add-cat:active{background:var(--surface3)}
-
     .color-picker-popup{display:none;position:fixed;z-index:200;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px;gap:8px;flex-wrap:wrap;width:200px;box-shadow:0 8px 28px rgba(60,50,30,0.18)}
     .color-picker-popup.active{display:flex}
     .color-swatch-opt{width:30px;height:30px;border-radius:7px;cursor:pointer;transition:transform 0.1s;border:2px solid transparent}
@@ -206,7 +164,6 @@
     .popup-btn:active{transform:scale(0.96)}
     .popup-btn.secondary{background:var(--surface2);color:var(--text-muted)}
     .popup-btn.primary{background:var(--accent);color:white}
-
     .popup input[type=text]{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;color:var(--text);font-size:14px;font-family:'DM Sans',sans-serif;outline:none;margin-bottom:18px}
     .popup input[type=text]:focus{border-color:var(--accent)}
 
@@ -220,7 +177,7 @@
     .welldone-sub{font-size:15px;color:var(--text-muted);margin-bottom:28px}
     .welldone-close{background:var(--accent);color:white;border:none;border-radius:12px;padding:13px 32px;font-size:15px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;box-shadow:0 4px 14px rgba(122,184,110,0.35)}
 
-    /* ACTION SHEET (long press menu) */
+    /* ACTION SHEET */
     .action-sheet-overlay{display:none;position:fixed;inset:0;z-index:120;background:rgba(40,30,20,0.4);backdrop-filter:blur(4px);align-items:flex-end;justify-content:center}
     .action-sheet-overlay.active{display:flex}
     .action-sheet{background:var(--surface);border:1px solid var(--border);border-radius:18px 18px 0 0;width:100%;max-width:480px;padding:14px 14px calc(14px + var(--safe-bottom));animation:slideUp 0.22s ease;box-shadow:0 -8px 28px rgba(40,30,20,0.12)}
@@ -232,7 +189,7 @@
     .action-row.danger{color:var(--danger)}
     .action-row .icon{width:22px;text-align:center;font-size:18px;flex-shrink:0;opacity:0.85}
 
-    /* CATEGORY ASSIGN POPUP */
+    /* CAT ASSIGN */
     .cat-assign-popup{display:none;position:fixed;inset:0;z-index:100;background:rgba(40,30,20,0.4);backdrop-filter:blur(4px);align-items:flex-end;justify-content:center}
     .cat-assign-popup.active{display:flex}
     .cat-assign-sheet{background:var(--surface);border:1px solid var(--border);border-radius:18px 18px 0 0;padding:18px 16px calc(16px + var(--safe-bottom));width:100%;max-width:480px;animation:slideUp 0.22s ease;box-shadow:0 -8px 28px rgba(40,30,20,0.12)}
@@ -246,6 +203,52 @@
     .cat-assign-check{color:var(--accent);font-size:16px;font-weight:600}
 
     #toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--text);color:var(--bg);padding:8px 18px;border-radius:20px;font-size:12px;font-family:'DM Mono',monospace;z-index:300;transition:opacity 0.3s;pointer-events:none;white-space:nowrap;box-shadow:0 4px 16px rgba(40,30,20,0.18)}
+
+    /* ─── HISTORY VIEW ─── */
+    #screen-history{position:fixed;inset:0;background:var(--bg);z-index:90;display:none;flex-direction:column;max-width:480px;margin:0 auto}
+    #screen-history.active{display:flex}
+    .history-header{padding:calc(var(--safe-top) + 14px) 14px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;background:var(--bg)}
+    .btn-back{background:var(--surface);border:1px solid var(--border);color:var(--text);width:36px;height:36px;border-radius:10px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background 0.15s}
+    .btn-back:active{background:var(--surface2)}
+    .history-header h2{font-size:18px;font-weight:600;color:var(--text);flex:1}
+    .history-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:18px 14px calc(20px + var(--safe-bottom))}
+
+    .stat-row{display:flex;gap:10px;margin-bottom:18px}
+    .stat-card{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 14px;box-shadow:0 1px 3px rgba(60,50,30,0.04)}
+    .stat-num{font-family:'DM Mono',monospace;font-size:28px;font-weight:500;color:var(--accent);line-height:1.1}
+    .stat-label{font-size:11px;font-family:'DM Mono',monospace;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-top:6px}
+
+    .history-section-title{font-size:12px;font-family:'DM Mono',monospace;color:var(--text-muted);text-transform:uppercase;letter-spacing:1.5px;margin:6px 0 10px;padding:0 4px}
+
+    /* HEATMAP */
+    .heatmap-container{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px 14px 12px;margin-bottom:18px;box-shadow:0 1px 3px rgba(60,50,30,0.04);overflow-x:auto;-webkit-overflow-scrolling:touch}
+    .heatmap-grid{display:flex;gap:3px;align-items:flex-end}
+    .heatmap-week{display:flex;flex-direction:column;gap:3px}
+    .heatmap-day{width:14px;height:14px;border-radius:3px;background:var(--surface3);transition:transform 0.1s}
+    .heatmap-day.l1{background:#dcebd1}
+    .heatmap-day.l2{background:#b8e0a8}
+    .heatmap-day.l3{background:var(--accent)}
+    .heatmap-day.l4{background:#5a9050}
+    .heatmap-day.future{opacity:0.25}
+    .heatmap-day.today{box-shadow:0 0 0 2px var(--accent),0 0 0 3px var(--bg) inset}
+    .heatmap-labels{display:flex;justify-content:space-between;margin-top:8px;font-size:9px;font-family:'DM Mono',monospace;color:var(--text-dim);letter-spacing:0.5px}
+    .heatmap-legend{display:flex;align-items:center;gap:6px;font-size:10px;font-family:'DM Mono',monospace;color:var(--text-muted);margin-top:10px;justify-content:flex-end}
+    .heatmap-legend-cell{width:10px;height:10px;border-radius:2px}
+
+    /* CATEGORY BAR CHART */
+    .cat-chart{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:18px;box-shadow:0 1px 3px rgba(60,50,30,0.04)}
+    .cat-bar-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+    .cat-bar-row:last-child{margin-bottom:0}
+    .cat-bar-name{font-size:12px;font-family:'DM Mono',monospace;color:var(--text);width:80px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .cat-bar-track{flex:1;height:14px;background:var(--surface3);border-radius:7px;overflow:hidden;position:relative}
+    .cat-bar-fill{height:100%;border-radius:7px;transition:width 0.6s ease}
+    .cat-bar-num{font-size:11px;font-family:'DM Mono',monospace;color:var(--text-muted);min-width:30px;text-align:right}
+
+    /* TOP TASKS */
+    .top-task-item{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:11px;margin-bottom:7px;box-shadow:0 1px 2px rgba(60,50,30,0.03)}
+    .top-task-rank{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-dim);width:22px;flex-shrink:0}
+    .top-task-name{flex:1;font-size:13px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .top-task-count{font-family:'DM Mono',monospace;font-size:12px;color:var(--accent);font-weight:500}
   </style>
 </head>
 <body>
@@ -259,7 +262,6 @@
     <div class="add-bar"><input type="text" id="new-task-input" placeholder="Add a new task…" maxlength="120"/><button class="btn-add" id="btn-add-task">+</button></div>
     <div class="cat-filter-bar" id="cat-filter-bar"></div>
     <div class="mode-bar" id="sel-bar"><span class="sel-label"><span id="sel-count">0</span> / <span id="sel-target">3</span> selected</span><div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div></div>
-    <div class="delete-bar" id="delete-bar"><span class="del-label" id="del-label">0 selected</span><div class="del-actions"><button class="btn-del-cancel" onclick="exitDeleteMode()">Cancel</button><button class="btn-del-confirm" id="btn-del-confirm" onclick="confirmDelete()" disabled>Delete</button></div></div>
     <div class="screen-body"><div class="task-grid" id="task-grid"></div></div>
     <div class="confirm-bar"><button class="confirm-btn" id="confirm-btn" onclick="confirmSelection()">Select tasks to confirm</button></div>
   </div>
@@ -279,6 +281,13 @@
     </div>
     <div class="screen-body">
       <div class="settings-section">
+        <div class="settings-section-title">Insights</div>
+        <div class="settings-row tappable" onclick="openHistory()">
+          <div class="settings-row-info"><div class="settings-row-label">Task history</div><div class="settings-row-sub">Heatmap, stats and category breakdown</div></div>
+          <span class="row-arrow">›</span>
+        </div>
+      </div>
+      <div class="settings-section">
         <div class="settings-section-title">Selection</div>
         <div class="settings-row"><div class="settings-row-info"><div class="settings-row-label">Minimum tasks (N)</div><div class="settings-row-sub">Confirm unlocks after selecting this many</div></div><div class="stepper"><button class="stepper-btn" onclick="changeN(-1)">−</button><span class="stepper-val" id="n-display">3</span><button class="stepper-btn" onclick="changeN(1)">+</button></div></div>
       </div>
@@ -291,7 +300,7 @@
         <div class="settings-section-title">Daily Reset</div>
         <div class="settings-row"><div class="settings-row-info"><div class="settings-row-label">Reset time</div><div class="settings-row-sub">Current tab clears at this time daily</div></div><input type="time" class="time-input" id="reset-time-input" value="05:00" onchange="setResetTime(this.value)"/></div>
         <div class="settings-row"><div class="settings-row-info"><div class="settings-row-label">Next reset</div></div><span class="settings-val" id="next-reset-display">—</span></div>
-        <div class="settings-row"><div class="settings-row-info"><div class="settings-row-label">Reset now</div><div class="settings-row-sub">Manually clear the current tab</div></div><button onclick="runReset(true)" style="background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);border-radius:8px;padding:6px 14px;font-size:12px;font-family:'DM Mono',monospace;cursor:pointer">Run</button></div>
+        <div class="settings-row tappable" onclick="runReset(true)"><div class="settings-row-info"><div class="settings-row-label">Reset now</div><div class="settings-row-sub">Manually clear the current tab</div></div><span class="row-arrow">›</span></div>
       </div>
       <div class="settings-section">
         <div class="settings-section-title">Display</div>
@@ -303,9 +312,9 @@
         <div class="settings-row"><div class="settings-row-info"><div class="settings-row-label">Total tasks</div></div><span class="settings-val" id="stat-total">0</span></div>
         <div class="settings-row"><div class="settings-row-info"><div class="settings-row-label">Completed today</div></div><span class="settings-val" id="stat-done-today" style="color:var(--accent)">0</span></div>
         <button class="btn-danger-row" onclick="clearCompleted()">Clear completed tasks</button>
-        <button class="btn-danger-row" onclick="clearAll()">Clear all tasks</button>
+        <button class="btn-danger-row" onclick="clearAll()">Clear all data</button>
       </div>
-      <div class="app-version">my tasks / v6.0.0 · spring</div>
+      <div class="app-version">my tasks / v7.0.0 · history & subtasks</div>
     </div>
   </div>
 
@@ -316,6 +325,45 @@
   </nav>
 </div>
 
+<!-- HISTORY SCREEN (full overlay) -->
+<div id="screen-history">
+  <div class="history-header">
+    <button class="btn-back" onclick="closeHistory()">‹</button>
+    <h2>Task History</h2>
+  </div>
+  <div class="history-body">
+    <div class="stat-row">
+      <div class="stat-card"><div class="stat-num" id="stat-total-completions">0</div><div class="stat-label">Total Completions</div></div>
+      <div class="stat-card"><div class="stat-num" id="stat-streak">0</div><div class="stat-label">Day Streak</div></div>
+    </div>
+    <div class="stat-row">
+      <div class="stat-card"><div class="stat-num" id="stat-active-days">0</div><div class="stat-label">Active Days</div></div>
+      <div class="stat-card"><div class="stat-num" id="stat-this-week">0</div><div class="stat-label">This Week</div></div>
+    </div>
+
+    <div class="history-section-title">Last 12 Weeks</div>
+    <div class="heatmap-container">
+      <div class="heatmap-grid" id="heatmap-grid"></div>
+      <div class="heatmap-labels" id="heatmap-labels"></div>
+      <div class="heatmap-legend">
+        <span>less</span>
+        <div class="heatmap-legend-cell" style="background:var(--surface3)"></div>
+        <div class="heatmap-legend-cell" style="background:#dcebd1"></div>
+        <div class="heatmap-legend-cell" style="background:#b8e0a8"></div>
+        <div class="heatmap-legend-cell" style="background:var(--accent)"></div>
+        <div class="heatmap-legend-cell" style="background:#5a9050"></div>
+        <span>more</span>
+      </div>
+    </div>
+
+    <div class="history-section-title">By Category</div>
+    <div class="cat-chart" id="cat-chart"></div>
+
+    <div class="history-section-title">Most Completed Tasks</div>
+    <div id="top-tasks-list"></div>
+  </div>
+</div>
+
 <!-- POPUPS -->
 <div class="popup-overlay" id="extra-sel-popup">
   <div class="popup"><div class="popup-title">Add more tasks?</div><div class="popup-body" id="extra-sel-popup-body"></div><div class="popup-actions"><button class="popup-btn secondary" onclick="resolveExtraPopup(false)">No</button><button class="popup-btn primary" onclick="resolveExtraPopup(true)">Yes</button></div></div>
@@ -324,28 +372,19 @@
   <div class="popup">
     <div class="popup-title">Rename task</div>
     <input type="text" id="rename-input" maxlength="120"/>
-    <div class="popup-actions">
-      <button class="popup-btn secondary" onclick="closeRename()">Cancel</button>
-      <button class="popup-btn primary" onclick="confirmRename()">Save</button>
-    </div>
+    <div class="popup-actions"><button class="popup-btn secondary" onclick="closeRename()">Cancel</button><button class="popup-btn primary" onclick="confirmRename()">Save</button></div>
   </div>
 </div>
 <div class="popup-overlay" id="delete-confirm-popup">
   <div class="popup">
     <div class="popup-title">Delete task?</div>
     <div class="popup-body" id="delete-confirm-body">This cannot be undone.</div>
-    <div class="popup-actions">
-      <button class="popup-btn secondary" onclick="closeDeleteConfirm()">Cancel</button>
-      <button class="popup-btn primary" style="background:var(--danger);color:white" onclick="confirmSingleDelete()">Delete</button>
-    </div>
+    <div class="popup-actions"><button class="popup-btn secondary" onclick="closeDeleteConfirm()">Cancel</button><button class="popup-btn primary" style="background:var(--danger);color:white" onclick="confirmSingleDelete()">Delete</button></div>
   </div>
 </div>
-
 <div class="welldone-overlay" id="welldone-overlay" onclick="closeWelldone()">
   <div class="welldone-box"><span class="welldone-emoji">🌱</span><div class="welldone-title">Well Done!</div><div class="welldone-sub">All tasks completed for today.</div><button class="welldone-close" onclick="closeWelldone()">Thanks!</button></div>
 </div>
-
-<!-- ACTION SHEET (long press menu) -->
 <div class="action-sheet-overlay" id="action-sheet-overlay" onclick="closeActionSheet(event)">
   <div class="action-sheet" id="action-sheet">
     <div class="action-sheet-title">Task Options</div>
@@ -355,92 +394,83 @@
     <div class="action-row danger" onclick="actionDelete()"><span class="icon">🗑</span><span>Delete task</span></div>
   </div>
 </div>
-
-<!-- CATEGORY ASSIGN -->
 <div class="cat-assign-popup" id="cat-assign-popup" onclick="closeCatAssign(event)">
   <div class="cat-assign-sheet" id="cat-assign-sheet"><div class="cat-assign-title">Assign Category</div><div class="cat-assign-list" id="cat-assign-list"></div></div>
 </div>
-
 <div class="color-picker-popup" id="color-picker-popup"></div>
 <div id="toast" style="opacity:0"></div>
 
 <script>
 // ═══════════════════════════════════════════
-// DATABASE — Dexie (IndexedDB)
+// DATABASE
 // ═══════════════════════════════════════════
 const db = new Dexie('MyTasksDB');
 db.version(1).stores({
-  tasks:    'id, done, current, selected, categoryId, lastCompletedAt',
-  settings: 'key',
-  notes:    'taskId',
-  meta:     'key',
+  tasks:'id, done, current, selected, categoryId, lastCompletedAt',
+  settings:'key',
+  notes:'taskId',
+  meta:'key',
+});
+// add history table in v2
+db.version(2).stores({
+  tasks:'id, done, current, selected, categoryId, lastCompletedAt',
+  settings:'key',
+  notes:'taskId',          // now used for SUBTASKS (same shape, different meaning)
+  meta:'key',
+  history:'++id, taskId, completedAt, categoryId, taskText',
 });
 
-async function dbGetSetting(key, fallback) { const r = await db.settings.get(key); return r ? r.value : fallback; }
-async function dbSetSetting(key, value) { await db.settings.put({ key, value }); }
+async function dbGetSetting(k,fb){const r=await db.settings.get(k);return r?r.value:fb;}
+async function dbSetSetting(k,v){await db.settings.put({key:k,value:v});}
 
-async function migrate() {
-  const migrated = await dbGetSetting('__migrated', false);
-  if (migrated) return;
-  const legacyTaskKeys = ['mytasks_v4_tasks','mytasks_v3_tasks','mytasks_v2_tasks','mytasks_tasks'];
-  const legacySettingKeys = ['mytasks_v4_settings','mytasks_v3_settings','mytasks_v2_settings','mytasks_settings'];
-  const legacyNoteKeys = ['mytasks_v4_notes','mytasks_v3_notes'];
-  for (const k of legacyTaskKeys) {
-    const raw = localStorage.getItem(k);
-    if (raw) { try { const old=JSON.parse(raw); if(Array.isArray(old)&&old.length){await db.tasks.bulkPut(old.map(t=>({id:t.id||uid(),text:t.text||'',done:!!t.done,selected:!!t.selected,current:!!t.current,categoryId:t.categoryId||t.catId||null,lastCompletedAt:t.lastCompletedAt||null})));}}catch(e){} break; }
+async function migrate(){
+  const m = await dbGetSetting('__migrated', false);
+  if(m) return;
+  const lk=['mytasks_v4_tasks','mytasks_v3_tasks','mytasks_v2_tasks','mytasks_tasks'];
+  for(const k of lk){
+    const r=localStorage.getItem(k);
+    if(r){try{const o=JSON.parse(r);if(Array.isArray(o)&&o.length){await db.tasks.bulkPut(o.map(t=>({id:t.id||uid(),text:t.text||'',done:!!t.done,selected:!!t.selected,current:!!t.current,categoryId:t.categoryId||t.catId||null,lastCompletedAt:t.lastCompletedAt||null})));}}catch(e){}break;}
   }
-  for (const k of legacySettingKeys) {
-    const raw = localStorage.getItem(k);
-    if (raw) { try { const s=JSON.parse(raw); if(s.nTasks)await dbSetSetting('nTasks',s.nTasks); if(s.resetTime)await dbSetSetting('resetTime',s.resetTime); if(s.showDone!==undefined)await dbSetSetting('showDone',s.showDone); if(s.doneBottom!==undefined)await dbSetSetting('doneBottom',s.doneBottom); if(s.categories)await dbSetSetting('categories',s.categories);}catch(e){} break; }
-  }
-  for (const k of legacyNoteKeys) {
-    const raw = localStorage.getItem(k);
-    if (raw) { try { const n=JSON.parse(raw); for(const[tid,items]of Object.entries(n)){if(items.length)await db.notes.put({taskId:tid,items});}}catch(e){} break; }
-  }
-  await dbSetSetting('__migrated', true);
+  await dbSetSetting('__migrated',true);
 }
 
 // ═══════════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════════
 let tasks=[], settings={showDone:true,doneBottom:true,nTasks:3,resetTime:'05:00',categories:[]};
-let notes={};
+let subtasks={}; // {taskId: [{id,text,done}]}
 let deleteMode=false, extraSelAllowed=false, pendingSelectId=null;
 let activeFilter=null, pendingCatAssignId=null, colorPickerCatId=null, welldoneShown=false;
-let actionSheetTaskId=null;
-let renameTaskId=null;
-let singleDeleteTaskId=null;
-
+let actionSheetTaskId=null, renameTaskId=null, singleDeleteTaskId=null;
 const CAT_COLORS=['#7ab86e','#5da9d6','#e89bb3','#e8c468','#7dc8b3','#e69973','#a987d6','#86d491','#e88da3','#9c8e75'];
 
-// ═══════════════════════════════════════════
-// LOAD / SAVE
-// ═══════════════════════════════════════════
-async function loadAll() {
-  tasks = await db.tasks.toArray();
-  tasks.forEach(t => { t.deleteSelected = false; });
-  settings.showDone   = await dbGetSetting('showDone',   true);
-  settings.doneBottom = await dbGetSetting('doneBottom', true);
-  settings.nTasks     = await dbGetSetting('nTasks',     3);
-  settings.resetTime  = await dbGetSetting('resetTime',  '05:00');
-  settings.categories = await dbGetSetting('categories', []);
-  const allNotes = await db.notes.toArray();
-  notes = {};
-  allNotes.forEach(r => { notes[r.taskId] = r.items || []; });
+async function loadAll(){
+  tasks=await db.tasks.toArray();
+  settings.showDone=await dbGetSetting('showDone',true);
+  settings.doneBottom=await dbGetSetting('doneBottom',true);
+  settings.nTasks=await dbGetSetting('nTasks',3);
+  settings.resetTime=await dbGetSetting('resetTime','05:00');
+  settings.categories=await dbGetSetting('categories',[]);
+  const allSubs=await db.notes.toArray();
+  subtasks={};
+  allSubs.forEach(r=>{subtasks[r.taskId]=r.items||[];});
 }
+async function saveTask(t){await db.tasks.put({...t});}
+async function saveTasks(arr){await db.tasks.bulkPut(arr.map(t=>({...t})));}
+async function deleteTaskFromDB(id){await db.tasks.delete(id);delete subtasks[id];await db.notes.delete(id);}
+async function saveSubs(taskId){const items=subtasks[taskId]||[];if(items.length)await db.notes.put({taskId,items});else await db.notes.delete(taskId);}
+async function saveSettings(){await Promise.all([dbSetSetting('showDone',settings.showDone),dbSetSetting('doneBottom',settings.doneBottom),dbSetSetting('nTasks',settings.nTasks),dbSetSetting('resetTime',settings.resetTime),dbSetSetting('categories',settings.categories)]);}
 
-async function saveTask(task) { const{deleteSelected,...t}=task; await db.tasks.put(t); }
-async function saveTasks(arr) { const rows=arr.map(({deleteSelected,...t})=>t); await db.tasks.bulkPut(rows); }
-async function deleteTaskFromDB(id) { await db.tasks.delete(id); delete notes[id]; await db.notes.delete(id); }
-async function saveNotes(taskId) { const items=notes[taskId]||[]; if(items.length)await db.notes.put({taskId,items}); else await db.notes.delete(taskId); }
-async function saveSettings() {
-  await Promise.all([
-    dbSetSetting('showDone',settings.showDone),
-    dbSetSetting('doneBottom',settings.doneBottom),
-    dbSetSetting('nTasks',settings.nTasks),
-    dbSetSetting('resetTime',settings.resetTime),
-    dbSetSetting('categories',settings.categories),
-  ]);
+// ═══════════════════════════════════════════
+// HISTORY
+// ═══════════════════════════════════════════
+async function recordCompletion(task){
+  await db.history.add({
+    taskId: task.id,
+    taskText: task.text,
+    categoryId: task.categoryId || null,
+    completedAt: Date.now(),
+  });
 }
 
 // ═══════════════════════════════════════════
@@ -452,7 +482,7 @@ async function checkAndRunReset(){const last=parseInt(await dbGetSetting('lastRe
 async function runReset(manual){
   tasks.forEach(t=>{t.current=false;t.done=false;t.selected=false;});
   await saveTasks(tasks);
-  notes={};await db.notes.clear();
+  subtasks={};await db.notes.clear();
   extraSelAllowed=false;welldoneShown=false;
   await dbSetSetting('lastReset',Date.now().toString());
   render();updateNextResetDisplay();
@@ -463,27 +493,18 @@ async function setResetTime(v){settings.resetTime=v;await saveSettings();updateN
 setInterval(checkAndRunReset,30000);
 
 // ═══════════════════════════════════════════
-// CURRENT BG GRADIENT — light spring green to deeper green
+// BG GRADIENT
 // ═══════════════════════════════════════════
-const BG_STOPS=[
-  {r:253,g:248,b:240}, // 0% — cream (idle)
-  {r:230,g:240,b:215}, // 33%
-  {r:200,g:225,b:175}, // 66%
-  {r:155,g:200,b:135}, // 100% — fresh spring green meadow
-];
+const BG_STOPS=[{r:253,g:248,b:240},{r:230,g:240,b:215},{r:200,g:225,b:175},{r:155,g:200,b:135}];
 function lerp(a,b,t){return{r:Math.round(a.r+(b.r-a.r)*t),g:Math.round(a.g+(b.g-a.g)*t),b:Math.round(a.b+(b.b-a.b)*t)};}
 function palColor(p){const s=BG_STOPS.length-1,sc=p*s,i=Math.min(Math.floor(sc),s-1);return lerp(BG_STOPS[i],BG_STOPS[i+1],sc-i);}
 function rgb(c){return`rgb(${c.r},${c.g},${c.b})`;}
 let _bgP=-1;
-function applyCurrentBg(p){
-  if(Math.abs(p-_bgP)<0.005)return;_bgP=p;
-  document.body.style.background=rgb(palColor(p));
-  document.documentElement.style.setProperty('--bg',rgb(palColor(p)));
-}
+function applyCurrentBg(p){if(Math.abs(p-_bgP)<0.005)return;_bgP=p;document.body.style.background=rgb(palColor(p));document.documentElement.style.setProperty('--bg',rgb(palColor(p)));}
 function resetBg(){_bgP=-1;document.body.style.background='';document.documentElement.style.setProperty('--bg','#fdf8f0');}
 
 // ═══════════════════════════════════════════
-// DATES & UTILS
+// UTILS
 // ═══════════════════════════════════════════
 function formatDate(){const n=new Date(),days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return{day:days[n.getDay()],date:`${n.getDate()} ${months[n.getMonth()]}`};}
 function updateDates(){const{day,date}=formatDate();['tasks','current'].forEach(id=>{const d=document.getElementById(`hd-day-${id}`);if(d)d.textContent=day;const dt=document.getElementById(`hd-date-${id}`);if(dt)dt.textContent=date;});}
@@ -492,6 +513,14 @@ function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2
 function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function getCat(id){return settings.categories.find(c=>c.id===id)||null;}
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.style.opacity='1';clearTimeout(t._t);t._t=setTimeout(()=>{t.style.opacity='0';},2200);}
+
+// ═══════════════════════════════════════════
+// SUBTASKS COMPUTED STATE
+// ═══════════════════════════════════════════
+function getSubs(taskId){return subtasks[taskId]||[];}
+function isAllSubsDone(taskId){const s=getSubs(taskId);return s.length>0&&s.every(x=>x.done);}
+function hasSubs(taskId){return getSubs(taskId).length>0;}
+function subProgress(taskId){const s=getSubs(taskId);if(!s.length)return null;return{done:s.filter(x=>x.done).length,total:s.length};}
 
 // ═══════════════════════════════════════════
 // RENDER
@@ -523,27 +552,27 @@ function renderTasks(){
   let visible=getSorted(tasks);
   if(!settings.showDone)visible=visible.filter(t=>!t.done);
   if(activeFilter!==null)visible=visible.filter(t=>t.categoryId===activeFilter);
-
   if(!visible.length){grid.innerHTML=`<div class="empty" style="grid-column:1/-1"><div class="icon">🌱</div><p>${activeFilter!==null?'No tasks in this category.':'No tasks yet.<br>Add one above.'}</p></div>`;return;}
-
   grid.innerHTML=visible.map(t=>{
     const cat=getCat(t.categoryId);
     const isSelected=t.selected||t.current;
-    const fillColor = isSelected ? (cat ? cat.color : 'var(--accent)') : 'var(--surface)';
-    const borderColor = isSelected ? (cat ? cat.color : 'var(--accent)') : (cat ? cat.color+'66' : 'var(--border)');
-    const cls=['task-card',isSelected?'selected':'',deleteMode&&t.deleteSelected?'delete-selected':''].filter(Boolean).join(' ');
+    const fillColor=isSelected?(cat?cat.color:'var(--accent)'):'var(--surface)';
+    const borderColor=isSelected?(cat?cat.color:'var(--accent)'):(cat?cat.color+'66':'var(--border)');
+    const cls=['task-card',isSelected?'selected':''].filter(Boolean).join(' ');
     const lastDone=relativeDate(t.lastCompletedAt);
+    const sp=subProgress(t.id);
+    const subBadge=sp?`<span class="task-subtask-count">☰ ${sp.done}/${sp.total}</span>`:'';
     return`<div class="${cls}" style="background:${fillColor};border-color:${borderColor}" data-id="${t.id}" onclick="handleCardClick('${t.id}')" oncontextmenu="handleCardContextMenu(event,'${t.id}')">
       ${cat?`<span class="task-cat-label" style="color:${isSelected?'white':cat.color};opacity:${isSelected?0.95:0.85}">${escHtml(cat.name)}</span>`:''}
       <div class="task-card-text${t.done?' done':''}">${escHtml(t.text)}</div>
       <div class="task-card-footer">
         <div class="task-last-done">${lastDone}</div>
+        ${subBadge}
         ${cat&&!isSelected?`<div class="task-cat-dot" style="background:${cat.color}"></div>`:''}
       </div>
     </div>`;
   }).join('');
   grid.querySelectorAll('.task-card').forEach(card=>attachLongPress(card,card.dataset.id));
-  if(deleteMode){const ds=tasks.filter(t=>t.deleteSelected);document.getElementById('del-label').textContent=`${ds.length} selected`;document.getElementById('btn-del-confirm').disabled=ds.length===0;}
 }
 
 function renderCurrent(){
@@ -558,24 +587,31 @@ function renderCurrent(){
   if(total>0&&doneCount===total&&!welldoneShown){welldoneShown=true;setTimeout(()=>document.getElementById('welldone-overlay').classList.add('active'),400);}
   if(!total){list.innerHTML=`<div class="empty"><div class="icon">◎</div><p>No current tasks.<br>Select at least ${settings.nTasks} on the Tasks tab and tap Confirm.</p></div>`;return;}
   list.innerHTML=getSorted(current).map(t=>{
-    const taskNotes=notes[t.id]||[];
+    const subs=getSubs(t.id);
+    const hasS=subs.length>0;
+    const sp=subProgress(t.id);
+    const checkLocked = hasS && !isAllSubsDone(t.id) && !t.done;
     return`<div class="current-item${t.done?' done-item':''}">
       <div class="current-item-main">
-        <div class="sq-check${t.done?' checked':''}" onclick="toggleDone('${t.id}')"></div>
-        <span class="current-item-label">${escHtml(t.text)}</span>
+        <div class="sq-check${t.done?' checked':''}${checkLocked?' locked':''}" onclick="toggleDone('${t.id}',${checkLocked})"></div>
+        <div style="flex:1">
+          <div class="current-item-label">${escHtml(t.text)}</div>
+          ${hasS?`<div class="current-progress-mini"><span>${sp.done}</span>/${sp.total} subtasks ${isAllSubsDone(t.id)?'· complete ✓':''}</div>`:''}
+        </div>
         <button class="btn-icon" onclick="removeFromCurrent('${t.id}')">✕</button>
       </div>
-      <div class="notes-section">
-        <div class="notes-list">${taskNotes.map(n=>`
-          <div class="note-row${n.done?' done-note':''}" onclick="toggleNote('${t.id}','${n.id}')">
-            <div class="note-bullet"></div>
-            <span class="note-text">${escHtml(n.text)}</span>
+      <div class="subtasks-section">
+        <div class="subtasks-list">${subs.map(s=>`
+          <div class="subtask-row${s.done?' done-sub':''}" onclick="toggleSub('${t.id}','${s.id}')">
+            <div class="subtask-check"></div>
+            <span class="subtask-text">${escHtml(s.text)}</span>
+            <button class="subtask-del" onclick="event.stopPropagation();deleteSub('${t.id}','${s.id}')">✕</button>
           </div>`).join('')}
         </div>
-        <div class="note-add-row">
-          <div class="note-add-bullet"></div>
-          <input class="note-input" id="note-${t.id}" placeholder="Add a note…" maxlength="200"
-            onkeydown="if(event.key==='Enter'){addNote('${t.id}',this.value);this.value='';event.preventDefault();}"/>
+        <div class="subtask-add-row">
+          <div class="subtask-add-bullet"></div>
+          <input class="subtask-input" id="sub-${t.id}" placeholder="Add a subtask…" maxlength="200"
+            onkeydown="if(event.key==='Enter'){addSub('${t.id}',this.value);this.value='';event.preventDefault();}"/>
         </div>
       </div>
     </div>`;
@@ -609,57 +645,190 @@ function updateBadges(){
 }
 
 // ═══════════════════════════════════════════
+// HISTORY VIEW
+// ═══════════════════════════════════════════
+async function openHistory(){
+  document.getElementById('screen-history').classList.add('active');
+  await renderHistory();
+}
+function closeHistory(){document.getElementById('screen-history').classList.remove('active');}
+
+async function renderHistory(){
+  const all = await db.history.toArray();
+  // sort by date asc
+  all.sort((a,b)=>a.completedAt-b.completedAt);
+
+  // ─ STATS ─
+  const total = all.length;
+
+  // build set of "done days" — date strings
+  const dayCounts = {}; // 'YYYY-MM-DD' -> count
+  const dayKey = ts => {const d=new Date(ts);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;};
+  all.forEach(h=>{const k=dayKey(h.completedAt);dayCounts[k]=(dayCounts[k]||0)+1;});
+
+  // streak — consecutive days back from today including today (or yesterday if today empty)
+  let streak = 0;
+  const today = new Date(); today.setHours(0,0,0,0);
+  for(let i=0;i<3650;i++){
+    const d=new Date(today);d.setDate(today.getDate()-i);
+    const k=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    if(dayCounts[k]) streak++;
+    else { if(i===0) continue; else break; }
+  }
+
+  const activeDays = Object.keys(dayCounts).length;
+
+  // this week: days from start of current week (Sun)
+  const weekStart=new Date(today);weekStart.setDate(today.getDate()-today.getDay());
+  const thisWeek=all.filter(h=>h.completedAt>=weekStart.getTime()).length;
+
+  document.getElementById('stat-total-completions').textContent=total;
+  document.getElementById('stat-streak').textContent=streak;
+  document.getElementById('stat-active-days').textContent=activeDays;
+  document.getElementById('stat-this-week').textContent=thisWeek;
+
+  // ─ HEATMAP — last 12 weeks ─
+  const grid=document.getElementById('heatmap-grid');
+  const todayDow=today.getDay(); // 0..6 Sun..Sat
+  // we want columns = weeks, rows = days (Sun top, Sat bottom)
+  const weeks = 12;
+  // Find Sunday at start of (weeks-1) weeks ago
+  const start=new Date(today);start.setDate(today.getDate()-todayDow-(weeks-1)*7);
+  let html='';
+  const monthLabels=[];
+  for(let w=0;w<weeks;w++){
+    let weekHtml='<div class="heatmap-week">';
+    for(let d=0;d<7;d++){
+      const day=new Date(start);day.setDate(start.getDate()+w*7+d);
+      const k=`${day.getFullYear()}-${String(day.getMonth()+1).padStart(2,'0')}-${String(day.getDate()).padStart(2,'0')}`;
+      const cnt=dayCounts[k]||0;
+      let lvl='';
+      if(cnt>=1&&cnt<=2)lvl='l1';
+      else if(cnt<=4)lvl='l2';
+      else if(cnt<=7)lvl='l3';
+      else if(cnt>7)lvl='l4';
+      const isFuture = day > today;
+      const isToday = day.toDateString()===today.toDateString();
+      weekHtml+=`<div class="heatmap-day ${lvl}${isFuture?' future':''}${isToday?' today':''}" title="${k}: ${cnt} task${cnt!==1?'s':''}"></div>`;
+      // capture month label on first row of week
+      if(d===0){
+        const m=day.toLocaleDateString('en',{month:'short'});
+        monthLabels.push({w,m});
+      }
+    }
+    weekHtml+='</div>';
+    html+=weekHtml;
+  }
+  grid.innerHTML=html;
+
+  // month labels — show month change only
+  const labelsEl=document.getElementById('heatmap-labels');
+  let labelHtml='';
+  let lastMonth='';
+  monthLabels.forEach(({w,m})=>{
+    if(m!==lastMonth){labelHtml+=`<span style="position:relative;left:${w*17}px">${m}</span>`;lastMonth=m;}
+  });
+  // simpler: just show first/middle/last month
+  if(monthLabels.length){
+    const seen=new Set(),uniq=[];
+    monthLabels.forEach(({m})=>{if(!seen.has(m)){seen.add(m);uniq.push(m);}});
+    labelsEl.innerHTML=uniq.map(m=>`<span>${m}</span>`).join('');
+  }
+
+  // ─ CATEGORY CHART ─
+  const catCounts={};
+  all.forEach(h=>{const cid=h.categoryId||'__none__';catCounts[cid]=(catCounts[cid]||0)+1;});
+  const maxCat = Math.max(1,...Object.values(catCounts));
+  const chart=document.getElementById('cat-chart');
+  const entries=Object.entries(catCounts).sort((a,b)=>b[1]-a[1]);
+  if(!entries.length){chart.innerHTML='<div style="font-size:12px;color:var(--text-muted);text-align:center;padding:8px">No completions yet</div>';}
+  else{
+    chart.innerHTML=entries.map(([cid,cnt])=>{
+      const cat=cid==='__none__'?{name:'Uncategorized',color:'#aaa'}:getCat(cid)||{name:'(deleted)',color:'#aaa'};
+      const pct=(cnt/maxCat)*100;
+      return`<div class="cat-bar-row">
+        <span class="cat-bar-name">${escHtml(cat.name)}</span>
+        <div class="cat-bar-track"><div class="cat-bar-fill" style="width:${pct}%;background:${cat.color}"></div></div>
+        <span class="cat-bar-num">${cnt}</span>
+      </div>`;
+    }).join('');
+  }
+
+  // ─ TOP TASKS ─
+  const taskCounts={};
+  all.forEach(h=>{const k=h.taskId;if(!taskCounts[k])taskCounts[k]={count:0,name:h.taskText};taskCounts[k].count++;taskCounts[k].name=h.taskText;});
+  const topList=document.getElementById('top-tasks-list');
+  const top=Object.values(taskCounts).sort((a,b)=>b.count-a.count).slice(0,5);
+  if(!top.length){topList.innerHTML='<div style="font-size:12px;color:var(--text-muted);text-align:center;padding:8px">No completions yet</div>';}
+  else{
+    topList.innerHTML=top.map((t,i)=>`<div class="top-task-item"><span class="top-task-rank">#${i+1}</span><span class="top-task-name">${escHtml(t.name)}</span><span class="top-task-count">${t.count}×</span></div>`).join('');
+  }
+}
+
+// ═══════════════════════════════════════════
 // CATEGORIES
 // ═══════════════════════════════════════════
 function setFilter(id){activeFilter=id;renderTasks();}
-async function addCategory(){
-  const newCat={id:uid(),name:'New Category',color:CAT_COLORS[settings.categories.length%CAT_COLORS.length]};
-  settings.categories.push(newCat);
-  await saveSettings();renderSettings();renderCategoryFilter();
-}
-async function deleteCat(id){
-  settings.categories=settings.categories.filter(c=>c.id!==id);
-  const affected=tasks.filter(t=>t.categoryId===id);affected.forEach(t=>t.categoryId=null);
-  if(activeFilter===id)activeFilter=null;
-  await Promise.all([saveSettings(),saveTasks(affected)]);
-  render();
-}
-async function renameCat(id,name){const c=settings.categories.find(c=>c.id===id);if(c)c.name=name.trim()||c.name;await saveSettings();renderCategoryFilter();}
-function openColorPicker(catId,e){
-  colorPickerCatId=catId;
-  const popup=document.getElementById('color-picker-popup');
-  const cat=settings.categories.find(c=>c.id===catId);
-  popup.innerHTML=CAT_COLORS.map(col=>`<div class="color-swatch-opt${cat&&cat.color===col?' picked':''}" style="background:${col}" onclick="pickColor('${col}')"></div>`).join('');
-  popup.style.left=Math.min(e.clientX,window.innerWidth-216)+'px';
-  popup.style.top=e.clientY+10+'px';
-  popup.classList.add('active');
-  setTimeout(()=>document.addEventListener('click',closeColorPicker,{once:true}),10);
-}
+async function addCategory(){const c={id:uid(),name:'New Category',color:CAT_COLORS[settings.categories.length%CAT_COLORS.length]};settings.categories.push(c);await saveSettings();renderSettings();renderCategoryFilter();}
+async function deleteCat(id){settings.categories=settings.categories.filter(c=>c.id!==id);const aff=tasks.filter(t=>t.categoryId===id);aff.forEach(t=>t.categoryId=null);if(activeFilter===id)activeFilter=null;await Promise.all([saveSettings(),saveTasks(aff)]);render();}
+async function renameCat(id,n){const c=settings.categories.find(c=>c.id===id);if(c)c.name=n.trim()||c.name;await saveSettings();renderCategoryFilter();}
+function openColorPicker(catId,e){colorPickerCatId=catId;const popup=document.getElementById('color-picker-popup');const cat=settings.categories.find(c=>c.id===catId);popup.innerHTML=CAT_COLORS.map(col=>`<div class="color-swatch-opt${cat&&cat.color===col?' picked':''}" style="background:${col}" onclick="pickColor('${col}')"></div>`).join('');popup.style.left=Math.min(e.clientX,window.innerWidth-216)+'px';popup.style.top=e.clientY+10+'px';popup.classList.add('active');setTimeout(()=>document.addEventListener('click',closeColorPicker,{once:true}),10);}
 async function pickColor(col){const c=settings.categories.find(c=>c.id===colorPickerCatId);if(c)c.color=col;await saveSettings();closeColorPicker();render();}
 function closeColorPicker(){document.getElementById('color-picker-popup').classList.remove('active');}
-
-function openCatAssign(id){
-  pendingCatAssignId=id;
-  const task=tasks.find(t=>t.id===id),list=document.getElementById('cat-assign-list');
-  const opts=[{id:null,name:'None',color:'#aaa'},...settings.categories];
-  list.innerHTML=opts.map(c=>`<div class="cat-assign-row${task&&task.categoryId===c.id?' current-cat':''}" onclick="assignCat('${c.id===null?'':c.id}')"><div class="cat-assign-dot" style="background:${c.color}"></div><div class="cat-assign-name">${escHtml(c.name)}</div>${task&&task.categoryId===c.id?'<div class="cat-assign-check">✓</div>':''}</div>`).join('');
-  document.getElementById('cat-assign-popup').classList.add('active');
-}
-async function assignCat(catId){
-  const t=tasks.find(t=>t.id===pendingCatAssignId);
-  if(t){t.categoryId=catId===''?null:catId;await saveTask(t);}
-  closeCatAssign();renderTasks();
-}
+function openCatAssign(id){pendingCatAssignId=id;const task=tasks.find(t=>t.id===id),list=document.getElementById('cat-assign-list');const opts=[{id:null,name:'None',color:'#aaa'},...settings.categories];list.innerHTML=opts.map(c=>`<div class="cat-assign-row${task&&task.categoryId===c.id?' current-cat':''}" onclick="assignCat('${c.id===null?'':c.id}')"><div class="cat-assign-dot" style="background:${c.color}"></div><div class="cat-assign-name">${escHtml(c.name)}</div>${task&&task.categoryId===c.id?'<div class="cat-assign-check">✓</div>':''}</div>`).join('');document.getElementById('cat-assign-popup').classList.add('active');}
+async function assignCat(catId){const t=tasks.find(t=>t.id===pendingCatAssignId);if(t){t.categoryId=catId===''?null:catId;await saveTask(t);}closeCatAssign();renderTasks();}
 function closeCatAssign(e){if(e&&document.getElementById('cat-assign-sheet').contains(e.target))return;document.getElementById('cat-assign-popup').classList.remove('active');}
 
 // ═══════════════════════════════════════════
-// NOTES
+// SUBTASKS
 // ═══════════════════════════════════════════
-async function addNote(taskId,text){text=text.trim();if(!text)return;if(!notes[taskId])notes[taskId]=[];notes[taskId].push({id:uid(),text,done:false});await saveNotes(taskId);renderCurrent();}
-async function toggleNote(taskId,noteId){const ns=notes[taskId];if(!ns)return;const n=ns.find(n=>n.id===noteId);if(n)n.done=!n.done;await saveNotes(taskId);renderCurrent();}
+async function addSub(taskId,text){
+  text=text.trim();if(!text)return;
+  if(!subtasks[taskId])subtasks[taskId]=[];
+  subtasks[taskId].push({id:uid(),text,done:false});
+  await saveSubs(taskId);
+  renderCurrent();
+}
+async function toggleSub(taskId,subId){
+  const arr=subtasks[taskId];if(!arr)return;
+  const s=arr.find(x=>x.id===subId);if(!s)return;
+  s.done=!s.done;
+  await saveSubs(taskId);
+
+  // auto-complete parent if all subs done
+  const t=tasks.find(t=>t.id===taskId);
+  if(t){
+    const allDone=isAllSubsDone(taskId);
+    if(allDone&&!t.done){t.done=true;t.lastCompletedAt=Date.now();await saveTask(t);await recordCompletion(t);}
+    else if(!allDone&&t.done){
+      // un-complete if a sub is unchecked
+      t.done=false;
+      await saveTask(t);
+      // remove most recent history entry for this task today
+      const todayStart=new Date();todayStart.setHours(0,0,0,0);
+      const recent=await db.history.where('taskId').equals(taskId).reverse().sortBy('completedAt');
+      const todayEntry=recent.find(h=>h.completedAt>=todayStart.getTime());
+      if(todayEntry)await db.history.delete(todayEntry.id);
+    }
+  }
+  render();
+}
+async function deleteSub(taskId,subId){
+  if(!subtasks[taskId])return;
+  subtasks[taskId]=subtasks[taskId].filter(x=>x.id!==subId);
+  await saveSubs(taskId);
+
+  // re-evaluate parent done state
+  const t=tasks.find(t=>t.id===taskId);
+  if(t&&hasSubs(taskId)){
+    const allDone=isAllSubsDone(taskId);
+    if(allDone&&!t.done){t.done=true;t.lastCompletedAt=Date.now();await saveTask(t);await recordCompletion(t);}
+  }
+  render();
+}
 
 // ═══════════════════════════════════════════
-// LONG PRESS → ACTION SHEET
+// LONG PRESS
 // ═══════════════════════════════════════════
 const LP_MS=550;let lpTimer=null,lpTriggered=false;
 function attachLongPress(card,id){
@@ -668,119 +837,55 @@ function attachLongPress(card,id){
   card.addEventListener('touchmove',()=>clearTimeout(lpTimer));
 }
 function handleCardContextMenu(e,id){if(e)e.preventDefault();openActionSheet(id);}
-function handleCardClick(id){
-  if(lpTriggered){lpTriggered=false;return;}
-  if(deleteMode){const t=tasks.find(t=>t.id===id);if(t)t.deleteSelected=!t.deleteSelected;renderTasks();return;}
-  toggleSelected(id);
-}
-
-function openActionSheet(id){
-  actionSheetTaskId=id;
-  const t=tasks.find(t=>t.id===id);if(!t)return;
-  document.getElementById('action-sheet-task-name').textContent=t.text;
-  const cat=getCat(t.categoryId);
-  document.getElementById('action-cat-label').textContent=cat?`Category: ${cat.name}`:'Set category';
-  document.getElementById('action-sheet-overlay').classList.add('active');
-}
-function closeActionSheet(e){
-  if(e&&!e.target.classList.contains('action-sheet-overlay')&&!e.target.matches('.action-row'))return;
-  document.getElementById('action-sheet-overlay').classList.remove('active');
-  actionSheetTaskId=null;
-}
-function actionRename(){
-  renameTaskId=actionSheetTaskId;
-  const t=tasks.find(t=>t.id===renameTaskId);if(!t){closeActionSheet({target:document.getElementById('action-sheet-overlay')});return;}
-  document.getElementById('action-sheet-overlay').classList.remove('active');
-  const inp=document.getElementById('rename-input');inp.value=t.text;
-  document.getElementById('rename-popup').classList.add('active');
-  setTimeout(()=>{inp.focus();inp.select();},100);
-}
+function handleCardClick(id){if(lpTriggered){lpTriggered=false;return;}toggleSelected(id);}
+function openActionSheet(id){actionSheetTaskId=id;const t=tasks.find(t=>t.id===id);if(!t)return;document.getElementById('action-sheet-task-name').textContent=t.text;const cat=getCat(t.categoryId);document.getElementById('action-cat-label').textContent=cat?`Category: ${cat.name}`:'Set category';document.getElementById('action-sheet-overlay').classList.add('active');}
+function closeActionSheet(e){if(e&&!e.target.classList.contains('action-sheet-overlay')&&!e.target.matches('.action-row'))return;document.getElementById('action-sheet-overlay').classList.remove('active');actionSheetTaskId=null;}
+function actionRename(){renameTaskId=actionSheetTaskId;const t=tasks.find(t=>t.id===renameTaskId);if(!t){closeActionSheet({target:document.getElementById('action-sheet-overlay')});return;}document.getElementById('action-sheet-overlay').classList.remove('active');const inp=document.getElementById('rename-input');inp.value=t.text;document.getElementById('rename-popup').classList.add('active');setTimeout(()=>{inp.focus();inp.select();},100);}
 function closeRename(){document.getElementById('rename-popup').classList.remove('active');renameTaskId=null;}
-async function confirmRename(){
-  const newText=document.getElementById('rename-input').value.trim();
-  if(!newText){closeRename();return;}
-  const t=tasks.find(t=>t.id===renameTaskId);
-  if(t){t.text=newText;await saveTask(t);}
-  closeRename();render();
-}
-
-function actionCategorize(){
-  const id=actionSheetTaskId;
-  document.getElementById('action-sheet-overlay').classList.remove('active');
-  if(!settings.categories.length){showToast('Add a category in Settings first');return;}
-  openCatAssign(id);
-}
-function actionDelete(){
-  singleDeleteTaskId=actionSheetTaskId;
-  const t=tasks.find(t=>t.id===singleDeleteTaskId);
-  document.getElementById('action-sheet-overlay').classList.remove('active');
-  document.getElementById('delete-confirm-body').textContent=`Delete "${t?t.text:''}"? This cannot be undone.`;
-  document.getElementById('delete-confirm-popup').classList.add('active');
-}
+async function confirmRename(){const newText=document.getElementById('rename-input').value.trim();if(!newText){closeRename();return;}const t=tasks.find(t=>t.id===renameTaskId);if(t){t.text=newText;await saveTask(t);}closeRename();render();}
+function actionCategorize(){const id=actionSheetTaskId;document.getElementById('action-sheet-overlay').classList.remove('active');if(!settings.categories.length){showToast('Add a category in Settings first');return;}openCatAssign(id);}
+function actionDelete(){singleDeleteTaskId=actionSheetTaskId;const t=tasks.find(t=>t.id===singleDeleteTaskId);document.getElementById('action-sheet-overlay').classList.remove('active');document.getElementById('delete-confirm-body').textContent=`Delete "${t?t.text:''}"? This cannot be undone.`;document.getElementById('delete-confirm-popup').classList.add('active');}
 function closeDeleteConfirm(){document.getElementById('delete-confirm-popup').classList.remove('active');singleDeleteTaskId=null;}
-async function confirmSingleDelete(){
-  if(!singleDeleteTaskId){closeDeleteConfirm();return;}
-  await deleteTaskFromDB(singleDeleteTaskId);
-  tasks=tasks.filter(t=>t.id!==singleDeleteTaskId);
-  closeDeleteConfirm();render();showToast('Task deleted');
-}
-
-// kept for multi-select delete (still accessible via long press in old flow if we want it)
-function enterDeleteMode(){deleteMode=true;tasks.forEach(t=>t.deleteSelected=false);document.getElementById('sel-bar').style.display='none';document.getElementById('delete-bar').classList.add('active');document.getElementById('confirm-btn').style.display='none';renderTasks();}
-function exitDeleteMode(){deleteMode=false;tasks.forEach(t=>t.deleteSelected=false);document.getElementById('sel-bar').style.display='flex';document.getElementById('delete-bar').classList.remove('active');document.getElementById('confirm-btn').style.display='';renderTasks();}
-async function confirmDelete(){const toDelete=tasks.filter(t=>t.deleteSelected);if(!toDelete.length)return;if(confirm(`Delete ${toDelete.length} task${toDelete.length!==1?'s':''}?`)){await Promise.all(toDelete.map(t=>deleteTaskFromDB(t.id)));tasks=tasks.filter(t=>!t.deleteSelected);exitDeleteMode();render();}}
+async function confirmSingleDelete(){if(!singleDeleteTaskId){closeDeleteConfirm();return;}await deleteTaskFromDB(singleDeleteTaskId);tasks=tasks.filter(t=>t.id!==singleDeleteTaskId);closeDeleteConfirm();render();showToast('Task deleted');}
 
 // ═══════════════════════════════════════════
-// EXTRA SELECTION POPUP
+// EXTRA SEL
 // ═══════════════════════════════════════════
 function showExtraPopup(id){const n=settings.nTasks;document.getElementById('extra-sel-popup-body').textContent=`You've already selected ${n} task${n!==1?'s':''}. Do you want to select more?`;document.getElementById('extra-sel-popup').classList.add('active');pendingSelectId=id;}
 function resolveExtraPopup(yes){document.getElementById('extra-sel-popup').classList.remove('active');if(yes){extraSelAllowed=true;if(pendingSelectId){const t=tasks.find(t=>t.id===pendingSelectId);if(t){t.selected=true;saveTask(t);}pendingSelectId=null;render();}}else{pendingSelectId=null;}}
-
 function closeWelldone(){document.getElementById('welldone-overlay').classList.remove('active');}
 
 // ═══════════════════════════════════════════
 // TASK ACTIONS
 // ═══════════════════════════════════════════
-async function addTask(text){
-  text=text.trim();if(!text)return;
-  const t={id:uid(),text,done:false,selected:false,current:false,deleteSelected:false,lastCompletedAt:null,categoryId:null};
-  tasks.unshift(t);
-  await saveTask(t);
-  render();
-}
-async function toggleSelected(id){
+async function addTask(text){text=text.trim();if(!text)return;const t={id:uid(),text,done:false,selected:false,current:false,lastCompletedAt:null,categoryId:null};tasks.unshift(t);await saveTask(t);render();}
+async function toggleSelected(id){const t=tasks.find(t=>t.id===id);if(!t)return;if(t.current)return;if(t.done&&!t.selected){showToast('Task already completed today');return;}const selCount=tasks.filter(t=>t.selected).length,n=settings.nTasks;if(!t.selected){if(selCount>=n&&!extraSelAllowed){showExtraPopup(id);return;}t.selected=true;}else{t.selected=false;}await saveTask(t);render();}
+
+async function toggleDone(id, locked){
+  if(locked){showToast('Complete all subtasks first');return;}
   const t=tasks.find(t=>t.id===id);if(!t)return;
-  if(t.current)return;
-  if(t.done&&!t.selected){showToast('Task already completed today');return;}
-  const selCount=tasks.filter(t=>t.selected).length,n=settings.nTasks;
-  if(!t.selected){if(selCount>=n&&!extraSelAllowed){showExtraPopup(id);return;}t.selected=true;}
-  else{t.selected=false;}
-  await saveTask(t);render();
-}
-async function toggleDone(id){
-  const t=tasks.find(t=>t.id===id);if(!t)return;
+  // if has subtasks, don't allow manual toggle — must be via subtasks
+  if(hasSubs(id)){showToast('Toggle via subtasks');return;}
   t.done=!t.done;
-  if(t.done)t.lastCompletedAt=Date.now();
+  if(t.done){
+    t.lastCompletedAt=Date.now();
+    await recordCompletion(t);
+  }else{
+    // un-complete: remove today's history entry
+    const todayStart=new Date();todayStart.setHours(0,0,0,0);
+    const recent=await db.history.where('taskId').equals(id).reverse().sortBy('completedAt');
+    const todayEntry=recent.find(h=>h.completedAt>=todayStart.getTime());
+    if(todayEntry)await db.history.delete(todayEntry.id);
+  }
   await saveTask(t);render();
 }
-async function removeFromCurrent(id){
-  const t=tasks.find(t=>t.id===id);if(!t)return;
-  t.current=false;t.selected=false;
-  await saveTask(t);render();
-}
-async function confirmSelection(){
-  const selected=tasks.filter(t=>t.selected);if(selected.length<settings.nTasks)return;
-  const toUpdate=[];
-  tasks.forEach(t=>{if(t.current){t.current=false;toUpdate.push(t);}});
-  selected.forEach(t=>{t.current=true;toUpdate.push(t);});
-  await saveTasks(toUpdate);
-  extraSelAllowed=false;welldoneShown=false;
-  render();switchTab('current');
-}
+
+async function removeFromCurrent(id){const t=tasks.find(t=>t.id===id);if(!t)return;t.current=false;t.selected=false;await saveTask(t);render();}
+async function confirmSelection(){const selected=tasks.filter(t=>t.selected);if(selected.length<settings.nTasks)return;const toUpdate=[];tasks.forEach(t=>{if(t.current){t.current=false;toUpdate.push(t);}});selected.forEach(t=>{t.current=true;toUpdate.push(t);});await saveTasks(toUpdate);extraSelAllowed=false;welldoneShown=false;render();switchTab('current');}
 async function toggleSetting(k){settings[k]=!settings[k];await saveSettings();render();}
 async function changeN(d){settings.nTasks=Math.max(1,Math.min(20,settings.nTasks+d));await saveSettings();render();}
 async function clearCompleted(){if(!tasks.some(t=>t.done))return;if(confirm('Remove all completed tasks?')){const toDelete=tasks.filter(t=>t.done);await Promise.all(toDelete.map(t=>deleteTaskFromDB(t.id)));tasks=tasks.filter(t=>!t.done);render();}}
-async function clearAll(){if(!tasks.length)return;if(confirm('Remove ALL tasks? This cannot be undone.')){await db.tasks.clear();await db.notes.clear();tasks=[];notes={};render();}}
+async function clearAll(){if(!tasks.length&&!await db.history.count()){return;}if(confirm('Remove ALL tasks AND history? This cannot be undone.')){await db.tasks.clear();await db.notes.clear();await db.history.clear();tasks=[];subtasks={};render();}}
 
 // ═══════════════════════════════════════════
 // NAV
@@ -798,9 +903,6 @@ document.getElementById('btn-add-task').addEventListener('click',()=>{const inp=
 document.getElementById('new-task-input').addEventListener('keydown',e=>{if(e.key==='Enter'){addTask(e.target.value);e.target.value='';}});
 document.getElementById('rename-input').addEventListener('keydown',e=>{if(e.key==='Enter'){confirmRename();}else if(e.key==='Escape'){closeRename();}});
 
-// ═══════════════════════════════════════════
-// STARTUP
-// ═══════════════════════════════════════════
 async function init(){
   await migrate();await loadAll();await checkAndRunReset();
   updateDates();render();
@@ -808,7 +910,7 @@ async function init(){
   document.getElementById('app').style.display='flex';
   setInterval(updateDates,60000);
 }
-init().catch(err=>{console.error('Init failed',err);document.getElementById('loading').textContent='failed to load — please refresh';});
+init().catch(err=>{console.error('init failed',err);document.getElementById('loading').textContent='failed to load — please refresh';});
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
 </body>
