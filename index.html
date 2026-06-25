@@ -695,7 +695,6 @@
     <div class="action-sheet-task-name" id="action-sheet-task-name"></div>
     <div class="action-row" onclick="actionRename()"><span class="icon">✎</span><span>Rename task</span></div>
     <div class="action-row" onclick="actionCategorize()"><span class="icon">⊕</span><span id="action-cat-label">Set category</span></div>
-    <div class="action-row" onclick="actionSetDeadline()"><span class="icon">⏰</span><span id="action-deadline-label">Set deadline</span></div>
     <div class="action-row danger" onclick="actionDelete()"><span class="icon">🗑</span><span>Delete task</span></div>
   </div>
 </div>
@@ -1067,7 +1066,8 @@ async function addSharedTask(){
   if(!text || !activeSharedListId)return;
   try {
     await window.fb.addDoc(sharedTasksCol(activeSharedListId),{
-      text,done:false,createdBy:currentUser.uid,createdByEmail:currentUser.email,createdAt:Date.now()
+      text,done:false,createdBy:currentUser.uid,createdByEmail:currentUser.email,createdAt:Date.now(),
+      subtasks:[], deadline:null
     });
     inp.value='';
   } catch(e){console.error(e);showToast('Failed to add task');}
@@ -1075,7 +1075,13 @@ async function addSharedTask(){
 
 async function toggleSharedTask(listId,taskId,done){
   try {
-    await window.fb.updateDoc(window.fb.doc(window.fb.db,'sharedLists',listId,'tasks',taskId),{done:!done,doneAt:!done?Date.now():null,doneBy:!done?currentUser.uid:null});
+    await window.fb.updateDoc(window.fb.doc(window.fb.db,'sharedLists',listId,'tasks',taskId),{
+      done:!done,
+      doneAt:!done?Date.now():null,
+      doneBy:!done?currentUser.uid:null,
+      doneByEmail:!done?currentUser.email:null,
+      doneByName:!done?(currentUser.displayName||currentUser.email.split('@')[0]):null
+    });
   } catch(e){console.error(e);}
 }
 
@@ -1083,6 +1089,51 @@ async function deleteSharedTask(listId,taskId){
   if(!confirm('Delete this task for everyone?'))return;
   try { await window.fb.deleteDoc(window.fb.doc(window.fb.db,'sharedLists',listId,'tasks',taskId)); }
   catch(e){console.error(e);}
+}
+
+// ── SHARED SUBTASKS ──
+function getSharedTask(listId,taskId){const arr=sharedTasksByList[listId]||[];return arr.find(t=>t.id===taskId);}
+function getSharedSubs(listId,taskId){const t=getSharedTask(listId,taskId);return (t&&Array.isArray(t.subtasks))?t.subtasks:[];}
+function isAllSharedSubsDone(listId,taskId){const s=getSharedSubs(listId,taskId);return s.length>0&&s.every(x=>x.done);}
+function sharedSubProgress(listId,taskId){const s=getSharedSubs(listId,taskId);if(!s.length)return null;return{done:s.filter(x=>x.done).length,total:s.length};}
+
+async function addSharedSub(listId,taskId,text){
+  text=text.trim();if(!text)return;
+  const t=getSharedTask(listId,taskId);if(!t)return;
+  const newSubs=[...(t.subtasks||[]),{id:uid(),text,done:false}];
+  try {
+    await window.fb.updateDoc(window.fb.doc(window.fb.db,'sharedLists',listId,'tasks',taskId),{subtasks:newSubs});
+  } catch(e){console.error(e);}
+}
+async function toggleSharedSub(listId,taskId,subId){
+  const t=getSharedTask(listId,taskId);if(!t)return;
+  const newSubs=(t.subtasks||[]).map(s=>s.id===subId?{...s,done:!s.done}:s);
+  // auto-complete or un-complete parent
+  const allDone = newSubs.length>0 && newSubs.every(s=>s.done);
+  const updates = {subtasks:newSubs};
+  if(allDone && !t.done){
+    updates.done=true;
+    updates.doneAt=Date.now();
+    updates.doneBy=currentUser.uid;
+    updates.doneByEmail=currentUser.email;
+    updates.doneByName=currentUser.displayName||currentUser.email.split('@')[0];
+  } else if(!allDone && t.done){
+    updates.done=false;
+    updates.doneAt=null;
+    updates.doneBy=null;
+    updates.doneByEmail=null;
+    updates.doneByName=null;
+  }
+  try {
+    await window.fb.updateDoc(window.fb.doc(window.fb.db,'sharedLists',listId,'tasks',taskId),updates);
+  } catch(e){console.error(e);}
+}
+async function deleteSharedSub(listId,taskId,subId){
+  const t=getSharedTask(listId,taskId);if(!t)return;
+  const newSubs=(t.subtasks||[]).filter(s=>s.id!==subId);
+  try {
+    await window.fb.updateDoc(window.fb.doc(window.fb.db,'sharedLists',listId,'tasks',taskId),{subtasks:newSubs});
+  } catch(e){console.error(e);}
 }
 
 function openListMenu(){
@@ -1374,8 +1425,13 @@ function renderCurrent(){
       const ddCls = overdue ? 'overdue' : (isDueToday(t.deadline) ? 'due-today' : '');
       deadlineLine = `<div class="current-progress-mini" style="margin-top:4px"><span class="task-deadline ${ddCls}">${overdue?'⚠ ':''}${formatDeadline(t.deadline)}</span></div>`;
     }
-    return`<div class="current-item${t.done?' done-item':''}"><div class="current-item-main"><div class="sq-check${t.done?' checked':''}${checkLocked?' locked':''}" onclick="toggleDone('${t.id}',${checkLocked})"></div><div style="flex:1"><div class="current-item-label">${escHtml(t.text)}</div>${hasS?`<div class="current-progress-mini"><span>${sp.done}</span>/${sp.total} subtasks ${isAllSubsDone(t.id)?'· complete ✓':''}</div>`:''}${deadlineLine}</div><button class="btn-icon" onclick="removeFromCurrent('${t.id}')">✕</button></div><div class="subtasks-section"><div class="subtasks-list">${subs.map(s=>`<div class="subtask-row${s.done?' done-sub':''}" onclick="toggleSub('${t.id}','${s.id}')"><div class="subtask-check"></div><span class="subtask-text">${escHtml(s.text)}</span><button class="subtask-del" onclick="event.stopPropagation();deleteSub('${t.id}','${s.id}')">✕</button></div>`).join('')}</div><div class="subtask-add-row"><div class="subtask-add-bullet"></div><input class="subtask-input" id="sub-${t.id}" placeholder="Add a subtask…" maxlength="200" onkeydown="if(event.key==='Enter'){addSub('${t.id}',this.value);this.value='';event.preventDefault();}"/></div></div></div>`;
+    return`<div class="current-item${t.done?' done-item':''}" data-id="${t.id}" data-deadline="1"><div class="current-item-main"><div class="sq-check${t.done?' checked':''}${checkLocked?' locked':''}" onclick="toggleDone('${t.id}',${checkLocked})"></div><div style="flex:1"><div class="current-item-label">${escHtml(t.text)}</div>${hasS?`<div class="current-progress-mini"><span>${sp.done}</span>/${sp.total} subtasks ${isAllSubsDone(t.id)?'· complete ✓':''}</div>`:''}${deadlineLine}</div><button class="btn-icon" onclick="removeFromCurrent('${t.id}')">✕</button></div><div class="subtasks-section"><div class="subtasks-list">${subs.map(s=>`<div class="subtask-row${s.done?' done-sub':''}" onclick="toggleSub('${t.id}','${s.id}')"><div class="subtask-check"></div><span class="subtask-text">${escHtml(s.text)}</span><button class="subtask-del" onclick="event.stopPropagation();deleteSub('${t.id}','${s.id}')">✕</button></div>`).join('')}</div><div class="subtask-add-row"><div class="subtask-add-bullet"></div><input class="subtask-input" id="sub-${t.id}" placeholder="Add a subtask…" maxlength="200" onkeydown="if(event.key==='Enter'){addSub('${t.id}',this.value);this.value='';event.preventDefault();}"/></div></div></div>`;
   }).join('');
+
+  // attach long-press → deadline picker for each current task
+  list.querySelectorAll('.current-item').forEach(el=>{
+    attachLongPressOnEl(el, el.dataset.id, 'local');
+  });
 }
 
 function renderNotes(){
@@ -1435,24 +1491,80 @@ function renderShared(){
   document.getElementById('shared-list-name').textContent = list.name;
   document.getElementById('shared-list-meta').textContent = `${list.members.length} member${list.members.length!==1?'s':''}`;
 
-  const tasks = sharedTasksByList[activeSharedListId] || [];
-  const sortedT = [...tasks].sort((a,b)=>{if(a.done!==b.done)return a.done?1:-1;return (b.createdAt||0)-(a.createdAt||0);});
+  const sTasks = sharedTasksByList[activeSharedListId] || [];
+  // sort: overdue first, then due-today, then by deadline, then done at bottom
+  const sortedT = [...sTasks].sort((a,b)=>{
+    if(a.done!==b.done) return a.done?1:-1;
+    const aOver = a.deadline && isOverdue(a.deadline) && !a.done ? 0 : 1;
+    const bOver = b.deadline && isOverdue(b.deadline) && !b.done ? 0 : 1;
+    if(aOver !== bOver) return aOver - bOver;
+    if(a.deadline && b.deadline) return a.deadline.localeCompare(b.deadline);
+    if(a.deadline) return -1;
+    if(b.deadline) return 1;
+    return (b.createdAt||0)-(a.createdAt||0);
+  });
   if(!sortedT.length){
     document.getElementById('shared-tasks-list').innerHTML = `<div class="empty"><div class="icon">✓</div><p>No tasks yet in this list.<br>Add one above.</p></div>`;
     return;
   }
   document.getElementById('shared-tasks-list').innerHTML = sortedT.map(t=>{
     const byMember = list.members.find(m=>m.uid===t.createdBy);
-    const byEmail = byMember ? byMember.email : t.createdByEmail || '?';
-    return `<div class="shared-task-item${t.done?' done-item':''}">
-      <div class="sq-check${t.done?' checked':''}" onclick="toggleSharedTask('${activeSharedListId}','${t.id}',${t.done})"></div>
-      <div style="flex:1">
-        <div class="shared-task-text${t.done?' done':''}">${escHtml(t.text)}</div>
-        <div class="shared-task-meta">by ${escHtml(byEmail.split('@')[0])}</div>
+    const byName = byMember ? (byMember.displayName||byMember.email.split('@')[0]) : (t.createdByEmail||'?').split('@')[0];
+
+    const subs = Array.isArray(t.subtasks) ? t.subtasks : [];
+    const hasS = subs.length > 0;
+    const sp = hasS ? {done:subs.filter(s=>s.done).length, total:subs.length} : null;
+    const checkLocked = hasS && !subs.every(s=>s.done) && !t.done;
+
+    let deadlineLine = '';
+    if(t.deadline){
+      const overdue = isOverdue(t.deadline) && !t.done;
+      const ddCls = overdue ? 'overdue' : (isDueToday(t.deadline) ? 'due-today' : '');
+      deadlineLine = `<div class="current-progress-mini" style="margin-top:4px"><span class="task-deadline ${ddCls}">${overdue?'⚠ ':''}${formatDeadline(t.deadline)}</span></div>`;
+    }
+
+    let doneByLine = '';
+    if(t.done && t.doneAt){
+      const doneBy = t.doneByName || (t.doneByEmail||'').split('@')[0] || 'someone';
+      const doneDate = new Date(t.doneAt);
+      const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      const dateStr = `${months[doneDate.getMonth()]} ${doneDate.getDate()}`;
+      doneByLine = `<div class="current-progress-mini" style="margin-top:3px;color:var(--accent)">✓ Done by ${escHtml(doneBy)} on ${dateStr}</div>`;
+    }
+
+    return `<div class="current-item${t.done?' done-item':''}" data-id="${t.id}" data-list-id="${activeSharedListId}">
+      <div class="current-item-main">
+        <div class="sq-check${t.done?' checked':''}${checkLocked?' locked':''}" onclick="${checkLocked?`showToast('Complete all subtasks first')`:`toggleSharedTask('${activeSharedListId}','${t.id}',${t.done})`}"></div>
+        <div style="flex:1">
+          <div class="current-item-label">${escHtml(t.text)}</div>
+          <div class="shared-task-meta">added by ${escHtml(byName)}</div>
+          ${hasS?`<div class="current-progress-mini"><span>${sp.done}</span>/${sp.total} subtasks ${sp.done===sp.total?'· complete ✓':''}</div>`:''}
+          ${deadlineLine}
+          ${doneByLine}
+        </div>
+        <button class="btn-icon" onclick="deleteSharedTask('${activeSharedListId}','${t.id}')">✕</button>
       </div>
-      <button class="btn-icon" onclick="deleteSharedTask('${activeSharedListId}','${t.id}')">✕</button>
+      <div class="subtasks-section">
+        <div class="subtasks-list">${subs.map(s=>`
+          <div class="subtask-row${s.done?' done-sub':''}" onclick="toggleSharedSub('${activeSharedListId}','${t.id}','${s.id}')">
+            <div class="subtask-check"></div>
+            <span class="subtask-text">${escHtml(s.text)}</span>
+            <button class="subtask-del" onclick="event.stopPropagation();deleteSharedSub('${activeSharedListId}','${t.id}','${s.id}')">✕</button>
+          </div>`).join('')}
+        </div>
+        <div class="subtask-add-row">
+          <div class="subtask-add-bullet"></div>
+          <input class="subtask-input" placeholder="Add a subtask…" maxlength="200"
+            onkeydown="if(event.key==='Enter'){addSharedSub('${activeSharedListId}','${t.id}',this.value);this.value='';event.preventDefault();}"/>
+        </div>
+      </div>
     </div>`;
   }).join('');
+
+  // long-press → deadline picker on each shared item
+  document.querySelectorAll('#shared-tasks-list .current-item').forEach(el=>{
+    attachLongPressOnEl(el, el.dataset.id, 'shared');
+  });
 }
 
 function selectSharedList(id){activeSharedListId=id;renderShared();}
@@ -1533,6 +1645,38 @@ function closeCatAssign(e){if(e&&document.getElementById('cat-assign-sheet').con
 // LONG PRESS
 const LP_MS=550;let lpTimer=null,lpTriggered=false;
 function attachLongPress(card,id){card.addEventListener('touchstart',()=>{lpTriggered=false;lpTimer=setTimeout(()=>{lpTriggered=true;openActionSheet(id);},LP_MS);},{passive:true});card.addEventListener('touchend',()=>clearTimeout(lpTimer));card.addEventListener('touchmove',()=>clearTimeout(lpTimer));}
+
+// Long-press on Current items and Shared items → deadline picker.
+// kind: 'local' opens deadline on a local task; 'shared' opens deadline on a shared task (needs listId via data attr).
+function attachLongPressOnEl(el, taskId, kind){
+  if(el._lpBound)return; el._lpBound=true;
+  let timer=null, triggered=false;
+  const start = () => {
+    triggered=false;
+    timer = setTimeout(()=>{
+      triggered=true;
+      if(kind==='shared'){
+        const listId = el.dataset.listId;
+        openDeadlinePickerForShared(listId, taskId);
+      } else {
+        openDeadlinePickerForLocal(taskId);
+      }
+    }, LP_MS);
+  };
+  const cancel = () => clearTimeout(timer);
+  el.addEventListener('touchstart', start, {passive:true});
+  el.addEventListener('touchend', cancel);
+  el.addEventListener('touchmove', cancel);
+  el.addEventListener('contextmenu', (e)=>{
+    e.preventDefault();
+    if(kind==='shared'){
+      const listId = el.dataset.listId;
+      openDeadlinePickerForShared(listId, taskId);
+    } else {
+      openDeadlinePickerForLocal(taskId);
+    }
+  });
+}
 function handleCardContextMenu(e,id){if(e)e.preventDefault();openActionSheet(id);}
 function handleCardClick(id){if(lpTriggered){lpTriggered=false;return;}toggleSelected(id);}
 function openActionSheet(id){
@@ -1541,7 +1685,6 @@ function openActionSheet(id){
   document.getElementById('action-sheet-task-name').textContent=t.text;
   const cat=getCat(t.categoryId);
   document.getElementById('action-cat-label').textContent=cat?`Category: ${cat.name}`:'Set category';
-  document.getElementById('action-deadline-label').textContent = t.deadline ? `Deadline: ${formatDeadline(t.deadline)}` : 'Set deadline';
   document.getElementById('action-sheet-overlay').classList.add('active');
 }
 function closeActionSheet(e){if(e&&!e.target.classList.contains('action-sheet-overlay')&&!e.target.matches('.action-row'))return;document.getElementById('action-sheet-overlay').classList.remove('active');actionSheetTaskId=null;}
@@ -1551,11 +1694,12 @@ async function confirmRename(){const newText=document.getElementById('rename-inp
 function actionCategorize(){const id=actionSheetTaskId;document.getElementById('action-sheet-overlay').classList.remove('active');if(!settings.categories.length){showToast('Add a category in Settings first');return;}openCatAssign(id);}
 
 // ── DEADLINE PICKER ──
-function actionSetDeadline(){
-  deadlineTaskId = actionSheetTaskId;
-  const t = tasks.find(t=>t.id===deadlineTaskId);
-  if(!t){closeActionSheet({target:document.getElementById('action-sheet-overlay')});return;}
-  document.getElementById('action-sheet-overlay').classList.remove('active');
+// deadlineCtx: { type:'local'|'shared', taskId, listId? }
+let deadlineCtx = null;
+
+function openDeadlinePickerForLocal(taskId){
+  const t = tasks.find(t=>t.id===taskId);if(!t)return;
+  deadlineCtx = {type:'local', taskId};
   pendingDeadline = t.deadline || null;
   const inp = document.getElementById('deadline-input');
   inp.value = pendingDeadline || '';
@@ -1564,7 +1708,25 @@ function actionSetDeadline(){
   document.getElementById('deadline-popup').classList.add('active');
   setTimeout(()=>inp.focus(),80);
 }
-function closeDeadline(){document.getElementById('deadline-popup').classList.remove('active');deadlineTaskId=null;pendingDeadline=null;}
+
+function openDeadlinePickerForShared(listId, taskId){
+  const list = sharedTasksByList[listId] || [];
+  const t = list.find(x=>x.id===taskId);if(!t)return;
+  deadlineCtx = {type:'shared', taskId, listId};
+  pendingDeadline = t.deadline || null;
+  const inp = document.getElementById('deadline-input');
+  inp.value = pendingDeadline || '';
+  inp.min = todayStr();
+  document.getElementById('deadline-current-label').textContent = t.deadline ? `Currently: ${formatDeadline(t.deadline)}` : 'No deadline set';
+  document.getElementById('deadline-popup').classList.add('active');
+  setTimeout(()=>inp.focus(),80);
+}
+
+function closeDeadline(){
+  document.getElementById('deadline-popup').classList.remove('active');
+  deadlineCtx=null;
+  pendingDeadline=null;
+}
 function setQuickDeadline(days){
   pendingDeadline = addDaysStr(days);
   document.getElementById('deadline-input').value = pendingDeadline;
@@ -1574,16 +1736,25 @@ function clearDeadline(){
   document.getElementById('deadline-input').value = '';
 }
 async function confirmDeadline(){
-  if(!deadlineTaskId){closeDeadline();return;}
-  const t = tasks.find(t=>t.id===deadlineTaskId);
-  if(!t){closeDeadline();return;}
+  if(!deadlineCtx){closeDeadline();return;}
   const inputVal = document.getElementById('deadline-input').value;
-  const finalDeadline = inputVal || pendingDeadline; // prefer typed value
-  t.deadline = finalDeadline || null;
-  await saveTask(t);
+  const finalDeadline = inputVal || pendingDeadline;
+  try {
+    if(deadlineCtx.type==='local'){
+      const t = tasks.find(t=>t.id===deadlineCtx.taskId);
+      if(!t){closeDeadline();return;}
+      t.deadline = finalDeadline || null;
+      await saveTask(t);
+    } else if(deadlineCtx.type==='shared'){
+      await window.fb.updateDoc(
+        window.fb.doc(window.fb.db,'sharedLists',deadlineCtx.listId,'tasks',deadlineCtx.taskId),
+        {deadline: finalDeadline || null}
+      );
+    }
+    showToast(finalDeadline ? `Deadline set: ${formatDeadline(finalDeadline)}` : 'Deadline removed');
+  } catch(e){console.error(e);showToast('Failed to save deadline');}
   closeDeadline();
   render();
-  showToast(t.deadline ? `Deadline set: ${formatDeadline(t.deadline)}` : 'Deadline removed');
 }
 
 function actionDelete(){singleDeleteTaskId=actionSheetTaskId;const t=tasks.find(t=>t.id===singleDeleteTaskId);document.getElementById('action-sheet-overlay').classList.remove('active');document.getElementById('delete-confirm-body').textContent=`Delete "${t?t.text:''}"? This cannot be undone.`;document.getElementById('delete-confirm-popup').classList.add('active');}
