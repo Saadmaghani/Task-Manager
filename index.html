@@ -1233,19 +1233,17 @@ function getResetMs(){const[hh,mm]=settings.resetTime.split(':').map(Number),d=n
 function getNextResetDate(){const d=getResetMs();if(d<=new Date())d.setDate(d.getDate()+1);return d;}
 async function checkAndRunReset(){const last=parseInt(await dbGetSetting('lastReset','0'),10),rt=getResetMs().getTime();if(Date.now()>=rt&&last<rt)await runReset(false);}
 async function runReset(manual){
-  // Tasks with a deadline (still in the future or today) stay in Current; others reset.
-  const todayStart = new Date(); todayStart.setHours(0,0,0,0);
+  // Tasks with a deadline stay in Current day-to-day UNTIL they're completed.
+  // Once marked done, they should leave Current and reset normally — same as any other task.
   tasks.forEach(t=>{
-    const keepInCurrent = t.deadline && (new Date(t.deadline+'T23:59:59').getTime() >= Date.now() || isOverdue(t.deadline));
-    // If user wants overdue indicator to remain in Current too, keep it; otherwise reset
-    if(keepInCurrent){
-      // keep .current as it is; reset .done so user can re-check next day
-      t.done = false;
-      t.selected = false;
+    const stayInCurrent = !!t.deadline && t.current && !t.done;
+    if(stayInCurrent){
+      t.selected = false; // still pending — keep current=true, done stays false
     } else {
       t.current = false;
       t.done = false;
       t.selected = false;
+      if(t.deadline) t.deadline = null; // deadline has served its purpose (completed, or wasn't in Current)
     }
   });
   await saveTasks(tasks);
@@ -1768,7 +1766,7 @@ function closeWelldone(){document.getElementById('welldone-overlay').classList.r
 async function addTask(text){text=text.trim();if(!text)return;const t={id:uid(),text,done:false,selected:false,current:false,lastCompletedAt:null,categoryId:null,createdAt:Date.now(),deadline:null};tasks.unshift(t);await saveTask(t);render();}
 async function toggleSelected(id){const t=tasks.find(t=>t.id===id);if(!t)return;if(t.current)return;if(t.done&&!t.selected){showToast('Task already completed today');return;}const selCount=tasks.filter(t=>t.selected).length,n=settings.nTasks;if(!t.selected){if(selCount>=n&&!extraSelAllowed){showExtraPopup(id);return;}t.selected=true;}else{t.selected=false;}await saveTask(t);render();}
 async function toggleDone(id,locked){if(locked){showToast('Complete all subtasks first');return;}const t=tasks.find(t=>t.id===id);if(!t)return;if(hasSubs(id)){showToast('Toggle via subtasks');return;}t.done=!t.done;if(t.done){t.lastCompletedAt=Date.now();await recordCompletion(t);}else{const todayStart=new Date();todayStart.setHours(0,0,0,0);const recent=await db.history.where('taskId').equals(id).reverse().sortBy('completedAt');const todayEntry=recent.find(h=>h.completedAt>=todayStart.getTime());if(todayEntry)await db.history.delete(todayEntry.id);}await saveTask(t);render();}
-async function removeFromCurrent(id){const t=tasks.find(t=>t.id===id);if(!t)return;t.current=false;t.selected=false;await saveTask(t);render();}
+async function removeFromCurrent(id){const t=tasks.find(t=>t.id===id);if(!t)return;t.current=false;t.selected=false;if(t.deadline)t.deadline=null;await saveTask(t);render();}
 async function confirmSelection(){const selected=tasks.filter(t=>t.selected);if(selected.length<settings.nTasks)return;const toUpdate=[];tasks.forEach(t=>{if(t.current){t.current=false;toUpdate.push(t);}});selected.forEach(t=>{t.current=true;toUpdate.push(t);});await saveTasks(toUpdate);extraSelAllowed=false;welldoneShown=false;render();switchTab('current');}
 async function toggleSetting(k){settings[k]=!settings[k];await saveSettings();render();}
 async function changeN(d){settings.nTasks=Math.max(1,Math.min(20,settings.nTasks+d));await saveSettings();render();}
