@@ -279,42 +279,88 @@
     .color-swatch-opt:active{transform:scale(0.9)}
     .color-swatch-opt.picked{border-color:var(--text);box-shadow:0 0 0 2px var(--bg) inset}
 
-    /* NOTES */
-    .notes-list{display:flex;flex-direction:column;gap:8px}
-    .note-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 13px 10px;animation:slideIn 0.18s ease;box-shadow:0 1px 2px rgba(60,50,30,0.04);position:relative}
-    .note-card.archived{background:var(--surface2);border-style:dashed}
-    .note-card.archived .note-content,.note-card.archived .note-content *{color:var(--text-dim) !important;text-decoration:line-through;text-decoration-color:var(--text-dim)}
-    .note-card.archived .note-content ul,.note-card.archived .note-content ol{text-decoration:none}
-    .note-card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;gap:8px}
-    .note-date{font-size:10px;font-family:'DM Mono',monospace;color:var(--text-dim);letter-spacing:0.5px}
-    .note-actions{display:flex;gap:4px}
-    .note-action-btn{background:none;border:none;color:var(--text-muted);cursor:pointer;padding:4px 7px;border-radius:6px;font-size:13px;font-family:'DM Mono',monospace}
-    .note-action-btn:active{background:var(--surface2)}
-    .note-action-btn.archive:active,.note-action-btn.unarchive:active{color:var(--accent)}
-    .note-action-btn.del:active{color:var(--danger)}
-    .note-content{font-size:14px;line-height:1.5;color:var(--text);word-break:break-word;outline:none}
-    .note-content[contenteditable=true]{min-height:24px;cursor:text;user-select:text}
-    .note-content[contenteditable=true]:empty:before{content:attr(data-placeholder);color:var(--text-dim);pointer-events:none}
-    .note-content ul,.note-content ol{padding-left:22px;margin:4px 0}
-    .note-content li{margin:2px 0}
-    .note-toolbar{display:none;margin-top:8px;padding-top:8px;border-top:1px dashed var(--border);gap:4px;flex-wrap:wrap}
-    .note-toolbar.active{display:flex}
-    .note-toolbar-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);padding:5px 9px;border-radius:7px;font-size:12px;font-family:'DM Mono',monospace;cursor:pointer;font-weight:500}
-    .note-toolbar-btn:active{background:var(--surface3)}
-    .note-toolbar-btn.b{font-weight:700}
-    .note-toolbar-btn.i{font-style:italic}
-    .note-toolbar-btn.u{text-decoration:underline}
-    .archive-toggle{display:flex;align-items:center;gap:8px;padding:11px 14px;background:var(--surface);border:1px solid var(--border);border-radius:11px;cursor:pointer;margin-top:14px}
-    .archive-toggle:active{background:var(--surface2)}
-    .archive-toggle-icon{font-size:12px;color:var(--text-muted);transition:transform 0.25s ease}
-    .archive-toggle.open .archive-toggle-icon{transform:rotate(90deg)}
-    .archive-toggle-label{font-size:13px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:0.5px;flex:1}
-    .archive-toggle-count{font-size:12px;font-family:'DM Mono',monospace;color:var(--accent);font-weight:500;background:var(--accent-dim);padding:2px 9px;border-radius:10px}
-    .archive-list{display:none;flex-direction:column;gap:8px;margin-top:10px;animation:slideIn 0.22s ease}
-    .archive-list.open{display:flex}
-    .notes-add-row{display:flex;gap:8px;padding:10px 12px;border-bottom:1px solid var(--border)}
-    .notes-add-row input{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:10px 13px;color:var(--text);font-size:15px;font-family:'DM Sans',sans-serif;outline:none}
-    .notes-add-row input:focus{border-color:var(--accent)}
+    /* ─── NOTEPAD (ruled paper) ─── */
+    :root{
+      --np-rule:38px;              /* spacing between ruled lines */
+      --np-paper:#f2f1ec;
+      --np-line:#b5b3ab;
+      --np-ink:#2e2d29;
+      --np-bullet-dim:#c2c0b8;
+    }
+    #screen-notes{background:var(--np-paper)}
+    .notepad-scroll{
+      flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
+      background:var(--np-paper);
+      padding:calc(var(--safe-top) + 22px) 0 24px;
+    }
+    .notepad-page{
+      position:relative;
+      max-width:480px;margin:0 auto;
+      padding:0 26px;
+      min-height:calc(var(--np-rule) * 17);
+    }
+    .notepad-rules{
+      position:absolute;left:26px;right:26px;top:0;bottom:0;
+      pointer-events:none;
+      background-image:repeating-linear-gradient(
+        to bottom,
+        transparent 0,
+        transparent calc(var(--np-rule) - 1px),
+        var(--np-line) calc(var(--np-rule) - 1px),
+        var(--np-line) var(--np-rule)
+      );
+    }
+    .notepad-lines{
+      position:relative;
+      list-style:none;margin:0;padding:0;
+      outline:none;
+      -webkit-user-select:text;user-select:text;
+      font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif;
+      font-size:15px;
+      color:var(--np-ink);
+      caret-color:var(--np-ink);
+    }
+    .notepad-lines li{
+      position:relative;
+      line-height:var(--np-rule);
+      min-height:var(--np-rule);
+      padding-left:20px;
+      word-break:break-word;
+      white-space:pre-wrap;
+    }
+    .notepad-lines li::before{
+      content:'•';
+      position:absolute;left:2px;top:0;
+      line-height:var(--np-rule);
+      font-size:16px;
+      color:var(--np-ink);
+      pointer-events:none;
+    }
+    /* empty line → dimmed placeholder bullet */
+    .notepad-lines li.np-empty::before{color:var(--np-bullet-dim)}
+
+    .notepad-footer{
+      max-width:480px;margin:26px auto 0;
+      padding:0 26px;
+      display:flex;align-items:flex-end;justify-content:space-between;gap:12px;
+      font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif;
+      color:var(--np-ink);
+    }
+    .notepad-footer-side{
+      font-size:8px;font-weight:600;letter-spacing:1.4px;line-height:1.5;
+      opacity:0.9;
+    }
+    .notepad-footer-center{
+      font-size:15px;font-weight:600;letter-spacing:2.5px;
+    }
+
+    /* MORE MENU */
+    .more-menu-row{display:flex;align-items:center;gap:12px;padding:13px 16px;background:none;border:none;width:100%;text-align:left;cursor:pointer;color:var(--text);font-size:15px;font-family:'DM Sans',sans-serif;transition:background 0.12s;border-top:1px solid var(--border)}
+    .more-menu-row:first-child{border-top:none}
+    .more-menu-row:active{background:var(--surface2)}
+    .more-menu-row.active-screen{color:var(--accent)}
+    .more-menu-icon{font-size:18px;width:22px;text-align:center;flex-shrink:0;opacity:0.8}
+    .more-menu-label{flex:1;font-size:14px}
 
     /* ─── SPLASH ─── */
     #splash{position:fixed;inset:0;background:var(--bg);z-index:500;display:none;flex-direction:column;overflow-y:auto;-webkit-overflow-scrolling:touch}
@@ -525,22 +571,16 @@
 
   <!-- NOTES -->
   <div class="screen" id="screen-notes">
-    <div class="header">
-      <div class="header-left"><h1><span class="accent-dot"></span>Notes</h1><div class="subtitle" id="notes-subtitle">0 notes</div></div>
-      <div class="header-actions"><div class="header-date"><div class="hd-day" id="hd-day-notes"></div><div class="hd-date" id="hd-date-notes"></div></div></div>
-    </div>
-    <div class="notes-add-row">
-      <input type="text" id="new-note-input" placeholder="Add a note…" maxlength="500"/>
-      <button class="btn-add" onclick="createNoteFromInput()">+</button>
-    </div>
-    <div class="screen-body">
-      <div class="notes-list" id="notes-list"></div>
-      <div class="archive-toggle" id="archive-toggle" onclick="toggleArchive()">
-        <span class="archive-toggle-icon">▶</span>
-        <span class="archive-toggle-label">Archive</span>
-        <span class="archive-toggle-count" id="archive-count">0</span>
+    <div class="notepad-scroll" id="notepad-scroll">
+      <div class="notepad-page">
+        <div class="notepad-rules"></div>
+        <ul class="notepad-lines" id="notepad-lines" contenteditable="true" spellcheck="false"></ul>
       </div>
-      <div class="archive-list" id="archive-list"></div>
+      <div class="notepad-footer">
+        <span class="notepad-footer-side">TASK<br>MANAGER</span>
+        <span class="notepad-footer-center">( NOTES )</span>
+        <span class="notepad-footer-side">TASK<br>MANAGER</span>
+      </div>
     </div>
   </div>
 
@@ -621,7 +661,7 @@
         <div class="settings-row"><div class="settings-row-info"><div class="settings-row-label">Total tasks</div></div><span class="settings-val" id="stat-total">0</span></div>
         <div class="settings-row"><div class="settings-row-info"><div class="settings-row-label">Completed today</div></div><span class="settings-val" id="stat-done-today" style="color:var(--accent)">0</span></div>
         <button class="btn-danger-row" onclick="clearCompleted()">Clear completed tasks</button>
-        <button class="btn-danger-row" onclick="clearArchivedNotes()">Clear archived notes</button>
+        <button class="btn-danger-row" onclick="clearNotepad()">Clear all notes</button>
         <button class="btn-danger-row" onclick="clearAll()">Clear all data</button>
       </div>
       <div class="app-version">my tasks / v9.0.0 · cloud sync</div>
@@ -631,10 +671,24 @@
   <nav class="tab-bar">
     <button class="tab active" data-screen="tasks" onclick="switchTab('tasks')"><span class="tab-icon">☰</span><span class="tab-label">TASKS</span><span class="tab-badge" id="badge-tasks" style="display:none"></span></button>
     <button class="tab" data-screen="current" onclick="switchTab('current')"><span class="tab-icon">◎</span><span class="tab-label">CURRENT</span><span class="tab-badge" id="badge-current" style="display:none"></span></button>
-    <button class="tab" data-screen="notes" onclick="switchTab('notes')"><span class="tab-icon">✎</span><span class="tab-label">NOTES</span><span class="tab-badge" id="badge-notes" style="display:none"></span></button>
     <button class="tab" data-screen="shared" onclick="switchTab('shared')"><span class="tab-icon">⤴</span><span class="tab-label">SHARED</span><span class="tab-badge" id="badge-shared" style="display:none"></span></button>
-    <button class="tab" data-screen="settings" onclick="switchTab('settings')"><span class="tab-icon">⊙</span><span class="tab-label">SETTINGS</span></button>
+    <button class="tab" id="tab-more" onclick="toggleMoreMenu()"><span class="tab-icon">⋯</span><span class="tab-label">MORE</span></button>
   </nav>
+</div>
+
+<!-- MORE MENU -->
+<div id="more-overlay" onclick="closeMoreMenu()" style="display:none;position:fixed;inset:0;z-index:80;background:rgba(40,30,20,0.25);backdrop-filter:blur(2px)"></div>
+<div id="more-menu" style="display:none;position:fixed;bottom:calc(var(--tab-h) + var(--safe-bottom) + 10px);right:12px;z-index:81;background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:0 8px 28px rgba(40,30,20,0.18);min-width:180px;overflow:hidden;animation:popIn 0.18s ease">
+  <button class="more-menu-row" id="more-btn-notes" onclick="moreNav('notes')">
+    <span class="more-menu-icon">✎</span>
+    <span class="more-menu-label">Notes</span>
+    <span class="tab-badge" id="badge-notes" style="display:none;position:static;margin-left:auto"></span>
+  </button>
+  <button class="more-menu-row" id="more-btn-settings" onclick="moreNav('settings')">
+    <span class="more-menu-icon">⊙</span>
+    <span class="more-menu-label">Settings</span>
+  </button>
+</div>
 </div>
 
 <!-- HISTORY (same as v8) -->
@@ -742,7 +796,7 @@ async function dbSetSetting(k,v){await db.settings.put({key:k,value:v});}
 // ═══════════════════════════════════════════
 let tasks=[], settings={showDone:true,doneBottom:true,nTasks:3,resetTime:'05:00',categories:[],staleWeeks:3};
 let subtasks={}, standaloneNotes=[];
-let archiveOpen=false, extraSelAllowed=false, pendingSelectId=null;
+let extraSelAllowed=false, pendingSelectId=null;
 let activeFilter=null, pendingCatAssignId=null, colorPickerCatId=null, welldoneShown=false;
 let actionSheetTaskId=null, renameTaskId=null, singleDeleteTaskId=null;
 let searchQuery='';
@@ -778,7 +832,7 @@ async function loadAll(){
   settings.staleWeeks=await dbGetSetting('staleWeeks',3);
   const allSubs=await db.notes.toArray();subtasks={};allSubs.forEach(r=>{subtasks[r.taskId]=r.items||[];});
   standaloneNotes=await db.standaloneNotes.toArray();
-  standaloneNotes.sort((a,b)=>{if(a.archived!==b.archived)return a.archived?1:-1;if(a.archived)return (b.archivedAt||0)-(a.archivedAt||0);return (b.createdAt||0)-(a.createdAt||0);});
+  await migrateNotesToNotepad();
 }
 async function saveTask(t){await db.tasks.put({...t});if(cloudSyncEnabled)await cloudSaveTask(t);}
 async function saveTasks(arr){await db.tasks.bulkPut(arr.map(t=>({...t})));if(cloudSyncEnabled){for(const t of arr) await cloudSaveTask(t);}}
@@ -945,8 +999,8 @@ async function pullCloudToLocal(){
       const byId = {};
       [...standaloneNotes,...cloudNotes].forEach(n=>{byId[n.id]=n;});
       standaloneNotes = Object.values(byId);
-      standaloneNotes.sort((a,b)=>{if(a.archived!==b.archived)return a.archived?1:-1;return (b.createdAt||0)-(a.createdAt||0);});
       await db.standaloneNotes.bulkPut(standaloneNotes);
+      await migrateNotesToNotepad();
     }
     // settings
     const sDoc = await window.fb.getDoc(userDoc('meta','settings'));
@@ -977,7 +1031,10 @@ function attachCloudListeners(){
       if(ch.type==='removed'){standaloneNotes=standaloneNotes.filter(x=>x.id!==n.id);db.standaloneNotes.delete(n.id);}
       else{const i=standaloneNotes.findIndex(x=>x.id===n.id);if(i>=0)standaloneNotes[i]=n;else standaloneNotes.push(n);db.standaloneNotes.put(n);}
     });
-    standaloneNotes.sort((a,b)=>{if(a.archived!==b.archived)return a.archived?1:-1;return (b.createdAt||0)-(a.createdAt||0);});
+    const pad = standaloneNotes.find(n=>n.id===NOTEPAD_ID);
+    if(pad && Array.isArray(pad.lines) && !isNotepadFocused()){
+      notepadLines = pad.lines.slice();
+    }
     renderNotes();updateBadges();
   }));
   // subtasks
@@ -1432,38 +1489,170 @@ function renderCurrent(){
   });
 }
 
+// ═══════════════════════════════════════════
+// NOTEPAD — one continuous ruled page of bullets
+// Stored as a single record: {id:'notepad', lines:[...]}
+// ═══════════════════════════════════════════
+const NOTEPAD_ID = 'notepad';
+let notepadLines = [''];      // in-memory source of truth
+let notepadSaveTimer = null;
+
+function getNotepadEl(){ return document.getElementById('notepad-lines'); }
+function isNotepadFocused(){
+  const el = getNotepadEl();
+  return el && (document.activeElement === el || el.contains(document.activeElement));
+}
+
+// Build <li> rows from notepadLines. Only called when NOT editing,
+// so we never clobber the caret mid-typing.
 function renderNotes(){
-  const list=document.getElementById('notes-list');
-  const archList=document.getElementById('archive-list');
-  const active=standaloneNotes.filter(n=>!n.archived);
-  const archived=standaloneNotes.filter(n=>n.archived);
-  document.getElementById('notes-subtitle').textContent=`${active.length} note${active.length!==1?'s':''}`;
-  document.getElementById('archive-count').textContent=archived.length;
-  if(!active.length){list.innerHTML=`<div class="empty"><div class="icon">✎</div><p>No notes yet.<br>Add one above.</p></div>`;}
-  else{list.innerHTML=active.map(n=>noteHtml(n)).join('');}
-  if(archived.length){archList.innerHTML=archived.map(n=>noteHtml(n)).join('');document.getElementById('archive-toggle').style.display='flex';}
-  else{archList.innerHTML='';document.getElementById('archive-toggle').style.display=archiveOpen?'flex':'none';}
-  archList.classList.toggle('open',archiveOpen);
-  document.getElementById('archive-toggle').classList.toggle('open',archiveOpen);
-  document.querySelectorAll('.note-content[contenteditable=true]').forEach(el=>{if(el._bound)return;el._bound=true;el.addEventListener('focus',()=>{el.parentNode.querySelector('.note-toolbar').classList.add('active');});el.addEventListener('blur',()=>{setTimeout(()=>{if(!el.parentNode.contains(document.activeElement)){el.parentNode.querySelector('.note-toolbar').classList.remove('active');}},150);saveNoteFromEl(el);});el.addEventListener('input',()=>{clearTimeout(el._saveTimer);el._saveTimer=setTimeout(()=>saveNoteFromEl(el),600);});});
+  const el = getNotepadEl();
+  if(!el) return;
+  if(isNotepadFocused()) { markEmptyLines(); return; }
+  if(!notepadLines.length) notepadLines = [''];
+  el.innerHTML = notepadLines.map(t =>
+    `<li${t.trim()===''?' class="np-empty"':''}>${t ? escHtml(t) : '<br>'}</li>`
+  ).join('');
+  updateBadges();
 }
 
-function noteHtml(n){
-  const editable=!n.archived;
-  const dateStr=new Date(n.createdAt).toLocaleDateString('en',{day:'numeric',month:'short'});
-  const actions=n.archived?`<button class="note-action-btn unarchive" onclick="unarchiveNote('${n.id}')">↩ unarchive</button><button class="note-action-btn del" onclick="deleteNote('${n.id}')">✕</button>`:`<button class="note-action-btn archive" onclick="archiveNote('${n.id}')">✓ archive</button><button class="note-action-btn del" onclick="deleteNote('${n.id}')">✕</button>`;
-  return`<div class="note-card${n.archived?' archived':''}"><div class="note-card-header"><span class="note-date">${dateStr}</span><div class="note-actions">${actions}</div></div><div class="note-content" data-id="${n.id}" ${editable?'contenteditable="true"':''} data-placeholder="Type here…">${n.html||''}</div>${editable?`<div class="note-toolbar"><button class="note-toolbar-btn b" onclick="fmt('${n.id}','bold')">B</button><button class="note-toolbar-btn i" onclick="fmt('${n.id}','italic')">I</button><button class="note-toolbar-btn u" onclick="fmt('${n.id}','underline')">U</button><button class="note-toolbar-btn" onclick="fmt('${n.id}','insertUnorderedList')">• List</button><button class="note-toolbar-btn" onclick="fmt('${n.id}','insertOrderedList')">1. List</button></div>`:''}</div>`;
+// Toggle the dim-bullet class on empty lines (runs on every input)
+function markEmptyLines(){
+  const el = getNotepadEl(); if(!el) return;
+  el.querySelectorAll('li').forEach(li=>{
+    const empty = li.textContent.replace(/\u200B/g,'').trim() === '';
+    li.classList.toggle('np-empty', empty);
+  });
 }
 
-function fmt(noteId,command){const el=document.querySelector(`.note-content[data-id="${noteId}"]`);if(!el)return;el.focus();document.execCommand(command,false,null);saveNoteFromEl(el);}
-async function saveNoteFromEl(el){const id=el.dataset.id;const n=standaloneNotes.find(n=>n.id===id);if(!n||n.html===el.innerHTML)return;n.html=el.innerHTML;await saveNote(n);}
-async function createNoteFromInput(){const inp=document.getElementById('new-note-input');const txt=inp.value.trim();if(!txt)return;await createNote(txt);inp.value='';}
-async function createNote(text){const n={id:uid(),html:escHtml(text),createdAt:Date.now(),archived:false,archivedAt:null};standaloneNotes.unshift(n);await saveNote(n);renderNotes();updateBadges();setTimeout(()=>{const el=document.querySelector(`.note-content[data-id="${n.id}"]`);if(el){el.focus();const r=document.createRange();r.selectNodeContents(el);r.collapse(false);const s=window.getSelection();s.removeAllRanges();s.addRange(r);}},80);}
-async function archiveNote(id){const n=standaloneNotes.find(n=>n.id===id);if(!n)return;n.archived=true;n.archivedAt=Date.now();await saveNote(n);standaloneNotes.sort((a,b)=>{if(a.archived!==b.archived)return a.archived?1:-1;return (b.createdAt||0)-(a.createdAt||0);});renderNotes();updateBadges();showToast('Note archived');}
-async function unarchiveNote(id){const n=standaloneNotes.find(n=>n.id===id);if(!n)return;n.archived=false;n.archivedAt=null;await saveNote(n);standaloneNotes.sort((a,b)=>{if(a.archived!==b.archived)return a.archived?1:-1;return (b.createdAt||0)-(a.createdAt||0);});renderNotes();updateBadges();}
-async function deleteNote(id){const n=standaloneNotes.find(n=>n.id===id);if(!n)return;if(!confirm('Delete this note permanently?'))return;standaloneNotes=standaloneNotes.filter(x=>x.id!==id);await deleteNoteFromDB(id);renderNotes();updateBadges();}
-function toggleArchive(){archiveOpen=!archiveOpen;renderNotes();}
-async function clearArchivedNotes(){const archived=standaloneNotes.filter(n=>n.archived);if(!archived.length){showToast('No archived notes');return;}if(!confirm(`Delete ${archived.length} archived note${archived.length!==1?'s':''}?`))return;await Promise.all(archived.map(n=>deleteNoteFromDB(n.id)));standaloneNotes=standaloneNotes.filter(n=>!n.archived);renderNotes();updateBadges();}
+// Read the DOM back into notepadLines
+function syncNotepadFromDom(){
+  const el = getNotepadEl(); if(!el) return;
+  const lis = Array.from(el.querySelectorAll('li'));
+  notepadLines = lis.length ? lis.map(li => li.textContent.replace(/\u200B/g,'')) : [''];
+}
+
+function scheduleNotepadSave(){
+  clearTimeout(notepadSaveTimer);
+  notepadSaveTimer = setTimeout(saveNotepad, 500);
+}
+
+async function saveNotepad(){
+  syncNotepadFromDom();
+  const rec = { id: NOTEPAD_ID, lines: notepadLines, updatedAt: Date.now() };
+  const i = standaloneNotes.findIndex(n => n.id === NOTEPAD_ID);
+  if(i >= 0) standaloneNotes[i] = rec; else standaloneNotes.push(rec);
+  await saveNote(rec);
+  updateBadges();
+}
+
+// Ensure the list always has at least one <li> and place caret in it
+function ensureAtLeastOneLine(){
+  const el = getNotepadEl(); if(!el) return;
+  if(!el.querySelector('li')){
+    const li = document.createElement('li');
+    li.className = 'np-empty';
+    li.innerHTML = '<br>';
+    el.appendChild(li);
+  }
+}
+
+function placeCaretAtEnd(node){
+  const r = document.createRange();
+  r.selectNodeContents(node);
+  r.collapse(false);
+  const s = window.getSelection();
+  s.removeAllRanges();
+  s.addRange(r);
+}
+
+// Called when the Notes tab is opened
+function focusNotepad(){
+  const el = getNotepadEl(); if(!el) return;
+  ensureAtLeastOneLine();
+  const lis = el.querySelectorAll('li');
+  const last = lis[lis.length - 1];
+  el.focus();
+  if(last) placeCaretAtEnd(last);
+}
+
+function initNotepadEvents(){
+  const el = getNotepadEl(); if(!el || el._npBound) return;
+  el._npBound = true;
+
+  el.addEventListener('input', ()=>{
+    ensureAtLeastOneLine();
+    markEmptyLines();
+    scheduleNotepadSave();
+  });
+
+  // Strip formatting on paste — plain text only
+  el.addEventListener('paste', (e)=>{
+    e.preventDefault();
+    const text = (e.clipboardData || window.clipboardData).getData('text/plain') || '';
+    const parts = text.split(/\r?\n/);
+    document.execCommand('insertText', false, parts.join('\n'));
+    setTimeout(()=>{ ensureAtLeastOneLine(); markEmptyLines(); scheduleNotepadSave(); }, 0);
+  });
+
+  // Block bold/italic/underline keyboard shortcuts — plain text only
+  el.addEventListener('keydown', (e)=>{
+    if((e.metaKey || e.ctrlKey) && ['b','i','u'].includes(e.key.toLowerCase())){
+      e.preventDefault();
+    }
+  });
+
+  el.addEventListener('blur', ()=>{ saveNotepad(); });
+}
+
+// Migrate old card-style notes into the notepad, then remove them
+async function migrateNotesToNotepad(){
+  const pad = standaloneNotes.find(n => n.id === NOTEPAD_ID);
+  const legacy = standaloneNotes.filter(n => n.id !== NOTEPAD_ID);
+
+  if(pad && Array.isArray(pad.lines)) notepadLines = pad.lines.slice();
+  else notepadLines = [];
+
+  if(legacy.length){
+    // convert each legacy note's html into plain-text lines
+    const tmp = document.createElement('div');
+    const converted = [];
+    legacy
+      .sort((a,b)=>(a.createdAt||0)-(b.createdAt||0))
+      .forEach(n=>{
+        tmp.innerHTML = (n.html || '')
+          .replace(/<\/(p|div|li|ul|ol|h[1-6])>/gi,'\n')
+          .replace(/<br\s*\/?>/gi,'\n');
+        const text = (tmp.textContent || '');
+        text.split(/\n+/).map(s=>s.trim()).filter(Boolean).forEach(line=>converted.push(line));
+      });
+    if(converted.length) notepadLines = notepadLines.concat(converted);
+    // delete legacy records
+    for(const n of legacy){
+      await deleteNoteFromDB(n.id);
+    }
+    standaloneNotes = standaloneNotes.filter(n => n.id === NOTEPAD_ID);
+    // persist merged result
+    const rec = { id: NOTEPAD_ID, lines: notepadLines, updatedAt: Date.now() };
+    const i = standaloneNotes.findIndex(n => n.id === NOTEPAD_ID);
+    if(i >= 0) standaloneNotes[i] = rec; else standaloneNotes.push(rec);
+    await saveNote(rec);
+  }
+
+  if(!notepadLines.length) notepadLines = [''];
+}
+
+async function clearNotepad(){
+  if(!confirm('Clear all notes? This cannot be undone.')) return;
+  notepadLines = [''];
+  const rec = { id: NOTEPAD_ID, lines: notepadLines, updatedAt: Date.now() };
+  const i = standaloneNotes.findIndex(n => n.id === NOTEPAD_ID);
+  if(i >= 0) standaloneNotes[i] = rec; else standaloneNotes.push(rec);
+  await saveNote(rec);
+  renderNotes();
+  showToast('Notes cleared');
+}
+
 
 // SHARED RENDER
 function renderShared(){
@@ -1614,7 +1803,7 @@ function renderAccount(){
 
 function updateBadges(){
   const pending=tasks.filter(t=>!t.done&&!t.current).length,current=tasks.filter(t=>t.current).length;
-  const activeNotes=standaloneNotes.filter(n=>!n.archived).length;
+  const activeNotes=(typeof notepadLines!=='undefined'?notepadLines:[]).filter(l=>l && l.trim()!=='').length;
   const sharedPending = sharedLists.reduce((acc,l)=>{const ts=sharedTasksByList[l.id]||[];return acc+ts.filter(t=>!t.done).length;},0);
   const bt=document.getElementById('badge-tasks'),bc=document.getElementById('badge-current'),bn=document.getElementById('badge-notes'),bs=document.getElementById('badge-shared');
   bt.style.display=pending>0?'flex':'none';bt.textContent=pending;
@@ -1774,7 +1963,56 @@ async function changeStaleWeeks(d){settings.staleWeeks=Math.max(1,Math.min(52,se
 async function clearCompleted(){if(!tasks.some(t=>t.done))return;if(confirm('Remove all completed tasks?')){const toDelete=tasks.filter(t=>t.done);await Promise.all(toDelete.map(t=>deleteTaskFromDB(t.id)));tasks=tasks.filter(t=>!t.done);render();}}
 async function clearAll(){if(!confirm('Remove ALL local data? This cannot be undone.'))return;await db.tasks.clear();await db.notes.clear();await db.history.clear();await db.standaloneNotes.clear();tasks=[];subtasks={};standaloneNotes=[];render();showToast('Local data cleared. Cloud data still exists if signed in.');}
 
-function switchTab(name){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.getElementById(`screen-${name}`).classList.add('active');document.querySelector(`[data-screen="${name}"]`).classList.add('active');if(name==='current'){const cur=tasks.filter(t=>t.current),done=cur.filter(t=>t.done).length;applyCurrentBg(cur.length>0?done/cur.length:0);}else resetBg();}
+// ── MORE MENU ──
+let moreMenuOpen = false;
+function toggleMoreMenu(){
+  moreMenuOpen ? closeMoreMenu() : openMoreMenu();
+}
+function openMoreMenu(){
+  moreMenuOpen = true;
+  document.getElementById('more-overlay').style.display = 'block';
+  document.getElementById('more-menu').style.display = 'block';
+  document.getElementById('tab-more').classList.add('active');
+  // highlight whichever screen is currently open in the More section
+  const cur = document.querySelector('.screen.active');
+  const curId = cur ? cur.id.replace('screen-','') : '';
+  document.getElementById('more-btn-notes').classList.toggle('active-screen', curId==='notes');
+  document.getElementById('more-btn-settings').classList.toggle('active-screen', curId==='settings');
+}
+function closeMoreMenu(){
+  moreMenuOpen = false;
+  document.getElementById('more-overlay').style.display = 'none';
+  document.getElementById('more-menu').style.display = 'none';
+  document.getElementById('tab-more').classList.remove('active');
+}
+function moreNav(name){
+  closeMoreMenu();
+  switchTab(name);
+  // keep More button highlighted while on Notes/Settings
+  document.getElementById('tab-more').classList.add('active');
+  document.querySelectorAll('.tab[data-screen]').forEach(t=>t.classList.remove('active'));
+}
+
+function switchTab(name){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(`screen-${name}`).classList.add('active');
+  // only highlight the main tab bar button if it's one of the main 3
+  const mainTabs = ['tasks','current','shared'];
+  if(mainTabs.includes(name)){
+    document.querySelectorAll('.tab[data-screen]').forEach(t=>t.classList.remove('active'));
+    const tab = document.querySelector(`[data-screen="${name}"]`);
+    if(tab) tab.classList.add('active');
+    document.getElementById('tab-more').classList.remove('active');
+  }
+  if(name==='current'){const cur=tasks.filter(t=>t.current),done=cur.filter(t=>t.done).length;applyCurrentBg(cur.length>0?done/cur.length:0);}
+  else resetBg();
+  if(name==='notes'){
+    initNotepadEvents();
+    renderNotes();
+    // opening the tab is a user gesture, so focus brings the keyboard up
+    setTimeout(focusNotepad, 60);
+  }
+}
 
 // HISTORY VIEW
 async function openHistory(){document.getElementById('screen-history').classList.add('active');await renderHistory();}
@@ -1819,7 +2057,6 @@ document.getElementById('new-task-input').addEventListener('keydown',e=>{
   }
   if(e.key==='Enter'){addTask(e.target.value);e.target.value='';}
 });
-document.getElementById('new-note-input').addEventListener('keydown',e=>{if(e.key==='Enter'){createNoteFromInput();}});
 document.getElementById('rename-input').addEventListener('keydown',e=>{if(e.key==='Enter'){confirmRename();}else if(e.key==='Escape'){closeRename();}});
 document.getElementById('new-list-name').addEventListener('keydown',e=>{if(e.key==='Enter'){confirmNewList();}});
 document.getElementById('new-shared-task-input').addEventListener('keydown',e=>{if(e.key==='Enter'){addSharedTask();}});
@@ -1852,6 +2089,7 @@ async function init(){
   await initAuth();
   document.getElementById('loading').style.display='none';
   document.getElementById('app').style.display='flex';
+  initNotepadEvents();
   await maybeShowSplash();
   setInterval(updateDates,60000);
 }
