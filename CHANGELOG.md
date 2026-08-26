@@ -12,6 +12,21 @@ always tell you exactly which build they're on.
 
 ## Unreleased (beta)
 
+## v10.02
+
+### Changed
+- **Notes moved into the Current tab.** The notepad is now behind a ✎ button in
+  the Current header rather than being its own tab — notes are things you jot
+  while working through the day, so they belong next to the day's tasks. The
+  button toggles between the two views and turns into ◎ to come back. The header
+  title switches to "Notes", and the subtitle shows the line count.
+- Leaving and returning to the Current tab always lands on the task list.
+- The completion-gradient background is suspended while the notepad is open, so
+  the paper reads as paper.
+- **The "More" menu is gone.** With Notes moved out it held only Settings, so the
+  fourth tab is now Settings directly. The tab bar is Tasks / Current / Shared /
+  Settings.
+
 ## v10.01
 
 ### Added

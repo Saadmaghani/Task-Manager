@@ -287,7 +287,7 @@
       --np-ink:#2e2d29;
       --np-bullet-dim:#c2c0b8;
     }
-    #screen-notes{background:var(--np-paper)}
+    
     .notepad-scroll{
       flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
       background:var(--np-paper);
@@ -354,13 +354,10 @@
       font-size:15px;font-weight:600;letter-spacing:2.5px;
     }
 
-    /* MORE MENU */
-    .more-menu-row{display:flex;align-items:center;gap:12px;padding:13px 16px;background:none;border:none;width:100%;text-align:left;cursor:pointer;color:var(--text);font-size:15px;font-family:'DM Sans',sans-serif;transition:background 0.12s;border-top:1px solid var(--border)}
-    .more-menu-row:first-child{border-top:none}
-    .more-menu-row:active{background:var(--surface2)}
-    .more-menu-row.active-screen{color:var(--accent)}
-    .more-menu-icon{font-size:18px;width:22px;text-align:center;flex-shrink:0;opacity:0.8}
-    .more-menu-label{flex:1;font-size:14px}
+    /* Current tab sub-views */
+    .current-subview{display:flex;flex-direction:column;flex:1;overflow:hidden}
+    #current-notes-view{background:var(--np-paper)}
+    #current-notes-view .notepad-scroll{padding-top:18px}
 
     /* ─── SPLASH ─── */
     #splash{position:fixed;inset:0;background:var(--bg);z-index:500;display:none;flex-direction:column;overflow-y:auto;-webkit-overflow-scrolling:touch}
@@ -606,24 +603,31 @@
   <!-- CURRENT -->
   <div class="screen" id="screen-current">
     <div class="header">
-      <div class="header-left"><h1><span class="accent-dot"></span>Current</h1><div class="subtitle" id="current-subtitle">Your active focus</div></div>
-      <div class="header-actions"><div class="header-date"><div class="hd-day" id="hd-day-current"></div><div class="hd-date" id="hd-date-current"></div></div></div>
-    </div>
-    <div class="current-progress-bar"><span class="cur-prog-label"><span id="cur-done-count">0</span> / <span id="cur-total-count">0</span> done</span><div class="cur-prog-track"><div class="cur-prog-fill" id="cur-prog-fill" style="width:0%"></div></div></div>
-    <div class="screen-body"><div class="current-list" id="current-list"></div></div>
-  </div>
-
-  <!-- NOTES -->
-  <div class="screen" id="screen-notes">
-    <div class="notepad-scroll" id="notepad-scroll">
-      <div class="notepad-page">
-        <div class="notepad-rules"></div>
-        <ul class="notepad-lines" id="notepad-lines" contenteditable="true" spellcheck="false"></ul>
+      <div class="header-left"><h1><span class="accent-dot"></span><span id="current-title">Current</span></h1><div class="subtitle" id="current-subtitle">Your active focus</div></div>
+      <div class="header-actions">
+        <button class="btn-icon-action" id="btn-current-notes" onclick="toggleCurrentNotes()" title="Notes">✎</button>
+        <div class="header-date"><div class="hd-day" id="hd-day-current"></div><div class="hd-date" id="hd-date-current"></div></div>
       </div>
-      <div class="notepad-footer">
-        <span class="notepad-footer-side">TASK<br>MANAGER</span>
-        <span class="notepad-footer-center">( NOTES )</span>
-        <span class="notepad-footer-side">TASK<br>MANAGER</span>
+    </div>
+
+    <!-- view: today's tasks -->
+    <div class="current-subview" id="current-tasks-view">
+      <div class="current-progress-bar"><span class="cur-prog-label"><span id="cur-done-count">0</span> / <span id="cur-total-count">0</span> done</span><div class="cur-prog-track"><div class="cur-prog-fill" id="cur-prog-fill" style="width:0%"></div></div></div>
+      <div class="screen-body"><div class="current-list" id="current-list"></div></div>
+    </div>
+
+    <!-- view: notepad -->
+    <div class="current-subview" id="current-notes-view" style="display:none">
+      <div class="notepad-scroll" id="notepad-scroll">
+        <div class="notepad-page">
+          <div class="notepad-rules"></div>
+          <ul class="notepad-lines" id="notepad-lines" contenteditable="true" spellcheck="false"></ul>
+        </div>
+        <div class="notepad-footer">
+          <span class="notepad-footer-side">TASK<br>MANAGER</span>
+          <span class="notepad-footer-center">( NOTES )</span>
+          <span class="notepad-footer-side">TASK<br>MANAGER</span>
+        </div>
       </div>
     </div>
   </div>
@@ -708,7 +712,7 @@
         <button class="btn-danger-row" onclick="clearNotepad()">Clear all notes</button>
         <button class="btn-danger-row" onclick="clearAll()">Clear all data</button>
       </div>
-      <div class="app-version">my tasks / v10.01</div>
+      <div class="app-version">my tasks / v10.02</div>
     </div>
   </div>
 
@@ -716,23 +720,10 @@
     <button class="tab active" data-screen="tasks" onclick="switchTab('tasks')"><span class="tab-icon">☰</span><span class="tab-label">TASKS</span><span class="tab-badge" id="badge-tasks" style="display:none"></span></button>
     <button class="tab" data-screen="current" onclick="switchTab('current')"><span class="tab-icon">◎</span><span class="tab-label">CURRENT</span><span class="tab-badge" id="badge-current" style="display:none"></span></button>
     <button class="tab" data-screen="shared" onclick="switchTab('shared')"><span class="tab-icon">⤴</span><span class="tab-label">SHARED</span><span class="tab-badge" id="badge-shared" style="display:none"></span></button>
-    <button class="tab" id="tab-more" onclick="toggleMoreMenu()"><span class="tab-icon">⋯</span><span class="tab-label">MORE</span></button>
+    <button class="tab" data-screen="settings" onclick="switchTab('settings')"><span class="tab-icon">⊙</span><span class="tab-label">SETTINGS</span></button>
   </nav>
 </div>
 
-<!-- MORE MENU -->
-<div id="more-overlay" onclick="closeMoreMenu()" style="display:none;position:fixed;inset:0;z-index:80;background:rgba(40,30,20,0.25);backdrop-filter:blur(2px)"></div>
-<div id="more-menu" style="display:none;position:fixed;bottom:calc(var(--tab-h) + var(--safe-bottom) + 10px);right:12px;z-index:81;background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:0 8px 28px rgba(40,30,20,0.18);min-width:180px;overflow:hidden;animation:popIn 0.18s ease">
-  <button class="more-menu-row" id="more-btn-notes" onclick="moreNav('notes')">
-    <span class="more-menu-icon">✎</span>
-    <span class="more-menu-label">Notes</span>
-    <span class="tab-badge" id="badge-notes" style="display:none;position:static;margin-left:auto"></span>
-  </button>
-  <button class="more-menu-row" id="more-btn-settings" onclick="moreNav('settings')">
-    <span class="more-menu-icon">⊙</span>
-    <span class="more-menu-label">Settings</span>
-  </button>
-</div>
 </div>
 
 <!-- HISTORY (same as v8) -->
@@ -1581,7 +1572,7 @@ function renderCurrent(){
   const list=document.getElementById('current-list');
   const current=tasks.filter(t=>t.current);
   const doneCount=current.filter(t=>t.done).length,total=current.length,progress=total>0?doneCount/total:0;
-  document.getElementById('current-subtitle').textContent=total>0?`${total} task${total!==1?'s':''} in focus`:'No tasks confirmed yet';
+  updateCurrentSubtitle();
   document.getElementById('cur-done-count').textContent=doneCount;
   document.getElementById('cur-total-count').textContent=total;
   document.getElementById('cur-prog-fill').style.width=progress*100+'%';
@@ -1640,6 +1631,7 @@ function renderNotes(){
     `<li${t.trim()===''?' class="np-empty"':''}>${t ? escHtml(t) : '<br>'}</li>`
   ).join('');
   updateBadges();
+  if(typeof currentView !== 'undefined' && currentView === 'notes') updateCurrentSubtitle();
 }
 
 // Toggle the dim-bullet class on empty lines (runs on every input)
@@ -1670,6 +1662,7 @@ async function saveNotepad(){
   if(i >= 0) standaloneNotes[i] = rec; else standaloneNotes.push(rec);
   await saveNote(rec);
   updateBadges();
+  if(currentView === 'notes') updateCurrentSubtitle();
 }
 
 // Ensure the list always has at least one <li> and place caret in it
@@ -1929,12 +1922,10 @@ function renderAccount(){
 
 function updateBadges(){
   const pending=tasks.filter(t=>!t.done&&!t.current).length,current=tasks.filter(t=>t.current).length;
-  const activeNotes=(typeof notepadLines!=='undefined'?notepadLines:[]).filter(l=>l && l.trim()!=='').length;
   const sharedPending = sharedLists.reduce((acc,l)=>{const ts=sharedTasksByList[l.id]||[];return acc+ts.filter(t=>!t.done).length;},0);
-  const bt=document.getElementById('badge-tasks'),bc=document.getElementById('badge-current'),bn=document.getElementById('badge-notes'),bs=document.getElementById('badge-shared');
+  const bt=document.getElementById('badge-tasks'),bc=document.getElementById('badge-current'),bs=document.getElementById('badge-shared');
   bt.style.display=pending>0?'flex':'none';bt.textContent=pending;
   bc.style.display=current>0?'flex':'none';bc.textContent=current;
-  bn.style.display=activeNotes>0?'flex':'none';bn.textContent=activeNotes;
   bs.style.display=sharedPending>0?'flex':'none';bs.textContent=sharedPending;
 }
 
@@ -2164,54 +2155,69 @@ async function changeStaleWeeks(d){settings.staleWeeks=Math.max(1,Math.min(52,se
 async function clearCompleted(){if(!tasks.some(t=>t.done))return;if(confirm('Remove all completed tasks?')){const toDelete=tasks.filter(t=>t.done);await Promise.all(toDelete.map(t=>deleteTaskFromDB(t.id)));tasks=tasks.filter(t=>!t.done);render();}}
 async function clearAll(){if(!confirm('Remove ALL local data? This cannot be undone.'))return;await db.tasks.clear();await db.notes.clear();await db.history.clear();await db.standaloneNotes.clear();tasks=[];subtasks={};standaloneNotes=[];render();showToast('Local data cleared. Cloud data still exists if signed in.');}
 
-// ── MORE MENU ──
-let moreMenuOpen = false;
-function toggleMoreMenu(){
-  moreMenuOpen ? closeMoreMenu() : openMoreMenu();
+// ── CURRENT TAB SUB-VIEWS (tasks / notepad) ──
+// The notepad used to be its own tab; it now lives behind the ✎ button in the
+// Current header, since notes are things you jot while working through the day.
+let currentView = 'tasks';   // 'tasks' | 'notes'
+
+function setCurrentView(v){
+  currentView = v;
+  const notes = v === 'notes';
+  document.getElementById('current-tasks-view').style.display = notes ? 'none' : 'flex';
+  document.getElementById('current-notes-view').style.display = notes ? 'flex' : 'none';
+
+  const btn = document.getElementById('btn-current-notes');
+  btn.textContent = notes ? '◎' : '✎';
+  btn.title = notes ? "Back to today's tasks" : 'Notes';
+  btn.classList.toggle('active', notes);
+
+  document.getElementById('current-title').textContent = notes ? 'Notes' : 'Current';
+
+  if(notes){
+    resetBg();                       // paper, not the completion gradient
+    initNotepadEvents();
+    renderNotes();
+    updateCurrentSubtitle();
+    setTimeout(focusNotepad, 60);
+  } else {
+    const cur = tasks.filter(t=>t.current);
+    const done = cur.filter(t=>t.done).length;
+    applyCurrentBg(cur.length>0 ? done/cur.length : 0);
+    renderCurrent();
+  }
 }
-function openMoreMenu(){
-  moreMenuOpen = true;
-  document.getElementById('more-overlay').style.display = 'block';
-  document.getElementById('more-menu').style.display = 'block';
-  document.getElementById('tab-more').classList.add('active');
-  // highlight whichever screen is currently open in the More section
-  const cur = document.querySelector('.screen.active');
-  const curId = cur ? cur.id.replace('screen-','') : '';
-  document.getElementById('more-btn-notes').classList.toggle('active-screen', curId==='notes');
-  document.getElementById('more-btn-settings').classList.toggle('active-screen', curId==='settings');
+
+function toggleCurrentNotes(){
+  setCurrentView(currentView === 'notes' ? 'tasks' : 'notes');
 }
-function closeMoreMenu(){
-  moreMenuOpen = false;
-  document.getElementById('more-overlay').style.display = 'none';
-  document.getElementById('more-menu').style.display = 'none';
-  document.getElementById('tab-more').classList.remove('active');
-}
-function moreNav(name){
-  closeMoreMenu();
-  switchTab(name);
-  // keep More button highlighted while on Notes/Settings
-  document.getElementById('tab-more').classList.add('active');
-  document.querySelectorAll('.tab[data-screen]').forEach(t=>t.classList.remove('active'));
+
+function updateCurrentSubtitle(){
+  const el = document.getElementById('current-subtitle');
+  if(!el) return;
+  if(currentView === 'notes'){
+    const n = (typeof notepadLines !== 'undefined' ? notepadLines : [])
+      .filter(l => l && l.trim() !== '').length;
+    el.textContent = n === 0 ? 'Empty' : `${n} line${n!==1?'s':''}`;
+    return;
+  }
+  const total = tasks.filter(t=>t.current).length;
+  el.textContent = total > 0
+    ? `${total} task${total!==1?'s':''} in focus`
+    : 'No tasks confirmed yet';
 }
 
 function switchTab(name){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(`screen-${name}`).classList.add('active');
-  // only highlight the main tab bar button if it's one of the main 3
-  const mainTabs = ['tasks','current','shared'];
-  if(mainTabs.includes(name)){
-    document.querySelectorAll('.tab[data-screen]').forEach(t=>t.classList.remove('active'));
-    const tab = document.querySelector(`[data-screen="${name}"]`);
-    if(tab) tab.classList.add('active');
-    document.getElementById('tab-more').classList.remove('active');
-  }
-  if(name==='current'){const cur=tasks.filter(t=>t.current),done=cur.filter(t=>t.done).length;applyCurrentBg(cur.length>0?done/cur.length:0);}
-  else resetBg();
-  if(name==='notes'){
-    initNotepadEvents();
-    renderNotes();
-    // opening the tab is a user gesture, so focus brings the keyboard up
-    setTimeout(focusNotepad, 60);
+  document.querySelectorAll('.tab[data-screen]').forEach(t=>t.classList.remove('active'));
+  const tab = document.querySelector(`[data-screen="${name}"]`);
+  if(tab) tab.classList.add('active');
+
+  if(name==='current'){
+    // returning to Current always lands on the task list
+    setCurrentView('tasks');
+  } else {
+    resetBg();
   }
 }
 
