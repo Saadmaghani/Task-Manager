@@ -67,7 +67,7 @@
   </script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap');
-    :root{--bg:#fdf8f0;--surface:#ffffff;--surface2:#f4eee2;--surface3:#e8e0cf;--border:#e6dec9;--border-strong:#d4c9ab;--accent:#7ab86e;--accent-light:#b8e0a8;--accent-dim:rgba(122,184,110,0.12);--text:#2c2a23;--text-muted:#7a7468;--text-dim:#a8a294;--danger:#d96666;--shared:#5da9d6;--shared-dim:rgba(93,169,214,0.12);--safe-bottom:env(safe-area-inset-bottom,0px);--safe-top:env(safe-area-inset-top,0px);--tab-h:64px}
+    :root{--bg:#fdf8f0;--surface:#ffffff;--surface2:#f4eee2;--surface3:#e8e0cf;--border:#e6dec9;--border-strong:#d4c9ab;--accent:#7ab86e;--accent-light:#b8e0a8;--accent-dim:rgba(122,184,110,0.12);--text:#2c2a23;--text-muted:#7a7468;--text-dim:#a8a294;--danger:#d96666;--shared:#5da9d6;--suggest:#c98a4b;--shared-dim:rgba(93,169,214,0.12);--safe-bottom:env(safe-area-inset-bottom,0px);--safe-top:env(safe-area-inset-top,0px);--tab-h:64px}
     *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
     html,body{height:100%;width:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;overscroll-behavior:none;user-select:none}
     #app{display:flex;flex-direction:column;height:100%;max-width:480px;margin:0 auto}
@@ -489,7 +489,35 @@
     .top-task-rank{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-dim);width:22px;flex-shrink:0}
     .top-task-name{flex:1;font-size:13px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .top-task-count{font-family:'DM Mono',monospace;font-size:12px;color:var(--accent);font-weight:500}
-/* BETA:START */
+/* repetition picker + suggested badge */
+    .repeat-quick-picks{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+    .repeat-quick-pick{background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);padding:6px 11px;border-radius:8px;font-size:12px;font-family:'DM Mono',monospace;cursor:pointer}
+    .repeat-quick-pick:active{background:var(--surface3)}
+    .repeat-quick-pick.picked{background:var(--suggest);border-color:var(--suggest);color:#fff}
+    .repeat-custom-row{display:flex;align-items:center;gap:8px;margin-bottom:18px}
+    .repeat-custom-label{font-size:13px;color:var(--text-muted);font-family:'DM Mono',monospace}
+    .repeat-custom-row input[type=number]{width:60px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);font-size:14px;font-family:'DM Mono',monospace;outline:none;text-align:center}
+    .repeat-custom-row input[type=number]:focus{border-color:var(--suggest)}
+    .repeat-custom-row select{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);font-size:14px;font-family:'DM Sans',sans-serif;outline:none}
+    .task-repeat{font-size:10px;font-family:'DM Mono',monospace;color:var(--text-dim);line-height:1.2;display:inline-flex;align-items:center;gap:2px;white-space:nowrap}
+    .task-repeat.is-suggested{color:var(--suggest);font-weight:500}
+    .task-card.selected .task-repeat{color:white !important;opacity:0.8}
+
+    /* repetition picker + suggested badge */
+    .repeat-quick-picks{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+    .repeat-quick-pick{background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);padding:6px 11px;border-radius:8px;font-size:12px;font-family:'DM Mono',monospace;cursor:pointer}
+    .repeat-quick-pick:active{background:var(--surface3)}
+    .repeat-quick-pick.picked{background:var(--suggest);border-color:var(--suggest);color:#fff}
+    .repeat-custom-row{display:flex;align-items:center;gap:8px;margin-bottom:18px}
+    .repeat-custom-label{font-size:13px;color:var(--text-muted);font-family:'DM Mono',monospace}
+    .repeat-custom-row input[type=number]{width:60px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);font-size:14px;font-family:'DM Mono',monospace;outline:none;text-align:center}
+    .repeat-custom-row input[type=number]:focus{border-color:var(--suggest)}
+    .repeat-custom-row select{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);font-size:14px;font-family:'DM Sans',sans-serif;outline:none}
+    .task-repeat{font-size:10px;font-family:'DM Mono',monospace;color:var(--text-dim);line-height:1.2;display:inline-flex;align-items:center;gap:2px;white-space:nowrap}
+    .task-repeat.is-suggested{color:var(--suggest);font-weight:500}
+    .task-card.selected .task-repeat{color:white !important;opacity:0.8}
+
+    /* BETA:START */
     .beta-badge{
       display:inline-flex;align-items:center;
       margin-left:8px;padding:2px 7px;border-radius:5px;
@@ -680,7 +708,7 @@
         <button class="btn-danger-row" onclick="clearNotepad()">Clear all notes</button>
         <button class="btn-danger-row" onclick="clearAll()">Clear all data</button>
       </div>
-      <div class="app-version">my tasks / v9.00</div>
+      <div class="app-version">my tasks / v10.01</div>
     </div>
   </div>
 
@@ -765,11 +793,35 @@
     <div class="action-sheet-task-name" id="action-sheet-task-name"></div>
     <div class="action-row" onclick="actionRename()"><span class="icon">✎</span><span>Rename task</span></div>
     <div class="action-row" onclick="actionCategorize()"><span class="icon">⊕</span><span id="action-cat-label">Set category</span></div>
+    <div class="action-row" onclick="actionSetRepeat()"><span class="icon">↻</span><span id="action-repeat-label">Suggest repetition</span></div>
     <div class="action-row danger" onclick="actionDelete()"><span class="icon">🗑</span><span>Delete task</span></div>
   </div>
 </div>
 
 <!-- DEADLINE PICKER -->
+<!-- REPETITION PICKER -->
+<div class="popup-overlay" id="repeat-popup">
+  <div class="popup">
+    <div class="popup-title">Suggest repetition</div>
+    <div class="popup-body" id="repeat-current-label" style="margin-bottom:12px"></div>
+    <div class="repeat-quick-picks" id="repeat-quick-picks"></div>
+    <div class="repeat-custom-row">
+      <span class="repeat-custom-label">Every</span>
+      <input type="number" id="repeat-n" min="1" max="99" value="1"/>
+      <select id="repeat-unit">
+        <option value="days">days</option>
+        <option value="weeks">weeks</option>
+        <option value="months">months</option>
+      </select>
+    </div>
+    <div class="popup-actions">
+      <button class="popup-btn secondary" onclick="closeRepeat()">Cancel</button>
+      <button class="popup-btn primary" onclick="confirmRepeat()">Save</button>
+    </div>
+    <button class="btn-danger-row" style="border-top:1px solid var(--border);margin-top:14px" onclick="removeRepeat()">Remove repetition</button>
+  </div>
+</div>
+
 <div class="popup-overlay" id="deadline-popup">
   <div class="popup">
     <div class="popup-title">Set deadline</div>
@@ -820,6 +872,7 @@ let searchMode=false;        // when true, the add-bar input becomes a search bo
 let hideStaleActive=false;   // filter button on/off
 let deadlineTaskId=null;     // task currently being edited in deadline popup
 let pendingDeadline=null;    // 'YYYY-MM-DD' or null
+const SUGGESTED_FILTER='__suggested__';
 const CAT_COLORS=['#7ab86e','#5da9d6','#e89bb3','#e8c468','#7dc8b3','#e69973','#a987d6','#86d491','#e88da3','#9c8e75'];
 
 // auth/cloud
@@ -839,7 +892,7 @@ let sharedTasksByList = {};        // {listId: [{id, text, done, createdBy, crea
 async function loadAll(){
   tasks=await db.tasks.toArray();
   // backfill missing fields
-  tasks.forEach(t=>{if(t.createdAt===undefined)t.createdAt=t.lastCompletedAt||Date.now();if(t.deadline===undefined)t.deadline=null;});
+  tasks.forEach(t=>{if(t.createdAt===undefined)t.createdAt=t.lastCompletedAt||Date.now();if(t.deadline===undefined)t.deadline=null;if(t.repeat===undefined)t.repeat=null;});
   settings.showDone=await dbGetSetting('showDone',true);
   settings.doneBottom=await dbGetSetting('doneBottom',true);
   settings.nTasks=await dbGetSetting('nTasks',3);
@@ -1368,6 +1421,47 @@ function formatDeadline(deadlineStr){
   return `Due ${months[d.getMonth()]} ${d.getDate()}`;
 }
 
+// ── REPETITION / SUGGESTED ──
+// A task carries {n, unit} e.g. {n:3, unit:'months'}. It becomes "suggested"
+// once that interval has elapsed since its LAST COMPLETION, and stays suggested
+// until it is completed again. A task never completed is never suggested,
+// though its interval is still shown on the card.
+const REPEAT_PRESETS = [
+  {n:1, unit:'weeks'},  {n:2, unit:'weeks'},
+  {n:1, unit:'months'}, {n:3, unit:'months'},
+  {n:6, unit:'months'}, {n:12, unit:'months'},
+];
+
+function addInterval(ts, rep){
+  const d = new Date(ts);
+  if(rep.unit === 'days')        d.setDate(d.getDate() + rep.n);
+  else if(rep.unit === 'weeks')  d.setDate(d.getDate() + rep.n * 7);
+  else if(rep.unit === 'months') d.setMonth(d.getMonth() + rep.n);
+  return d.getTime();
+}
+
+function formatRepeat(rep){
+  if(!rep) return '';
+  if(rep.unit === 'months' && rep.n === 12) return '1y';
+  const suffix = rep.unit === 'days' ? 'd' : (rep.unit === 'weeks' ? 'w' : 'mo');
+  return rep.n + suffix;
+}
+
+function formatRepeatLong(rep){
+  if(!rep) return 'No repetition set';
+  if(rep.unit === 'months' && rep.n === 12) return 'Every year';
+  const unit = rep.n === 1 ? rep.unit.replace(/s$/,'') : rep.unit;
+  return 'Every ' + rep.n + ' ' + unit;
+}
+
+function isSuggested(t){
+  if(!t.repeat || !t.lastCompletedAt) return false;
+  if(t.current) return false;
+  return Date.now() >= addInterval(t.lastCompletedAt, t.repeat);
+}
+
+function suggestedCount(){ return tasks.filter(isSuggested).length; }
+
 // ── STALE HELPER ──
 function isStale(t){
   if(t.done || t.current) return false;
@@ -1415,7 +1509,18 @@ function getSorted(list){let o=[...list];if(settings.doneBottom)o.sort((a,b)=>a.
 function renderCategoryFilter(){
   const bar=document.getElementById('cat-filter-bar');
   const chips=[{id:null,name:'All',color:'#7ab86e'},...settings.categories];
-  bar.innerHTML=chips.map(c=>{const active=activeFilter===c.id;return`<div class="cat-chip" style="background:${active?c.color:'var(--surface)'};color:${active?'white':'var(--text-muted)'};border-color:${active?c.color:'var(--border)'}" onclick="setFilter(${c.id===null?'null':`'${c.id}'`})">${escHtml(c.name)}</div>`;}).join('');
+  let html=chips.map(c=>{const active=activeFilter===c.id;return`<div class="cat-chip" style="background:${active?c.color:'var(--surface)'};color:${active?'white':'var(--text-muted)'};border-color:${active?c.color:'var(--border)'}" onclick="setFilter(${c.id===null?'null':`'${c.id}'`})">${escHtml(c.name)}</div>`;}).join('');
+  // "Suggested" sits right after All, and only appears once something is due
+  const sc = suggestedCount();
+  if(sc > 0){
+    const active = activeFilter === SUGGESTED_FILTER;
+    const chip = `<div class="cat-chip" style="background:${active?'var(--suggest)':'var(--surface)'};color:${active?'white':'var(--suggest)'};border-color:var(--suggest)" onclick="setFilter('${SUGGESTED_FILTER}')">↻ Suggested ${sc}</div>`;
+    const first = html.indexOf('</div>') + 6;
+    html = html.slice(0, first) + chip + html.slice(first);
+  } else if(activeFilter === SUGGESTED_FILTER){
+    activeFilter = null;   // last suggested task was completed
+  }
+  bar.innerHTML = html;
 }
 
 function renderTasks(){
@@ -1432,13 +1537,15 @@ function renderTasks(){
   else{btn.className='confirm-btn';btn.textContent=count===0?'Select tasks to confirm':`Select ${n-count} more to confirm`;}
   let visible=getSorted(tasks);
   if(!settings.showDone)visible=visible.filter(t=>!t.done);
-  if(activeFilter!==null)visible=visible.filter(t=>t.categoryId===activeFilter);
+  if(activeFilter===SUGGESTED_FILTER)visible=visible.filter(isSuggested);
+  else if(activeFilter!==null)visible=visible.filter(t=>t.categoryId===activeFilter);
   if(hideStaleActive)visible=visible.filter(t=>!isStale(t));
   const q=searchMode?searchQuery.toLowerCase():'';
   if(q)visible=visible.filter(t=>{const c=getCat(t.categoryId);return t.text.toLowerCase().includes(q)||(c&&c.name.toLowerCase().includes(q));});
   if(!visible.length){
     let msg='No tasks yet.<br>Add one above.';
     if(q)msg=`No tasks match "${escHtml(searchQuery)}"`;
+    else if(activeFilter===SUGGESTED_FILTER)msg='Nothing is due for repetition.';
     else if(hideStaleActive)msg='Stale tasks hidden.<br>Tap the filter again to show them.';
     else if(activeFilter!==null)msg='No tasks in this category.';
     grid.innerHTML=`<div class="empty" style="grid-column:1/-1"><div class="icon">🌱</div><p>${msg}</p></div>`;
@@ -1454,6 +1561,9 @@ function renderTasks(){
     const lastDone=relativeDate(t.lastCompletedAt);
     const sp=subProgress(t.id);
     const subBadge=sp?`<span class="task-subtask-count">☰ ${sp.done}/${sp.total}</span>`:'';
+    const repeatBadge = t.repeat
+      ? `<span class="task-repeat${isSuggested(t)?' is-suggested':''}">↻ ${formatRepeat(t.repeat)}</span>`
+      : '';
     const catLabel=cat?`<span class="task-cat-label" style="color:${isSelected?'white':cat.color};opacity:${isSelected?0.95:0.85}">${highlightMatch(cat.name,q)}</span>`:'';
     let deadlineBadge='';
     if(t.deadline){
@@ -1462,7 +1572,7 @@ function renderTasks(){
       const ddCls = overdue ? 'overdue' : (dueToday ? 'due-today' : '');
       deadlineBadge = `<span class="task-deadline ${ddCls}">${overdue?'⚠ ':''}${formatDeadline(t.deadline)}</span>`;
     }
-    return`<div class="${cls}" style="background:${fillColor};border-color:${borderColor}" data-id="${t.id}" onclick="handleCardClick('${t.id}')" oncontextmenu="handleCardContextMenu(event,'${t.id}')">${catLabel}<div class="task-card-text${t.done?' done':''}">${highlightMatch(t.text,q)}</div><div class="task-card-footer"><div class="task-last-done">${lastDone}</div>${deadlineBadge}${subBadge}${cat&&!isSelected?`<div class="task-cat-dot" style="background:${cat.color}"></div>`:''}</div></div>`;
+    return`<div class="${cls}" style="background:${fillColor};border-color:${borderColor}" data-id="${t.id}" onclick="handleCardClick('${t.id}')" oncontextmenu="handleCardContextMenu(event,'${t.id}')">${catLabel}<div class="task-card-text${t.done?' done':''}">${highlightMatch(t.text,q)}</div><div class="task-card-footer"><div class="task-last-done">${lastDone}</div>${repeatBadge}${deadlineBadge}${subBadge}${cat&&!isSelected?`<div class="task-cat-dot" style="background:${cat.color}"></div>`:''}</div></div>`;
   }).join('');
   grid.querySelectorAll('.task-card').forEach(card=>attachLongPress(card,card.dataset.id));
 }
@@ -1888,6 +1998,8 @@ function openActionSheet(id){
   document.getElementById('action-sheet-task-name').textContent=t.text;
   const cat=getCat(t.categoryId);
   document.getElementById('action-cat-label').textContent=cat?`Category: ${cat.name}`:'Set category';
+  document.getElementById('action-repeat-label').textContent =
+    t.repeat ? formatRepeatLong(t.repeat) : 'Suggest repetition';
   document.getElementById('action-sheet-overlay').classList.add('active');
 }
 function closeActionSheet(e){if(e&&!e.target.classList.contains('action-sheet-overlay')&&!e.target.matches('.action-row'))return;document.getElementById('action-sheet-overlay').classList.remove('active');actionSheetTaskId=null;}
@@ -1895,6 +2007,79 @@ function actionRename(){renameTaskId=actionSheetTaskId;const t=tasks.find(t=>t.i
 function closeRename(){document.getElementById('rename-popup').classList.remove('active');renameTaskId=null;}
 async function confirmRename(){const newText=document.getElementById('rename-input').value.trim();if(!newText){closeRename();return;}const t=tasks.find(t=>t.id===renameTaskId);if(t){t.text=newText;await saveTask(t);}closeRename();render();}
 function actionCategorize(){const id=actionSheetTaskId;document.getElementById('action-sheet-overlay').classList.remove('active');if(!settings.categories.length){showToast('Add a category in Settings first');return;}openCatAssign(id);}
+
+// ── REPETITION PICKER ──
+let repeatTaskId = null;
+let pendingRepeat = null;      // {n, unit} or null
+
+function actionSetRepeat(){
+  repeatTaskId = actionSheetTaskId;
+  const t = tasks.find(t => t.id === repeatTaskId);
+  if(!t){ closeActionSheet({target:document.getElementById('action-sheet-overlay')}); return; }
+  document.getElementById('action-sheet-overlay').classList.remove('active');
+  pendingRepeat = t.repeat ? {...t.repeat} : null;
+  renderRepeatPopup(t);
+  document.getElementById('repeat-popup').classList.add('active');
+}
+
+function renderRepeatPopup(t){
+  const label = document.getElementById('repeat-current-label');
+  if(t.repeat){
+    if(t.lastCompletedAt){
+      const due = addInterval(t.lastCompletedAt, t.repeat);
+      const days = Math.ceil((due - Date.now()) / 86400000);
+      label.textContent = days <= 0
+        ? formatRepeatLong(t.repeat) + ' — due now'
+        : formatRepeatLong(t.repeat) + ' — next in ' + days + ' day' + (days!==1?'s':'');
+    } else {
+      label.textContent = formatRepeatLong(t.repeat) + ' — starts after the first completion';
+    }
+  } else {
+    label.textContent = 'Suggest this task again once an interval has passed since you last completed it.';
+  }
+  document.getElementById('repeat-quick-picks').innerHTML = REPEAT_PRESETS.map(r=>{
+    const picked = pendingRepeat && pendingRepeat.n === r.n && pendingRepeat.unit === r.unit;
+    return `<button class="repeat-quick-pick${picked?' picked':''}" onclick="pickRepeat(${r.n},'${r.unit}')">${formatRepeatLong(r).replace('Every ','')}</button>`;
+  }).join('');
+  document.getElementById('repeat-n').value = pendingRepeat ? pendingRepeat.n : 1;
+  document.getElementById('repeat-unit').value = pendingRepeat ? pendingRepeat.unit : 'months';
+}
+
+function pickRepeat(n, unit){
+  pendingRepeat = {n, unit};
+  const t = tasks.find(t => t.id === repeatTaskId);
+  if(t) renderRepeatPopup(t);
+}
+
+function closeRepeat(){
+  document.getElementById('repeat-popup').classList.remove('active');
+  repeatTaskId = null; pendingRepeat = null;
+}
+
+async function confirmRepeat(){
+  const t = tasks.find(t => t.id === repeatTaskId);
+  if(!t){ closeRepeat(); return; }
+  // a typed value overrides whichever preset is highlighted
+  const n = parseInt(document.getElementById('repeat-n').value, 10);
+  const unit = document.getElementById('repeat-unit').value;
+  const rep = (n >= 1 && n <= 99) ? {n, unit} : pendingRepeat;
+  if(!rep){ closeRepeat(); return; }
+  t.repeat = rep;
+  await saveTask(t);
+  closeRepeat();
+  render();
+  showToast(formatRepeatLong(rep));
+}
+
+async function removeRepeat(){
+  const t = tasks.find(t => t.id === repeatTaskId);
+  if(!t){ closeRepeat(); return; }
+  t.repeat = null;
+  await saveTask(t);
+  closeRepeat();
+  render();
+  showToast('Repetition removed');
+}
 
 // ── DEADLINE PICKER ──
 // deadlineCtx: { type:'local'|'shared', taskId, listId? }
@@ -1968,7 +2153,7 @@ function showExtraPopup(id){const n=settings.nTasks;document.getElementById('ext
 function resolveExtraPopup(yes){document.getElementById('extra-sel-popup').classList.remove('active');if(yes){extraSelAllowed=true;if(pendingSelectId){const t=tasks.find(t=>t.id===pendingSelectId);if(t){t.selected=true;saveTask(t);}pendingSelectId=null;render();}}else{pendingSelectId=null;}}
 function closeWelldone(){document.getElementById('welldone-overlay').classList.remove('active');}
 
-async function addTask(text){text=text.trim();if(!text)return;const t={id:uid(),text,done:false,selected:false,current:false,lastCompletedAt:null,categoryId:null,createdAt:Date.now(),deadline:null};tasks.unshift(t);await saveTask(t);render();}
+async function addTask(text){text=text.trim();if(!text)return;const t={id:uid(),text,done:false,selected:false,current:false,lastCompletedAt:null,categoryId:null,createdAt:Date.now(),deadline:null,repeat:null};tasks.unshift(t);await saveTask(t);render();}
 async function toggleSelected(id){const t=tasks.find(t=>t.id===id);if(!t)return;if(t.current)return;if(t.done&&!t.selected){showToast('Task already completed today');return;}const selCount=tasks.filter(t=>t.selected).length,n=settings.nTasks;if(!t.selected){if(selCount>=n&&!extraSelAllowed){showExtraPopup(id);return;}t.selected=true;}else{t.selected=false;}await saveTask(t);render();}
 async function toggleDone(id,locked){if(locked){showToast('Complete all subtasks first');return;}const t=tasks.find(t=>t.id===id);if(!t)return;if(hasSubs(id)){showToast('Toggle via subtasks');return;}t.done=!t.done;if(t.done){t.lastCompletedAt=Date.now();await recordCompletion(t);}else{const todayStart=new Date();todayStart.setHours(0,0,0,0);const recent=await db.history.where('taskId').equals(id).reverse().sortBy('completedAt');const todayEntry=recent.find(h=>h.completedAt>=todayStart.getTime());if(todayEntry)await db.history.delete(todayEntry.id);}await saveTask(t);render();}
 async function removeFromCurrent(id){const t=tasks.find(t=>t.id===id);if(!t)return;t.current=false;t.selected=false;if(t.deadline)t.deadline=null;await saveTask(t);render();}
@@ -2100,7 +2285,7 @@ async function splashSkip(){
   await dismissSplash();
 }
 
-/* BETA:START */
+    /* BETA:START */
 // ═══════════════════════════════════════════
 // BETA BUILD MARKER
 // Beta shares its database and Firestore paths with production, so changes

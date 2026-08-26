@@ -12,7 +12,21 @@ always tell you exactly which build they're on.
 
 ## Unreleased (beta)
 
-_Nothing yet — beta currently matches production at v9.00._
+## v10.01
+
+### Added
+- **Suggested repetition.** Long-press a task in the Tasks tab and choose
+  "Suggest repetition" to set an interval — every 2 weeks, every 3 months, and
+  so on. Presets cover 1w / 2w / 1mo / 3mo / 6mo / 1y, or type any number of
+  days, weeks or months.
+- Tasks with an interval show it on the card next to the "Xd ago" text, e.g.
+  `↻ 3mo`. It shows whether or not the task has ever been completed.
+- A **Suggested** chip appears in the category filter bar, immediately after
+  "All", with a count. A task enters it once the interval has elapsed *since its
+  last completion*, and stays until it is completed again. The chip hides itself
+  when nothing is due, and the interval on a due task turns terracotta.
+- Tasks that have never been completed are never suggested — the clock only
+  starts on the first completion.
 
 <!--
 Template for the next beta change:
