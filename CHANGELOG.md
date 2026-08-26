@@ -12,6 +12,26 @@ always tell you exactly which build they're on.
 
 ## Unreleased (beta)
 
+## v10.03
+
+### Added
+- **Notes can be crossed off.** Tap the bullet at the left of a line to strike it
+  through; tap again to restore it. Tapping the text still places the cursor as
+  before, so editing is unaffected — the bullet gutter is the only tap target.
+  Crossed-off lines stay where they are rather than moving.
+- **Dated day dividers.** A rule with the day right-aligned beneath it — e.g.
+  `Wed 26 Aug, 26` — marks the start of each day's notes, including the first.
+
+### Changed
+- A notepad line is now a record with its own date and crossed-off state rather
+  than plain text. Existing notes are migrated automatically and keep their
+  order; they're dated from when the notepad was last saved.
+- Lines are never re-sorted, so a note inserted mid-page stays put. One that's
+  typed inside an earlier day's block takes that day rather than splitting the
+  group in two; a line added at the end is dated today.
+- Day grouping is recalculated when you leave the notepad, not while typing, so
+  the cursor never jumps mid-sentence.
+
 ## v10.02
 
 ### Changed

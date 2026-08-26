@@ -339,6 +339,29 @@
     /* empty line → dimmed placeholder bullet */
     .notepad-lines li.np-empty::before{color:var(--np-bullet-dim)}
 
+    /* crossed off — tap the bullet to toggle */
+    .notepad-lines li.np-done{color:var(--np-bullet-dim);text-decoration:line-through;text-decoration-color:var(--np-bullet-dim)}
+    .notepad-lines li.np-done::before{color:var(--np-bullet-dim)}
+
+    /* the bullet gutter is the tap target, so widen its hit area */
+    .notepad-lines li::before{width:20px;text-align:left}
+
+    /* dated day divider */
+    .notepad-lines li.np-divider{
+      height:var(--np-rule);line-height:var(--np-rule);
+      padding-left:0;
+      border-top:1.5px solid rgba(46,45,41,0.35);
+      display:flex;align-items:center;justify-content:flex-end;
+      -webkit-user-select:none;user-select:none;
+      cursor:default;
+    }
+    .notepad-lines li.np-divider::before{content:none}
+    .np-divider-date{
+      font-size:10px;letter-spacing:1.1px;text-transform:uppercase;
+      color:var(--np-ink);opacity:0.55;
+      font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif;
+    }
+
     .notepad-footer{
       max-width:480px;margin:26px auto 0;
       padding:0 26px;
@@ -712,7 +735,7 @@
         <button class="btn-danger-row" onclick="clearNotepad()">Clear all notes</button>
         <button class="btn-danger-row" onclick="clearAll()">Clear all data</button>
       </div>
-      <div class="app-version">my tasks / v10.02</div>
+      <div class="app-version">my tasks / v10.03</div>
     </div>
   </div>
 
@@ -1093,7 +1116,7 @@ function attachCloudListeners(){
     });
     const pad = standaloneNotes.find(n=>n.id===NOTEPAD_ID);
     if(pad && Array.isArray(pad.lines) && !isNotepadFocused()){
-      notepadLines = pad.lines.slice();
+      notepadLines = normaliseLines(pad.lines, pad.updatedAt || Date.now());
     }
     renderNotes();updateBadges();
   }));
@@ -1608,10 +1631,11 @@ function renderCurrent(){
 
 // ═══════════════════════════════════════════
 // NOTEPAD — one continuous ruled page of bullets
-// Stored as a single record: {id:'notepad', lines:[...]}
+// A line is {text, done, ts}. ts is the moment the line was written, which
+// drives the dated day dividers. Stored as one record: {id:'notepad', lines:[…]}
 // ═══════════════════════════════════════════
 const NOTEPAD_ID = 'notepad';
-let notepadLines = [''];      // in-memory source of truth
+let notepadLines = [];        // [{text, done, ts}]
 let notepadSaveTimer = null;
 
 function getNotepadEl(){ return document.getElementById('notepad-lines'); }
@@ -1619,35 +1643,79 @@ function isNotepadFocused(){
   const el = getNotepadEl();
   return el && (document.activeElement === el || el.contains(document.activeElement));
 }
+function blankLine(ts){ return { text:'', done:false, ts: ts || Date.now() }; }
 
-// Build <li> rows from notepadLines. Only called when NOT editing,
-// so we never clobber the caret mid-typing.
+// ── day grouping ──
+function dayKeyOf(ts){
+  const d = new Date(ts);
+  return d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate();
+}
+function dayLabel(ts){
+  const d = new Date(ts);
+  const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const yy = String(d.getFullYear()).slice(-2);
+  return days[d.getDay()] + ' ' + d.getDate() + ' ' + months[d.getMonth()] + ', ' + yy;
+}
+
+// Build <li> rows, inserting a dated divider whenever the day changes.
+// Order is preserved as written — lines are never re-sorted, so an insert in the
+// middle of the page stays where it was put.
 function renderNotes(){
   const el = getNotepadEl();
   if(!el) return;
-  if(isNotepadFocused()) { markEmptyLines(); return; }
-  if(!notepadLines.length) notepadLines = [''];
-  el.innerHTML = notepadLines.map(t =>
-    `<li${t.trim()===''?' class="np-empty"':''}>${t ? escHtml(t) : '<br>'}</li>`
-  ).join('');
+  if(isNotepadFocused()){ markEmptyLines(); return; }
+  if(!notepadLines.length) notepadLines = [blankLine()];
+
+  let html = '';
+  let lastKey = null;
+  notepadLines.forEach(line => {
+    const key = dayKeyOf(line.ts);
+    if(key !== lastKey){
+      html += '<li class="np-divider" contenteditable="false" data-divider="1">'
+            + '<span class="np-divider-date">' + dayLabel(line.ts) + '</span></li>';
+      lastKey = key;
+    }
+    const cls = [line.done ? 'np-done' : '',
+                 line.text.trim() === '' ? 'np-empty' : ''].filter(Boolean).join(' ');
+    html += '<li' + (cls ? ' class="' + cls + '"' : '')
+          + ' data-ts="' + line.ts + '"'
+          + ' data-done="' + (line.done ? '1' : '0') + '">'
+          + (line.text ? escHtml(line.text) : '<br>') + '</li>';
+  });
+  el.innerHTML = html;
   updateBadges();
   if(typeof currentView !== 'undefined' && currentView === 'notes') updateCurrentSubtitle();
 }
 
-// Toggle the dim-bullet class on empty lines (runs on every input)
 function markEmptyLines(){
   const el = getNotepadEl(); if(!el) return;
-  el.querySelectorAll('li').forEach(li=>{
+  el.querySelectorAll('li:not(.np-divider)').forEach(li=>{
     const empty = li.textContent.replace(/\u200B/g,'').trim() === '';
     li.classList.toggle('np-empty', empty);
   });
 }
 
-// Read the DOM back into notepadLines
+// Read the DOM back into notepadLines, preserving each line's date and state.
+// A line the browser created (Enter) has no data-ts: if it sits at the very end
+// it is new today, otherwise it inherits the day of the line above so that
+// inserting mid-page doesn't fracture a day group.
 function syncNotepadFromDom(){
   const el = getNotepadEl(); if(!el) return;
-  const lis = Array.from(el.querySelectorAll('li'));
-  notepadLines = lis.length ? lis.map(li => li.textContent.replace(/\u200B/g,'')) : [''];
+  const lis = Array.from(el.querySelectorAll('li:not(.np-divider)'));
+  if(!lis.length){ notepadLines = [blankLine()]; return; }
+  const out = [];
+  lis.forEach((li, i) => {
+    const text = li.textContent.replace(/\u200B/g,'');
+    let ts = parseInt(li.dataset.ts || '', 10);
+    if(!ts){
+      ts = (i === lis.length - 1) ? Date.now()
+         : (out.length ? out[out.length-1].ts : Date.now());
+      li.dataset.ts = ts;
+    }
+    out.push({ text, done: li.dataset.done === '1', ts });
+  });
+  notepadLines = out;
 }
 
 function scheduleNotepadSave(){
@@ -1665,12 +1733,13 @@ async function saveNotepad(){
   if(currentView === 'notes') updateCurrentSubtitle();
 }
 
-// Ensure the list always has at least one <li> and place caret in it
 function ensureAtLeastOneLine(){
   const el = getNotepadEl(); if(!el) return;
-  if(!el.querySelector('li')){
+  if(!el.querySelector('li:not(.np-divider)')){
     const li = document.createElement('li');
     li.className = 'np-empty';
+    li.dataset.ts = Date.now();
+    li.dataset.done = '0';
     li.innerHTML = '<br>';
     el.appendChild(li);
   }
@@ -1685,14 +1754,33 @@ function placeCaretAtEnd(node){
   s.addRange(r);
 }
 
-// Called when the Notes tab is opened
 function focusNotepad(){
   const el = getNotepadEl(); if(!el) return;
   ensureAtLeastOneLine();
-  const lis = el.querySelectorAll('li');
+  const lis = el.querySelectorAll('li:not(.np-divider)');
   const last = lis[lis.length - 1];
   el.focus();
   if(last) placeCaretAtEnd(last);
+}
+
+// Tapping the bullet crosses a line off. The bullet is a ::before pseudo-element
+// so it can't take a listener directly — instead we treat a tap inside the left
+// gutter as a bullet tap, and let taps on the text place the caret as normal.
+const BULLET_HIT_PX = 24;
+
+function handleNotepadPointer(e){
+  const el = getNotepadEl(); if(!el) return;
+  const li = e.target.closest ? e.target.closest('li') : null;
+  if(!li || li.classList.contains('np-divider')) return;
+  const x = e.clientX - li.getBoundingClientRect().left;
+  if(x > BULLET_HIT_PX) return;          // tapped the text — leave the caret alone
+  if(li.textContent.trim() === '') return; // nothing to cross off yet
+  e.preventDefault();
+  e.stopPropagation();
+  const done = li.dataset.done === '1';
+  li.dataset.done = done ? '0' : '1';
+  li.classList.toggle('np-done', !done);
+  scheduleNotepadSave();
 }
 
 function initNotepadEvents(){
@@ -1705,65 +1793,79 @@ function initNotepadEvents(){
     scheduleNotepadSave();
   });
 
-  // Strip formatting on paste — plain text only
+  // bullet taps — pointerdown so we beat the caret being placed
+  el.addEventListener('pointerdown', handleNotepadPointer, true);
+
+  // plain text only
   el.addEventListener('paste', (e)=>{
     e.preventDefault();
     const text = (e.clipboardData || window.clipboardData).getData('text/plain') || '';
-    const parts = text.split(/\r?\n/);
-    document.execCommand('insertText', false, parts.join('\n'));
+    document.execCommand('insertText', false, text.split(/\r?\n/).join('\n'));
     setTimeout(()=>{ ensureAtLeastOneLine(); markEmptyLines(); scheduleNotepadSave(); }, 0);
   });
 
-  // Block bold/italic/underline keyboard shortcuts — plain text only
   el.addEventListener('keydown', (e)=>{
     if((e.metaKey || e.ctrlKey) && ['b','i','u'].includes(e.key.toLowerCase())){
       e.preventDefault();
     }
   });
 
-  el.addEventListener('blur', ()=>{ saveNotepad(); });
+  // re-group into days once editing stops
+  el.addEventListener('blur', async ()=>{
+    await saveNotepad();
+    renderNotes();
+  });
 }
 
-// Migrate old card-style notes into the notepad, then remove them
+// ── migration ──
+// Handles both shapes: the older array-of-strings, and the card-style notes
+// that predate the notepad entirely.
+function normaliseLines(lines, fallbackTs){
+  return (lines || []).map(l =>
+    (typeof l === 'string')
+      ? { text: l, done: false, ts: fallbackTs }
+      : { text: l.text || '', done: !!l.done, ts: l.ts || fallbackTs }
+  );
+}
+
 async function migrateNotesToNotepad(){
   const pad = standaloneNotes.find(n => n.id === NOTEPAD_ID);
   const legacy = standaloneNotes.filter(n => n.id !== NOTEPAD_ID);
+  const padTs = (pad && pad.updatedAt) || Date.now();
 
-  if(pad && Array.isArray(pad.lines)) notepadLines = pad.lines.slice();
-  else notepadLines = [];
+  notepadLines = pad ? normaliseLines(pad.lines, padTs) : [];
 
   if(legacy.length){
-    // convert each legacy note's html into plain-text lines
     const tmp = document.createElement('div');
-    const converted = [];
-    legacy
-      .sort((a,b)=>(a.createdAt||0)-(b.createdAt||0))
-      .forEach(n=>{
-        tmp.innerHTML = (n.html || '')
-          .replace(/<\/(p|div|li|ul|ol|h[1-6])>/gi,'\n')
-          .replace(/<br\s*\/?>/gi,'\n');
-        const text = (tmp.textContent || '');
-        text.split(/\n+/).map(s=>s.trim()).filter(Boolean).forEach(line=>converted.push(line));
-      });
-    if(converted.length) notepadLines = notepadLines.concat(converted);
-    // delete legacy records
-    for(const n of legacy){
-      await deleteNoteFromDB(n.id);
-    }
+    legacy.sort((a,b)=>(a.createdAt||0)-(b.createdAt||0)).forEach(n=>{
+      tmp.innerHTML = (n.html || '')
+        .replace(/<\/(p|div|li|ul|ol|h[1-6])>/gi,'\n')
+        .replace(/<br\s*\/?>/gi,'\n');
+      (tmp.textContent || '').split(/\n+/).map(x=>x.trim()).filter(Boolean)
+        .forEach(line => notepadLines.push({
+          text: line, done: false, ts: n.createdAt || padTs
+        }));
+    });
+    for(const n of legacy) await deleteNoteFromDB(n.id);
     standaloneNotes = standaloneNotes.filter(n => n.id === NOTEPAD_ID);
-    // persist merged result
+  }
+
+  if(!notepadLines.length) notepadLines = [blankLine()];
+
+  // persist if anything was converted
+  const needsWrite = legacy.length ||
+    (pad && (pad.lines || []).some(l => typeof l === 'string'));
+  if(needsWrite){
     const rec = { id: NOTEPAD_ID, lines: notepadLines, updatedAt: Date.now() };
     const i = standaloneNotes.findIndex(n => n.id === NOTEPAD_ID);
     if(i >= 0) standaloneNotes[i] = rec; else standaloneNotes.push(rec);
     await saveNote(rec);
   }
-
-  if(!notepadLines.length) notepadLines = [''];
 }
 
 async function clearNotepad(){
   if(!confirm('Clear all notes? This cannot be undone.')) return;
-  notepadLines = [''];
+  notepadLines = [blankLine()];
   const rec = { id: NOTEPAD_ID, lines: notepadLines, updatedAt: Date.now() };
   const i = standaloneNotes.findIndex(n => n.id === NOTEPAD_ID);
   if(i >= 0) standaloneNotes[i] = rec; else standaloneNotes.push(rec);
@@ -1771,7 +1873,6 @@ async function clearNotepad(){
   renderNotes();
   showToast('Notes cleared');
 }
-
 
 // SHARED RENDER
 function renderShared(){
@@ -2196,7 +2297,7 @@ function updateCurrentSubtitle(){
   if(!el) return;
   if(currentView === 'notes'){
     const n = (typeof notepadLines !== 'undefined' ? notepadLines : [])
-      .filter(l => l && l.trim() !== '').length;
+      .filter(l => l && (l.text || '').trim() !== '').length;
     el.textContent = n === 0 ? 'Empty' : `${n} line${n!==1?'s':''}`;
     return;
   }
