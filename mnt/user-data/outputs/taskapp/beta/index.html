@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
-  <meta name="apple-mobile-web-app-title" content="My Tasks"/>
+  <meta name="apple-mobile-web-app-title" content="Tasks Beta"/>
   <meta name="theme-color" content="#fdf8f0"/>
-  <title>My Tasks</title>
-  <link rel="manifest" href="manifest.json"/>
+  <title>My Tasks (Beta)</title>
+  <link rel="manifest" href="manifest.beta.json"/>
   <link rel="apple-touch-icon" href="icon-192.png"/>
   <script src="https://unpkg.com/dexie@3.2.4/dist/dexie.min.js"></script>
   <!-- Firebase SDKs (modular v10) -->
@@ -489,9 +489,25 @@
     .top-task-rank{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-dim);width:22px;flex-shrink:0}
     .top-task-name{flex:1;font-size:13px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .top-task-count{font-family:'DM Mono',monospace;font-size:12px;color:var(--accent);font-weight:500}
+/* BETA:START */
+    .beta-badge{
+      display:inline-flex;align-items:center;
+      margin-left:8px;padding:2px 7px;border-radius:5px;
+      background:#e8c468;color:#4a3c14;
+      font-family:'DM Mono',monospace;font-size:9px;font-weight:600;
+      letter-spacing:1.2px;vertical-align:middle;position:relative;top:-2px;
+    }
+    .beta-strip{
+      position:fixed;left:0;right:0;top:0;height:3px;
+      background:#e8c468;z-index:400;pointer-events:none;
+    }
+    /* BETA:END */
   </style>
 </head>
 <body>
+<!-- BETA:START -->
+<div class="beta-strip"></div>
+<!-- BETA:END -->
 <div id="loading">loading…</div>
 
 <!-- SPLASH (first visit only) -->
@@ -2084,6 +2100,30 @@ async function splashSkip(){
   await dismissSplash();
 }
 
+/* BETA:START */
+// ═══════════════════════════════════════════
+// BETA BUILD MARKER
+// Beta shares its database and Firestore paths with production, so changes
+// made here appear in the live app too. Removed automatically on promote.
+// ═══════════════════════════════════════════
+const IS_BETA = true;
+function markBetaUI(){
+  document.querySelectorAll('.header-left h1').forEach(h=>{
+    if(h.querySelector('.beta-badge')) return;
+    const b=document.createElement('span');
+    b.className='beta-badge'; b.textContent='BETA';
+    h.appendChild(b);
+  });
+  const logo=document.querySelector('.splash-logo-text');
+  if(logo && !logo.querySelector('.beta-badge')){
+    const b=document.createElement('span');
+    b.className='beta-badge'; b.textContent='BETA';
+    logo.appendChild(b);
+  }
+}
+document.addEventListener('DOMContentLoaded', markBetaUI);
+markBetaUI();
+/* BETA:END */
 async function init(){
   await loadAll();await checkAndRunReset();updateDates();render();
   await initAuth();
