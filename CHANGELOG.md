@@ -12,6 +12,50 @@ always tell you exactly which build they're on.
 
 ## Unreleased (beta)
 
+> Summaries of the entries below are shown on the beta splash screen. Keep them
+> short — the detail lives here.
+
+## v10.05
+
+### Fixed
+- **Day dividers still never appeared.** v10.04 fixed the Enter path, but that
+  isn't how a new day actually starts. The page always ends with a blank line,
+  which is saved carrying that day's date; open the notepad tomorrow and the
+  caret lands on exactly that line, so you simply type — no Enter involved. The
+  text inherited yesterday's date and no new group could form.
+
+  A line is now dated the moment it stops being blank, rather than when the
+  blank row was created, so writing on a new day starts a new group whichever
+  way you get there.
+- Blank lines no longer open a day group, so the leftover trailing blank can't
+  strand a stale dated rule beneath the notes you just wrote.
+
+## v10.04
+
+### Fixed
+- **Day dividers never appeared.** When Enter splits a line, browsers clone the
+  `<li>` — including its date and crossed-off state. Every new line therefore
+  inherited the previous line's date, so a new day could never start a new
+  group, and a line typed after a crossed-off one came out struck through. New
+  lines are now built explicitly: a line added at the end of the page is dated
+  today, one inserted inside an earlier day keeps that day, and no line is ever
+  born crossed off.
+- Multi-line pastes now become properly dated lines instead of one merged blob.
+- Added a reconcile pass so a line the browser manufactures another way
+  (autocorrect, undo, drag) still gets a valid date and consistent state.
+
+### Added
+- **Beta "what's new" splash**, shown on every load, summarising everything
+  since the last stable release and asking testers to comment on each change
+  individually. Beta-only — it strips out on promote. It reads its version from
+  the app itself, so bumping keeps it in step, and it waits for the first-run
+  onboarding screen rather than stacking on top of it.
+
+### Note on existing notes
+Lines that predate v10.03 all carry a single timestamp, because the date a line
+was written wasn't recorded before then. They'll sit under one divider forever;
+anything written from now on groups correctly by day.
+
 ## v10.03
 
 ### Added
@@ -77,7 +121,29 @@ Template for the next beta change:
 
 ---
 
-## v9.00 — current production
+## v9.01 — current production (hotfix)
+
+### Fixed
+- **The live app failed to load: "t.trim is not a function".** Beta v10.03
+  changed a notepad line from a plain string to a `{text, done, ts}` record, and
+  because beta and production share one database, the production build — which
+  still expected strings — crashed on startup for everyone.
+
+  Production now accepts both shapes, and preserves the date and crossed-off
+  flag on every save even though this build doesn't display them, so editing
+  notes in the live app no longer discards what beta recorded.
+
+  This was hand-edited into `index.html` rather than promoted, to avoid shipping
+  the untested v10.x features alongside the fix. The next promote supersedes it.
+
+### Lesson
+A schema change in beta reaches production immediately, because the data is
+shared. Any future change to a stored record's shape needs the *reading* side
+shipped to production first, or promoted at the same time.
+
+---
+
+## v9.00
 
 ### Added
 - Google sign-in, optional. The app still works fully signed-out and local-only.

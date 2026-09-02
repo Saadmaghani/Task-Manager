@@ -549,12 +549,68 @@
       position:fixed;left:0;right:0;top:0;height:3px;
       background:#e8c468;z-index:400;pointer-events:none;
     }
+    /* what's-new splash, beta only */
+    #beta-splash{
+      display:none;position:fixed;inset:0;z-index:600;
+      background:var(--bg);overflow-y:auto;-webkit-overflow-scrolling:touch;
+    }
+    #beta-splash.active{display:block}
+    .bs-inner{
+      max-width:480px;margin:0 auto;
+      padding:calc(var(--safe-top) + 30px) 24px calc(24px + var(--safe-bottom));
+    }
+    .bs-tag{
+      display:inline-block;background:#e8c468;color:#4a3c14;
+      font-family:'DM Mono',monospace;font-size:10px;font-weight:600;
+      letter-spacing:1.4px;padding:3px 9px;border-radius:5px;margin-bottom:14px;
+    }
+    .bs-title{font-size:24px;font-weight:600;letter-spacing:-0.4px;margin-bottom:6px}
+    .bs-sub{font-size:13px;color:var(--text-muted);line-height:1.55;margin-bottom:24px}
+    .bs-group{margin-bottom:20px}
+    .bs-ver{
+      font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.4px;
+      color:var(--text-dim);text-transform:uppercase;margin-bottom:8px;
+    }
+    .bs-item{
+      display:flex;gap:11px;align-items:flex-start;
+      background:var(--surface);border:1px solid var(--border);
+      border-radius:12px;padding:12px 14px;margin-bottom:8px;
+    }
+    .bs-item-icon{font-size:15px;line-height:1.5;flex-shrink:0;opacity:0.75}
+    .bs-item-text{flex:1;font-size:13.5px;line-height:1.5}
+    .bs-item-text b{font-weight:600}
+    .bs-ask{
+      background:var(--accent-dim);border:1px solid rgba(122,184,110,0.3);
+      border-radius:12px;padding:13px 15px;margin:22px 0 20px;
+      font-size:13px;line-height:1.55;color:var(--text);
+    }
+    .bs-btn{
+      width:100%;padding:14px;border-radius:12px;border:none;
+      background:var(--accent);color:#fff;font-size:15px;font-weight:600;
+      font-family:'DM Sans',sans-serif;cursor:pointer;
+      box-shadow:0 3px 12px rgba(122,184,110,0.3);
+    }
+    .bs-btn:active{transform:scale(0.98)}
     /* BETA:END */
   </style>
 </head>
 <body>
 <!-- BETA:START -->
 <div class="beta-strip"></div>
+<div id="beta-splash">
+  <div class="bs-inner">
+    <div class="bs-tag">BETA</div>
+    <div class="bs-title" id="bs-title">What's new</div>
+    <div class="bs-sub" id="bs-sub"></div>
+    <div id="bs-changes"></div>
+    <div class="bs-ask">
+      Please try each of these and tell us how they feel — what works, what
+      doesn't, and anything that surprised you. Mention them one at a time so
+      nothing gets lost.
+    </div>
+    <button class="bs-btn" onclick="hideBetaSplash()">Start testing</button>
+  </div>
+</div>
 <!-- BETA:END -->
 <div id="loading">loading…</div>
 
@@ -735,7 +791,7 @@
         <button class="btn-danger-row" onclick="clearNotepad()">Clear all notes</button>
         <button class="btn-danger-row" onclick="clearAll()">Clear all data</button>
       </div>
-      <div class="app-version">my tasks / v10.03</div>
+      <div class="app-version">my tasks / v10.05</div>
     </div>
   </div>
 
@@ -1671,7 +1727,8 @@ function renderNotes(){
   let lastKey = null;
   notepadLines.forEach(line => {
     const key = dayKeyOf(line.ts);
-    if(key !== lastKey){
+    const blank = (line.text || '').trim() === '';
+    if(!blank && key !== lastKey){
       html += '<li class="np-divider" contenteditable="false" data-divider="1">'
             + '<span class="np-divider-date">' + dayLabel(line.ts) + '</span></li>';
       lastKey = key;
@@ -1783,12 +1840,100 @@ function handleNotepadPointer(e){
   scheduleNotepadSave();
 }
 
+// Browsers clone the current <li> when Enter splits it, which would copy its
+// date and crossed-off state onto the new line — so a new day could never start
+// a new group. We build the new line ourselves instead.
+function placeCaretAtStart(node){
+  const r = document.createRange();
+  r.selectNodeContents(node); r.collapse(true);
+  const sel = window.getSelection();
+  sel.removeAllRanges(); sel.addRange(r);
+}
+
+function caretLi(){
+  const sel = window.getSelection();
+  if(!sel.rangeCount) return null;
+  let n = sel.getRangeAt(0).startContainer;
+  if(n.nodeType === 3) n = n.parentNode;
+  return n && n.closest ? n.closest('li') : null;
+}
+
+function makeLine(ts, text){
+  const li = document.createElement('li');
+  li.dataset.ts = ts;
+  li.dataset.done = '0';           // a new line is never born crossed off
+  if(text){ li.textContent = text; }
+  else { li.innerHTML = '<br>'; li.className = 'np-empty'; }
+  return li;
+}
+
+// A line added at the end of the page belongs to today; one inserted inside an
+// earlier day keeps that day, so the group isn't split in two.
+function tsForNewLineAfter(li){
+  const el = getNotepadEl();
+  const lis = Array.from(el.querySelectorAll('li:not(.np-divider)'));
+  const isLast = lis[lis.length - 1] === li;
+  return isLast ? Date.now() : (parseInt(li.dataset.ts, 10) || Date.now());
+}
+
+function handleNotepadEnter(e){
+  const el = getNotepadEl();
+  const li = caretLi();
+  if(!li || li.classList.contains('np-divider')) return;
+  e.preventDefault();
+
+  const sel = window.getSelection();
+  const range = sel.getRangeAt(0);
+
+  // whatever sits after the caret moves down to the new line
+  const tail = range.cloneRange();
+  tail.selectNodeContents(li);
+  tail.setStart(range.endContainer, range.endOffset);
+  const moved = tail.toString();
+  tail.deleteContents();
+  if(li.textContent.replace(/\u200B/g,'').trim() === '') li.innerHTML = '<br>';
+
+  const nl = makeLine(tsForNewLineAfter(li), moved);
+  li.after(nl);
+  placeCaretAtStart(nl);
+  markEmptyLines();
+  scheduleNotepadSave();
+}
+
+// Keep the crossed-off class and its attribute in step. Catches any line the
+// browser manufactured behind our back (autocorrect, drag, undo).
+// The page always ends with a blank line, and it gets saved with that day's
+// date. Open the notepad tomorrow and the caret lands on it, so text typed
+// today would otherwise inherit yesterday — and no new day could ever start.
+// A line is therefore dated the moment it stops being blank.
+function stampIfNewlyWritten(){
+  const li = caretLi();
+  if(!li || li.classList.contains('np-divider')) return;
+  const hasText = li.textContent.replace(/\u200B/g,'').trim() !== '';
+  if(hasText && li.classList.contains('np-empty')){
+    li.dataset.ts = Date.now();
+  }
+}
+
+function reconcileLines(){
+  const el = getNotepadEl(); if(!el) return;
+  el.querySelectorAll('li:not(.np-divider)').forEach(li=>{
+    if(!li.dataset.ts) li.dataset.ts = Date.now();
+    if(li.dataset.done !== '1'){
+      li.dataset.done = '0';
+      li.classList.remove('np-done');
+    }
+  });
+}
+
 function initNotepadEvents(){
   const el = getNotepadEl(); if(!el || el._npBound) return;
   el._npBound = true;
 
   el.addEventListener('input', ()=>{
     ensureAtLeastOneLine();
+    stampIfNewlyWritten();   // must run before markEmptyLines clears the flag
+    reconcileLines();
     markEmptyLines();
     scheduleNotepadSave();
   });
@@ -1796,18 +1941,32 @@ function initNotepadEvents(){
   // bullet taps — pointerdown so we beat the caret being placed
   el.addEventListener('pointerdown', handleNotepadPointer, true);
 
-  // plain text only
-  el.addEventListener('paste', (e)=>{
-    e.preventDefault();
-    const text = (e.clipboardData || window.clipboardData).getData('text/plain') || '';
-    document.execCommand('insertText', false, text.split(/\r?\n/).join('\n'));
-    setTimeout(()=>{ ensureAtLeastOneLine(); markEmptyLines(); scheduleNotepadSave(); }, 0);
-  });
-
   el.addEventListener('keydown', (e)=>{
+    if(e.key === 'Enter' && !e.shiftKey){ handleNotepadEnter(e); return; }
     if((e.metaKey || e.ctrlKey) && ['b','i','u'].includes(e.key.toLowerCase())){
       e.preventDefault();
     }
+  });
+
+  // plain text only; multi-line pastes become properly dated lines
+  el.addEventListener('paste', (e)=>{
+    e.preventDefault();
+    const text = (e.clipboardData || window.clipboardData).getData('text/plain') || '';
+    const parts = text.split(/\r?\n/);
+    document.execCommand('insertText', false, parts[0]);
+    if(parts.length > 1){
+      let li = caretLi();
+      if(li && !li.classList.contains('np-divider')){
+        const ts = tsForNewLineAfter(li);
+        for(let i = 1; i < parts.length; i++){
+          const nl = makeLine(ts, parts[i]);
+          li.after(nl);
+          li = nl;
+        }
+        placeCaretAtEnd(li);
+      }
+    }
+    setTimeout(()=>{ ensureAtLeastOneLine(); reconcileLines(); markEmptyLines(); scheduleNotepadSave(); }, 0);
   });
 
   // re-group into days once editing stops
@@ -2415,6 +2574,69 @@ function markBetaUI(){
 }
 document.addEventListener('DOMContentLoaded', markBetaUI);
 markBetaUI();
+
+// ── What's-new splash ──────────────────────────────────────────────────────
+// Shown on every load so testers always know what they're being asked to try.
+// Summaries only — CHANGELOG.md carries the detail.
+const BETA_CHANGES = [
+  { version: 'v10.01', items: [
+    { icon:'↻', text: '<b>Suggested repetition.</b> Long-press a task to set an interval — every 2 weeks, every 3 months. Once that long has passed since you last completed it, the task collects under a new "Suggested" chip.' },
+  ]},
+  { version: 'v10.02', items: [
+    { icon:'✎', text: '<b>Notes moved into Current.</b> The notepad is now behind the ✎ button in the Current header instead of its own tab. Settings took its place in the tab bar.' },
+  ]},
+  { version: 'v10.03', items: [
+    { icon:'✓', text: '<b>Cross notes off.</b> Tap the bullet at the left of a line to strike it through. Tapping the text still just moves the cursor.' },
+    { icon:'—', text: '<b>Dated day dividers.</b> Each day\'s notes now sit under a dated rule.' },
+  ]},
+  { version: 'v10.04 – 10.05', items: [
+    { icon:'⚠', text: '<b>Fixed:</b> day dividers in Notes never appeared — text written on a new day kept inheriting the date of the previous day. A line is now dated when you actually write it, so each day gets its own dated rule.' },
+  ]},
+];
+
+function betaVersionLabel(){
+  const el = document.querySelector('.app-version');
+  const raw = el ? el.textContent : '';
+  const i = raw.indexOf('/');
+  return i >= 0 ? raw.slice(i+1).trim() : 'beta';
+}
+
+function renderBetaSplash(){
+  const ver = betaVersionLabel();
+  document.getElementById('bs-title').textContent = 'What\'s new in ' + ver;
+  document.getElementById('bs-sub').textContent =
+    'Everything below is new since the last stable release. It all shares data with the live app, so treat it as real.';
+  document.getElementById('bs-changes').innerHTML = BETA_CHANGES.map(g => `
+    <div class="bs-group">
+      <div class="bs-ver">${g.version}</div>
+      ${g.items.map(it => `
+        <div class="bs-item">
+          <span class="bs-item-icon">${it.icon}</span>
+          <span class="bs-item-text">${it.text}</span>
+        </div>`).join('')}
+    </div>`).join('');
+}
+
+function showBetaSplash(){
+  // let the first-run onboarding finish first
+  const onboarding = document.getElementById('splash');
+  if(onboarding && onboarding.classList.contains('active')) return;
+  renderBetaSplash();
+  document.getElementById('beta-splash').classList.add('active');
+}
+
+function hideBetaSplash(){
+  document.getElementById('beta-splash').classList.remove('active');
+}
+
+// if onboarding was showing, queue the beta notes for when it's dismissed
+if(typeof dismissSplash === 'function'){
+  const _dismiss = dismissSplash;
+  dismissSplash = async function(){
+    await _dismiss.apply(this, arguments);
+    showBetaSplash();
+  };
+}
 /* BETA:END */
 async function init(){
   await loadAll();await checkAndRunReset();updateDates();render();
@@ -2423,6 +2645,9 @@ async function init(){
   document.getElementById('app').style.display='flex';
   initNotepadEvents();
   await maybeShowSplash();
+  /* BETA:START */
+  showBetaSplash();
+  /* BETA:END */
   setInterval(updateDates,60000);
 }
 init().catch(err=>{console.error('init failed',err);document.getElementById('loading').textContent='failed to load — '+err.message;});
