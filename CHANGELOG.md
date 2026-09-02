@@ -15,6 +15,32 @@ always tell you exactly which build they're on.
 > Summaries of the entries below are shown on the beta splash screen. Keep them
 > short — the detail lives here.
 
+## v10.06
+
+### Added
+- **Bold, italic and underline in notes.** Select text and use the platform's
+  own selection menu — there's no toolbar. Earlier builds actively blocked these
+  commands and stripped the tags; that block is gone. Anything the OS produces
+  is reduced to `<b>`, `<i>` and `<u>`, with attributes removed, so nothing else
+  can ride in with it.
+- **Three indent levels**, with the bullet changing shape as lines nest:
+  • then ◦ then ▪. Tab and Shift+Tab on a keyboard; on touch, swipe a line right
+  to indent and left to outdent. Vertical movement is ignored so scrolling still
+  works, and swipes starting on the bullet are left to the cross-off tap.
+- A new line keeps the indent you were writing at, but never inherits
+  formatting or the crossed-off state.
+
+### Security
+- Stored markup is sanitised when loaded, not only when typed, so anything that
+  reached the record from another device or an older build can't inject markup
+  when the page renders.
+
+### Note
+`html` and `indent` are new per-line fields. They're additive, so the v9.01
+production build still loads notes without error — but it doesn't know about
+them, and saving a note there will drop formatting and indentation. Worth
+promoting before doing much note editing in the live app.
+
 ## v10.05
 
 ### Fixed
