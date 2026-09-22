@@ -877,12 +877,12 @@
         <button class="btn-danger-row" onclick="clearNotepad()">Clear all notes</button>
         <button class="btn-danger-row" onclick="clearAll()">Clear all data</button>
       </div>
-      <div class="app-version">my tasks / v11.02</div>
+      <div class="app-version">my tasks / v11.03</div>
     </div>
   </div>
 
   <nav class="tab-bar">
-    <button class="tab active" data-screen="tasks" onclick="switchTab('tasks')"><span class="tab-icon">☰</span><span class="tab-label">TASKS</span><span class="tab-badge" id="badge-tasks" style="display:none"></span></button>
+    <button class="tab active" data-screen="tasks" onclick="switchTab('tasks')"><span class="tab-icon">☰</span><span class="tab-label">TASKS</span></button>
     <button class="tab" data-screen="current" onclick="switchTab('current')"><span class="tab-icon">◎</span><span class="tab-label">CURRENT</span><span class="tab-badge" id="badge-current" style="display:none"></span></button>
     <button class="tab" data-screen="shared" onclick="switchTab('shared')"><span class="tab-icon">⤴</span><span class="tab-label">SHARED</span><span class="tab-badge" id="badge-shared" style="display:none"></span></button>
     <button class="tab" data-screen="settings" onclick="switchTab('settings')"><span class="tab-icon">⊙</span><span class="tab-label">SETTINGS</span></button>
@@ -2388,10 +2388,10 @@ function renderAccount(){
 }
 
 function updateBadges(){
-  const pending=tasks.filter(t=>!t.done&&!t.current).length,current=tasks.filter(t=>t.current).length;
+  // The Tasks tab carries no count: the pool is a library, not a to-do list.
+  const current=tasks.filter(t=>t.current).length;
   const sharedPending = sharedLists.reduce((acc,l)=>{const ts=sharedTasksByList[l.id]||[];return acc+ts.filter(t=>!t.done).length;},0);
-  const bt=document.getElementById('badge-tasks'),bc=document.getElementById('badge-current'),bs=document.getElementById('badge-shared');
-  bt.style.display=pending>0?'flex':'none';bt.textContent=pending;
+  const bc=document.getElementById('badge-current'),bs=document.getElementById('badge-shared');
   bc.style.display=current>0?'flex':'none';bc.textContent=current;
   bs.style.display=sharedPending>0?'flex':'none';bs.textContent=sharedPending;
 }
@@ -3154,6 +3154,9 @@ const BETA_CHANGES = [
   ]},
   { version: 'v11.02', items: [
     { icon:'\u21e9', text: '<b>Import a schedule from a file.</b> If someone gives you a schedule file, open \u25a6 in the Current header and choose Import from file. You\u2019ll see how many blocks it holds before anything changes, and importing replaces your current schedule.' },
+  ]},
+  { version: 'v11.03', items: [
+    { icon:'\u2212', text: '<b>Quieter tab bar.</b> The Tasks tab no longer shows a running count of every task in your pool.' },
   ]},
 ];
 

@@ -12,6 +12,14 @@ always tell you exactly which build they're on.
 
 ## Unreleased (beta)
 
+## v11.03
+
+### Changed
+- **The Tasks tab no longer shows a count badge.** The tab bar number counted
+  every unfinished task in the pool, which is a library to pick from rather than
+  a to-do list, so the number only ever grew. The Current and Shared badges are
+  unchanged.
+
 ## v11.02
 
 ### Added
@@ -27,17 +35,14 @@ always tell you exactly which build they're on.
   would make a `.dat` file unselectable.
 
 ### Removed
-- **The built-in timetable.** v11.01 shipped one person's weekly schedule inside
-  the app's source as a one-tap import. The repo is public, so that published
-  their routine — including when they're out of the house each week — to anyone
-  who looked, and offered it to every tester. Personal schedules now travel only
-  as files handed over privately.
+- **The built-in timetable.** v11.01 carried one person's weekly schedule inside
+  the app's source as a one-tap import. The repo is public, so shipping it would
+  have published their routine — including when they're out of the house each
+  week — and offered it to every tester. v11.01 was never pushed, so it never
+  reached the repo; git history confirms no commit contains it. Personal
+  schedules now travel only as files handed over privately.
 - `.gitignore` now excludes `*.dat`, so a schedule file dropped into the repo
   folder can't be committed by accident.
-
-### Note
-Removing the timetable from the current source doesn't remove it from git
-history. If v11.01 was pushed, the history needs rewriting for it to be gone.
 
 ## v11.01
 
