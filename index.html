@@ -67,7 +67,7 @@
   </script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap');
-    :root{--bg:#fdf8f0;--surface:#ffffff;--surface2:#f4eee2;--surface3:#e8e0cf;--border:#e6dec9;--border-strong:#d4c9ab;--accent:#7ab86e;--accent-light:#b8e0a8;--accent-dim:rgba(122,184,110,0.12);--text:#2c2a23;--text-muted:#7a7468;--text-dim:#a8a294;--danger:#d96666;--shared:#5da9d6;--shared-dim:rgba(93,169,214,0.12);--safe-bottom:env(safe-area-inset-bottom,0px);--safe-top:env(safe-area-inset-top,0px);--tab-h:64px}
+    :root{--bg:#fdf8f0;--surface:#ffffff;--surface2:#f4eee2;--surface3:#e8e0cf;--border:#e6dec9;--border-strong:#d4c9ab;--accent:#7ab86e;--accent-light:#b8e0a8;--accent-dim:rgba(122,184,110,0.12);--text:#2c2a23;--text-muted:#7a7468;--text-dim:#a8a294;--danger:#d96666;--shared:#5da9d6;--suggest:#c98a4b;--shared-dim:rgba(93,169,214,0.12);--safe-bottom:env(safe-area-inset-bottom,0px);--safe-top:env(safe-area-inset-top,0px);--tab-h:64px}
     *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
     html,body{height:100%;width:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;overscroll-behavior:none;user-select:none}
     #app{display:flex;flex-direction:column;height:100%;max-width:480px;margin:0 auto}
@@ -287,7 +287,7 @@
       --np-ink:#2e2d29;
       --np-bullet-dim:#c2c0b8;
     }
-    #screen-notes{background:var(--np-paper)}
+    
     .notepad-scroll{
       flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
       background:var(--np-paper);
@@ -339,6 +339,40 @@
     /* empty line → dimmed placeholder bullet */
     .notepad-lines li.np-empty::before{color:var(--np-bullet-dim)}
 
+    /* indent levels — bullet changes shape as lines nest */
+    .notepad-lines li[data-indent="1"]{padding-left:44px}
+    .notepad-lines li[data-indent="2"]{padding-left:68px}
+    .notepad-lines li[data-indent="1"]::before{content:'\25E6';left:26px}
+    .notepad-lines li[data-indent="2"]::before{content:'\25AA';left:50px;font-size:13px}
+
+    /* inline formatting from the selection menu */
+    .notepad-lines b, .notepad-lines strong{font-weight:600}
+    .notepad-lines i, .notepad-lines em{font-style:italic}
+    .notepad-lines u{text-decoration:underline}
+
+    /* crossed off — tap the bullet to toggle */
+    .notepad-lines li.np-done{color:var(--np-bullet-dim);text-decoration:line-through;text-decoration-color:var(--np-bullet-dim)}
+    .notepad-lines li.np-done::before{color:var(--np-bullet-dim)}
+
+    /* the bullet gutter is the tap target, so widen its hit area */
+    .notepad-lines li::before{width:20px;text-align:left}
+
+    /* dated day divider */
+    .notepad-lines li.np-divider{
+      height:var(--np-rule);line-height:var(--np-rule);
+      padding-left:0;
+      border-top:1.5px solid rgba(46,45,41,0.35);
+      display:flex;align-items:center;justify-content:flex-end;
+      -webkit-user-select:none;user-select:none;
+      cursor:default;
+    }
+    .notepad-lines li.np-divider::before{content:none}
+    .np-divider-date{
+      font-size:10px;letter-spacing:1.1px;text-transform:uppercase;
+      color:var(--np-ink);opacity:0.55;
+      font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif;
+    }
+
     .notepad-footer{
       max-width:480px;margin:26px auto 0;
       padding:0 26px;
@@ -354,13 +388,10 @@
       font-size:15px;font-weight:600;letter-spacing:2.5px;
     }
 
-    /* MORE MENU */
-    .more-menu-row{display:flex;align-items:center;gap:12px;padding:13px 16px;background:none;border:none;width:100%;text-align:left;cursor:pointer;color:var(--text);font-size:15px;font-family:'DM Sans',sans-serif;transition:background 0.12s;border-top:1px solid var(--border)}
-    .more-menu-row:first-child{border-top:none}
-    .more-menu-row:active{background:var(--surface2)}
-    .more-menu-row.active-screen{color:var(--accent)}
-    .more-menu-icon{font-size:18px;width:22px;text-align:center;flex-shrink:0;opacity:0.8}
-    .more-menu-label{flex:1;font-size:14px}
+    /* Current tab sub-views */
+    .current-subview{display:flex;flex-direction:column;flex:1;overflow:hidden}
+    #current-notes-view{background:var(--np-paper)}
+    #current-notes-view .notepad-scroll{padding-top:18px}
 
     /* ─── SPLASH ─── */
     #splash{position:fixed;inset:0;background:var(--bg);z-index:500;display:none;flex-direction:column;overflow-y:auto;-webkit-overflow-scrolling:touch}
@@ -489,6 +520,34 @@
     .top-task-rank{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-dim);width:22px;flex-shrink:0}
     .top-task-name{flex:1;font-size:13px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .top-task-count{font-family:'DM Mono',monospace;font-size:12px;color:var(--accent);font-weight:500}
+/* repetition picker + suggested badge */
+    .repeat-quick-picks{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+    .repeat-quick-pick{background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);padding:6px 11px;border-radius:8px;font-size:12px;font-family:'DM Mono',monospace;cursor:pointer}
+    .repeat-quick-pick:active{background:var(--surface3)}
+    .repeat-quick-pick.picked{background:var(--suggest);border-color:var(--suggest);color:#fff}
+    .repeat-custom-row{display:flex;align-items:center;gap:8px;margin-bottom:18px}
+    .repeat-custom-label{font-size:13px;color:var(--text-muted);font-family:'DM Mono',monospace}
+    .repeat-custom-row input[type=number]{width:60px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);font-size:14px;font-family:'DM Mono',monospace;outline:none;text-align:center}
+    .repeat-custom-row input[type=number]:focus{border-color:var(--suggest)}
+    .repeat-custom-row select{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);font-size:14px;font-family:'DM Sans',sans-serif;outline:none}
+    .task-repeat{font-size:10px;font-family:'DM Mono',monospace;color:var(--text-dim);line-height:1.2;display:inline-flex;align-items:center;gap:2px;white-space:nowrap}
+    .task-repeat.is-suggested{color:var(--suggest);font-weight:500}
+    .task-card.selected .task-repeat{color:white !important;opacity:0.8}
+
+    /* repetition picker + suggested badge */
+    .repeat-quick-picks{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+    .repeat-quick-pick{background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);padding:6px 11px;border-radius:8px;font-size:12px;font-family:'DM Mono',monospace;cursor:pointer}
+    .repeat-quick-pick:active{background:var(--surface3)}
+    .repeat-quick-pick.picked{background:var(--suggest);border-color:var(--suggest);color:#fff}
+    .repeat-custom-row{display:flex;align-items:center;gap:8px;margin-bottom:18px}
+    .repeat-custom-label{font-size:13px;color:var(--text-muted);font-family:'DM Mono',monospace}
+    .repeat-custom-row input[type=number]{width:60px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);font-size:14px;font-family:'DM Mono',monospace;outline:none;text-align:center}
+    .repeat-custom-row input[type=number]:focus{border-color:var(--suggest)}
+    .repeat-custom-row select{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);font-size:14px;font-family:'DM Sans',sans-serif;outline:none}
+    .task-repeat{font-size:10px;font-family:'DM Mono',monospace;color:var(--text-dim);line-height:1.2;display:inline-flex;align-items:center;gap:2px;white-space:nowrap}
+    .task-repeat.is-suggested{color:var(--suggest);font-weight:500}
+    .task-card.selected .task-repeat{color:white !important;opacity:0.8}
+
   </style>
 </head>
 <body>
@@ -562,24 +621,31 @@
   <!-- CURRENT -->
   <div class="screen" id="screen-current">
     <div class="header">
-      <div class="header-left"><h1><span class="accent-dot"></span>Current</h1><div class="subtitle" id="current-subtitle">Your active focus</div></div>
-      <div class="header-actions"><div class="header-date"><div class="hd-day" id="hd-day-current"></div><div class="hd-date" id="hd-date-current"></div></div></div>
-    </div>
-    <div class="current-progress-bar"><span class="cur-prog-label"><span id="cur-done-count">0</span> / <span id="cur-total-count">0</span> done</span><div class="cur-prog-track"><div class="cur-prog-fill" id="cur-prog-fill" style="width:0%"></div></div></div>
-    <div class="screen-body"><div class="current-list" id="current-list"></div></div>
-  </div>
-
-  <!-- NOTES -->
-  <div class="screen" id="screen-notes">
-    <div class="notepad-scroll" id="notepad-scroll">
-      <div class="notepad-page">
-        <div class="notepad-rules"></div>
-        <ul class="notepad-lines" id="notepad-lines" contenteditable="true" spellcheck="false"></ul>
+      <div class="header-left"><h1><span class="accent-dot"></span><span id="current-title">Current</span></h1><div class="subtitle" id="current-subtitle">Your active focus</div></div>
+      <div class="header-actions">
+        <button class="btn-icon-action" id="btn-current-notes" onclick="toggleCurrentNotes()" title="Notes">✎</button>
+        <div class="header-date"><div class="hd-day" id="hd-day-current"></div><div class="hd-date" id="hd-date-current"></div></div>
       </div>
-      <div class="notepad-footer">
-        <span class="notepad-footer-side">TASK<br>MANAGER</span>
-        <span class="notepad-footer-center">( NOTES )</span>
-        <span class="notepad-footer-side">TASK<br>MANAGER</span>
+    </div>
+
+    <!-- view: today's tasks -->
+    <div class="current-subview" id="current-tasks-view">
+      <div class="current-progress-bar"><span class="cur-prog-label"><span id="cur-done-count">0</span> / <span id="cur-total-count">0</span> done</span><div class="cur-prog-track"><div class="cur-prog-fill" id="cur-prog-fill" style="width:0%"></div></div></div>
+      <div class="screen-body"><div class="current-list" id="current-list"></div></div>
+    </div>
+
+    <!-- view: notepad -->
+    <div class="current-subview" id="current-notes-view" style="display:none">
+      <div class="notepad-scroll" id="notepad-scroll">
+        <div class="notepad-page">
+          <div class="notepad-rules"></div>
+          <ul class="notepad-lines" id="notepad-lines" contenteditable="true" spellcheck="false"></ul>
+        </div>
+        <div class="notepad-footer">
+          <span class="notepad-footer-side">TASK<br>MANAGER</span>
+          <span class="notepad-footer-center">( NOTES )</span>
+          <span class="notepad-footer-side">TASK<br>MANAGER</span>
+        </div>
       </div>
     </div>
   </div>
@@ -664,7 +730,7 @@
         <button class="btn-danger-row" onclick="clearNotepad()">Clear all notes</button>
         <button class="btn-danger-row" onclick="clearAll()">Clear all data</button>
       </div>
-      <div class="app-version">my tasks / v9.00</div>
+      <div class="app-version">my tasks / v10.06</div>
     </div>
   </div>
 
@@ -672,23 +738,10 @@
     <button class="tab active" data-screen="tasks" onclick="switchTab('tasks')"><span class="tab-icon">☰</span><span class="tab-label">TASKS</span><span class="tab-badge" id="badge-tasks" style="display:none"></span></button>
     <button class="tab" data-screen="current" onclick="switchTab('current')"><span class="tab-icon">◎</span><span class="tab-label">CURRENT</span><span class="tab-badge" id="badge-current" style="display:none"></span></button>
     <button class="tab" data-screen="shared" onclick="switchTab('shared')"><span class="tab-icon">⤴</span><span class="tab-label">SHARED</span><span class="tab-badge" id="badge-shared" style="display:none"></span></button>
-    <button class="tab" id="tab-more" onclick="toggleMoreMenu()"><span class="tab-icon">⋯</span><span class="tab-label">MORE</span></button>
+    <button class="tab" data-screen="settings" onclick="switchTab('settings')"><span class="tab-icon">⊙</span><span class="tab-label">SETTINGS</span></button>
   </nav>
 </div>
 
-<!-- MORE MENU -->
-<div id="more-overlay" onclick="closeMoreMenu()" style="display:none;position:fixed;inset:0;z-index:80;background:rgba(40,30,20,0.25);backdrop-filter:blur(2px)"></div>
-<div id="more-menu" style="display:none;position:fixed;bottom:calc(var(--tab-h) + var(--safe-bottom) + 10px);right:12px;z-index:81;background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:0 8px 28px rgba(40,30,20,0.18);min-width:180px;overflow:hidden;animation:popIn 0.18s ease">
-  <button class="more-menu-row" id="more-btn-notes" onclick="moreNav('notes')">
-    <span class="more-menu-icon">✎</span>
-    <span class="more-menu-label">Notes</span>
-    <span class="tab-badge" id="badge-notes" style="display:none;position:static;margin-left:auto"></span>
-  </button>
-  <button class="more-menu-row" id="more-btn-settings" onclick="moreNav('settings')">
-    <span class="more-menu-icon">⊙</span>
-    <span class="more-menu-label">Settings</span>
-  </button>
-</div>
 </div>
 
 <!-- HISTORY (same as v8) -->
@@ -749,11 +802,35 @@
     <div class="action-sheet-task-name" id="action-sheet-task-name"></div>
     <div class="action-row" onclick="actionRename()"><span class="icon">✎</span><span>Rename task</span></div>
     <div class="action-row" onclick="actionCategorize()"><span class="icon">⊕</span><span id="action-cat-label">Set category</span></div>
+    <div class="action-row" onclick="actionSetRepeat()"><span class="icon">↻</span><span id="action-repeat-label">Suggest repetition</span></div>
     <div class="action-row danger" onclick="actionDelete()"><span class="icon">🗑</span><span>Delete task</span></div>
   </div>
 </div>
 
 <!-- DEADLINE PICKER -->
+<!-- REPETITION PICKER -->
+<div class="popup-overlay" id="repeat-popup">
+  <div class="popup">
+    <div class="popup-title">Suggest repetition</div>
+    <div class="popup-body" id="repeat-current-label" style="margin-bottom:12px"></div>
+    <div class="repeat-quick-picks" id="repeat-quick-picks"></div>
+    <div class="repeat-custom-row">
+      <span class="repeat-custom-label">Every</span>
+      <input type="number" id="repeat-n" min="1" max="99" value="1"/>
+      <select id="repeat-unit">
+        <option value="days">days</option>
+        <option value="weeks">weeks</option>
+        <option value="months">months</option>
+      </select>
+    </div>
+    <div class="popup-actions">
+      <button class="popup-btn secondary" onclick="closeRepeat()">Cancel</button>
+      <button class="popup-btn primary" onclick="confirmRepeat()">Save</button>
+    </div>
+    <button class="btn-danger-row" style="border-top:1px solid var(--border);margin-top:14px" onclick="removeRepeat()">Remove repetition</button>
+  </div>
+</div>
+
 <div class="popup-overlay" id="deadline-popup">
   <div class="popup">
     <div class="popup-title">Set deadline</div>
@@ -804,6 +881,7 @@ let searchMode=false;        // when true, the add-bar input becomes a search bo
 let hideStaleActive=false;   // filter button on/off
 let deadlineTaskId=null;     // task currently being edited in deadline popup
 let pendingDeadline=null;    // 'YYYY-MM-DD' or null
+const SUGGESTED_FILTER='__suggested__';
 const CAT_COLORS=['#7ab86e','#5da9d6','#e89bb3','#e8c468','#7dc8b3','#e69973','#a987d6','#86d491','#e88da3','#9c8e75'];
 
 // auth/cloud
@@ -823,7 +901,7 @@ let sharedTasksByList = {};        // {listId: [{id, text, done, createdBy, crea
 async function loadAll(){
   tasks=await db.tasks.toArray();
   // backfill missing fields
-  tasks.forEach(t=>{if(t.createdAt===undefined)t.createdAt=t.lastCompletedAt||Date.now();if(t.deadline===undefined)t.deadline=null;});
+  tasks.forEach(t=>{if(t.createdAt===undefined)t.createdAt=t.lastCompletedAt||Date.now();if(t.deadline===undefined)t.deadline=null;if(t.repeat===undefined)t.repeat=null;});
   settings.showDone=await dbGetSetting('showDone',true);
   settings.doneBottom=await dbGetSetting('doneBottom',true);
   settings.nTasks=await dbGetSetting('nTasks',3);
@@ -1033,7 +1111,7 @@ function attachCloudListeners(){
     });
     const pad = standaloneNotes.find(n=>n.id===NOTEPAD_ID);
     if(pad && Array.isArray(pad.lines) && !isNotepadFocused()){
-      notepadLines = pad.lines.slice();
+      notepadLines = normaliseLines(pad.lines, pad.updatedAt || Date.now());
     }
     renderNotes();updateBadges();
   }));
@@ -1352,6 +1430,47 @@ function formatDeadline(deadlineStr){
   return `Due ${months[d.getMonth()]} ${d.getDate()}`;
 }
 
+// ── REPETITION / SUGGESTED ──
+// A task carries {n, unit} e.g. {n:3, unit:'months'}. It becomes "suggested"
+// once that interval has elapsed since its LAST COMPLETION, and stays suggested
+// until it is completed again. A task never completed is never suggested,
+// though its interval is still shown on the card.
+const REPEAT_PRESETS = [
+  {n:1, unit:'weeks'},  {n:2, unit:'weeks'},
+  {n:1, unit:'months'}, {n:3, unit:'months'},
+  {n:6, unit:'months'}, {n:12, unit:'months'},
+];
+
+function addInterval(ts, rep){
+  const d = new Date(ts);
+  if(rep.unit === 'days')        d.setDate(d.getDate() + rep.n);
+  else if(rep.unit === 'weeks')  d.setDate(d.getDate() + rep.n * 7);
+  else if(rep.unit === 'months') d.setMonth(d.getMonth() + rep.n);
+  return d.getTime();
+}
+
+function formatRepeat(rep){
+  if(!rep) return '';
+  if(rep.unit === 'months' && rep.n === 12) return '1y';
+  const suffix = rep.unit === 'days' ? 'd' : (rep.unit === 'weeks' ? 'w' : 'mo');
+  return rep.n + suffix;
+}
+
+function formatRepeatLong(rep){
+  if(!rep) return 'No repetition set';
+  if(rep.unit === 'months' && rep.n === 12) return 'Every year';
+  const unit = rep.n === 1 ? rep.unit.replace(/s$/,'') : rep.unit;
+  return 'Every ' + rep.n + ' ' + unit;
+}
+
+function isSuggested(t){
+  if(!t.repeat || !t.lastCompletedAt) return false;
+  if(t.current) return false;
+  return Date.now() >= addInterval(t.lastCompletedAt, t.repeat);
+}
+
+function suggestedCount(){ return tasks.filter(isSuggested).length; }
+
 // ── STALE HELPER ──
 function isStale(t){
   if(t.done || t.current) return false;
@@ -1399,7 +1518,18 @@ function getSorted(list){let o=[...list];if(settings.doneBottom)o.sort((a,b)=>a.
 function renderCategoryFilter(){
   const bar=document.getElementById('cat-filter-bar');
   const chips=[{id:null,name:'All',color:'#7ab86e'},...settings.categories];
-  bar.innerHTML=chips.map(c=>{const active=activeFilter===c.id;return`<div class="cat-chip" style="background:${active?c.color:'var(--surface)'};color:${active?'white':'var(--text-muted)'};border-color:${active?c.color:'var(--border)'}" onclick="setFilter(${c.id===null?'null':`'${c.id}'`})">${escHtml(c.name)}</div>`;}).join('');
+  let html=chips.map(c=>{const active=activeFilter===c.id;return`<div class="cat-chip" style="background:${active?c.color:'var(--surface)'};color:${active?'white':'var(--text-muted)'};border-color:${active?c.color:'var(--border)'}" onclick="setFilter(${c.id===null?'null':`'${c.id}'`})">${escHtml(c.name)}</div>`;}).join('');
+  // "Suggested" sits right after All, and only appears once something is due
+  const sc = suggestedCount();
+  if(sc > 0){
+    const active = activeFilter === SUGGESTED_FILTER;
+    const chip = `<div class="cat-chip" style="background:${active?'var(--suggest)':'var(--surface)'};color:${active?'white':'var(--suggest)'};border-color:var(--suggest)" onclick="setFilter('${SUGGESTED_FILTER}')">↻ Suggested ${sc}</div>`;
+    const first = html.indexOf('</div>') + 6;
+    html = html.slice(0, first) + chip + html.slice(first);
+  } else if(activeFilter === SUGGESTED_FILTER){
+    activeFilter = null;   // last suggested task was completed
+  }
+  bar.innerHTML = html;
 }
 
 function renderTasks(){
@@ -1416,13 +1546,15 @@ function renderTasks(){
   else{btn.className='confirm-btn';btn.textContent=count===0?'Select tasks to confirm':`Select ${n-count} more to confirm`;}
   let visible=getSorted(tasks);
   if(!settings.showDone)visible=visible.filter(t=>!t.done);
-  if(activeFilter!==null)visible=visible.filter(t=>t.categoryId===activeFilter);
+  if(activeFilter===SUGGESTED_FILTER)visible=visible.filter(isSuggested);
+  else if(activeFilter!==null)visible=visible.filter(t=>t.categoryId===activeFilter);
   if(hideStaleActive)visible=visible.filter(t=>!isStale(t));
   const q=searchMode?searchQuery.toLowerCase():'';
   if(q)visible=visible.filter(t=>{const c=getCat(t.categoryId);return t.text.toLowerCase().includes(q)||(c&&c.name.toLowerCase().includes(q));});
   if(!visible.length){
     let msg='No tasks yet.<br>Add one above.';
     if(q)msg=`No tasks match "${escHtml(searchQuery)}"`;
+    else if(activeFilter===SUGGESTED_FILTER)msg='Nothing is due for repetition.';
     else if(hideStaleActive)msg='Stale tasks hidden.<br>Tap the filter again to show them.';
     else if(activeFilter!==null)msg='No tasks in this category.';
     grid.innerHTML=`<div class="empty" style="grid-column:1/-1"><div class="icon">🌱</div><p>${msg}</p></div>`;
@@ -1438,6 +1570,9 @@ function renderTasks(){
     const lastDone=relativeDate(t.lastCompletedAt);
     const sp=subProgress(t.id);
     const subBadge=sp?`<span class="task-subtask-count">☰ ${sp.done}/${sp.total}</span>`:'';
+    const repeatBadge = t.repeat
+      ? `<span class="task-repeat${isSuggested(t)?' is-suggested':''}">↻ ${formatRepeat(t.repeat)}</span>`
+      : '';
     const catLabel=cat?`<span class="task-cat-label" style="color:${isSelected?'white':cat.color};opacity:${isSelected?0.95:0.85}">${highlightMatch(cat.name,q)}</span>`:'';
     let deadlineBadge='';
     if(t.deadline){
@@ -1446,7 +1581,7 @@ function renderTasks(){
       const ddCls = overdue ? 'overdue' : (dueToday ? 'due-today' : '');
       deadlineBadge = `<span class="task-deadline ${ddCls}">${overdue?'⚠ ':''}${formatDeadline(t.deadline)}</span>`;
     }
-    return`<div class="${cls}" style="background:${fillColor};border-color:${borderColor}" data-id="${t.id}" onclick="handleCardClick('${t.id}')" oncontextmenu="handleCardContextMenu(event,'${t.id}')">${catLabel}<div class="task-card-text${t.done?' done':''}">${highlightMatch(t.text,q)}</div><div class="task-card-footer"><div class="task-last-done">${lastDone}</div>${deadlineBadge}${subBadge}${cat&&!isSelected?`<div class="task-cat-dot" style="background:${cat.color}"></div>`:''}</div></div>`;
+    return`<div class="${cls}" style="background:${fillColor};border-color:${borderColor}" data-id="${t.id}" onclick="handleCardClick('${t.id}')" oncontextmenu="handleCardContextMenu(event,'${t.id}')">${catLabel}<div class="task-card-text${t.done?' done':''}">${highlightMatch(t.text,q)}</div><div class="task-card-footer"><div class="task-last-done">${lastDone}</div>${repeatBadge}${deadlineBadge}${subBadge}${cat&&!isSelected?`<div class="task-cat-dot" style="background:${cat.color}"></div>`:''}</div></div>`;
   }).join('');
   grid.querySelectorAll('.task-card').forEach(card=>attachLongPress(card,card.dataset.id));
 }
@@ -1455,7 +1590,7 @@ function renderCurrent(){
   const list=document.getElementById('current-list');
   const current=tasks.filter(t=>t.current);
   const doneCount=current.filter(t=>t.done).length,total=current.length,progress=total>0?doneCount/total:0;
-  document.getElementById('current-subtitle').textContent=total>0?`${total} task${total!==1?'s':''} in focus`:'No tasks confirmed yet';
+  updateCurrentSubtitle();
   document.getElementById('cur-done-count').textContent=doneCount;
   document.getElementById('cur-total-count').textContent=total;
   document.getElementById('cur-prog-fill').style.width=progress*100+'%';
@@ -1491,10 +1626,11 @@ function renderCurrent(){
 
 // ═══════════════════════════════════════════
 // NOTEPAD — one continuous ruled page of bullets
-// Stored as a single record: {id:'notepad', lines:[...]}
+// A line is {text, done, ts}. ts is the moment the line was written, which
+// drives the dated day dividers. Stored as one record: {id:'notepad', lines:[…]}
 // ═══════════════════════════════════════════
 const NOTEPAD_ID = 'notepad';
-let notepadLines = [''];      // in-memory source of truth
+let notepadLines = [];        // [{text, done, ts}]
 let notepadSaveTimer = null;
 
 function getNotepadEl(){ return document.getElementById('notepad-lines'); }
@@ -1502,34 +1638,111 @@ function isNotepadFocused(){
   const el = getNotepadEl();
   return el && (document.activeElement === el || el.contains(document.activeElement));
 }
+function blankLine(ts){ return { text:'', done:false, ts: ts || Date.now(), html:'', indent:0 }; }
 
-// Build <li> rows from notepadLines. Only called when NOT editing,
-// so we never clobber the caret mid-typing.
+// Formatting comes from the platform's own selection menu, so the only job here
+// is to keep what it produces down to bold, italic and underline.
+const NP_ALLOWED = { B:1, STRONG:1, I:1, EM:1, U:1 };
+function sanitizeInline(html){
+  const tmp = document.createElement('div');
+  tmp.innerHTML = html || '';
+  (function walk(node){
+    Array.from(node.childNodes).forEach(ch => {
+      if(ch.nodeType === 3) return;                    // text, keep
+      if(ch.nodeType !== 1){ ch.remove(); return; }     // comments etc.
+      walk(ch);
+      if(NP_ALLOWED[ch.tagName]){
+        Array.from(ch.attributes).forEach(a => ch.removeAttribute(a.name));
+      } else {
+        while(ch.firstChild) node.insertBefore(ch.firstChild, ch);
+        ch.remove();
+      }
+    });
+  })(tmp);
+  return tmp.innerHTML;
+}
+const MAX_INDENT = 2;   // three levels: 0, 1, 2
+
+// ── day grouping ──
+function dayKeyOf(ts){
+  const d = new Date(ts);
+  return d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate();
+}
+function dayLabel(ts){
+  const d = new Date(ts);
+  const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const yy = String(d.getFullYear()).slice(-2);
+  return days[d.getDay()] + ' ' + d.getDate() + ' ' + months[d.getMonth()] + ', ' + yy;
+}
+
+// Build <li> rows, inserting a dated divider whenever the day changes.
+// Order is preserved as written — lines are never re-sorted, so an insert in the
+// middle of the page stays where it was put.
 function renderNotes(){
   const el = getNotepadEl();
   if(!el) return;
-  if(isNotepadFocused()) { markEmptyLines(); return; }
-  if(!notepadLines.length) notepadLines = [''];
-  el.innerHTML = notepadLines.map(t =>
-    `<li${t.trim()===''?' class="np-empty"':''}>${t ? escHtml(t) : '<br>'}</li>`
-  ).join('');
+  if(isNotepadFocused()){ markEmptyLines(); return; }
+  if(!notepadLines.length) notepadLines = [blankLine()];
+
+  let html = '';
+  let lastKey = null;
+  notepadLines.forEach(line => {
+    const key = dayKeyOf(line.ts);
+    const blank = (line.text || '').trim() === '';
+    if(!blank && key !== lastKey){
+      html += '<li class="np-divider" contenteditable="false" data-divider="1">'
+            + '<span class="np-divider-date">' + dayLabel(line.ts) + '</span></li>';
+      lastKey = key;
+    }
+    const cls = [line.done ? 'np-done' : '',
+                 line.text.trim() === '' ? 'np-empty' : ''].filter(Boolean).join(' ');
+    const body = line.html ? line.html : (line.text ? escHtml(line.text) : '<br>');
+    html += '<li' + (cls ? ' class="' + cls + '"' : '')
+          + ' data-ts="' + line.ts + '"'
+          + ' data-done="' + (line.done ? '1' : '0') + '"'
+          + ' data-indent="' + (line.indent || 0) + '">'
+          + body + '</li>';
+  });
+  el.innerHTML = html;
   updateBadges();
+  if(typeof currentView !== 'undefined' && currentView === 'notes') updateCurrentSubtitle();
 }
 
-// Toggle the dim-bullet class on empty lines (runs on every input)
 function markEmptyLines(){
   const el = getNotepadEl(); if(!el) return;
-  el.querySelectorAll('li').forEach(li=>{
+  el.querySelectorAll('li:not(.np-divider)').forEach(li=>{
     const empty = li.textContent.replace(/\u200B/g,'').trim() === '';
     li.classList.toggle('np-empty', empty);
   });
 }
 
-// Read the DOM back into notepadLines
+// Read the DOM back into notepadLines, preserving each line's date and state.
+// A line the browser created (Enter) has no data-ts: if it sits at the very end
+// it is new today, otherwise it inherits the day of the line above so that
+// inserting mid-page doesn't fracture a day group.
 function syncNotepadFromDom(){
   const el = getNotepadEl(); if(!el) return;
-  const lis = Array.from(el.querySelectorAll('li'));
-  notepadLines = lis.length ? lis.map(li => li.textContent.replace(/\u200B/g,'')) : [''];
+  const lis = Array.from(el.querySelectorAll('li:not(.np-divider)'));
+  if(!lis.length){ notepadLines = [blankLine()]; return; }
+  const out = [];
+  lis.forEach((li, i) => {
+    const text = li.textContent.replace(/\u200B/g,'');
+    let ts = parseInt(li.dataset.ts || '', 10);
+    if(!ts){
+      ts = (i === lis.length - 1) ? Date.now()
+         : (out.length ? out[out.length-1].ts : Date.now());
+      li.dataset.ts = ts;
+    }
+    out.push({
+      text,
+      html: sanitizeInline(li.innerHTML),
+      indent: Math.min(MAX_INDENT, Math.max(0, parseInt(li.dataset.indent || '0', 10) || 0)),
+      done: li.dataset.done === '1',
+      ts
+    });
+  });
+  notepadLines = out;
 }
 
 function scheduleNotepadSave(){
@@ -1544,14 +1757,17 @@ async function saveNotepad(){
   if(i >= 0) standaloneNotes[i] = rec; else standaloneNotes.push(rec);
   await saveNote(rec);
   updateBadges();
+  if(currentView === 'notes') updateCurrentSubtitle();
 }
 
-// Ensure the list always has at least one <li> and place caret in it
 function ensureAtLeastOneLine(){
   const el = getNotepadEl(); if(!el) return;
-  if(!el.querySelector('li')){
+  if(!el.querySelector('li:not(.np-divider)')){
     const li = document.createElement('li');
     li.className = 'np-empty';
+    li.dataset.ts = Date.now();
+    li.dataset.done = '0';
+    li.dataset.indent = '0';
     li.innerHTML = '<br>';
     el.appendChild(li);
   }
@@ -1566,85 +1782,263 @@ function placeCaretAtEnd(node){
   s.addRange(r);
 }
 
-// Called when the Notes tab is opened
 function focusNotepad(){
   const el = getNotepadEl(); if(!el) return;
   ensureAtLeastOneLine();
-  const lis = el.querySelectorAll('li');
+  const lis = el.querySelectorAll('li:not(.np-divider)');
   const last = lis[lis.length - 1];
   el.focus();
   if(last) placeCaretAtEnd(last);
 }
 
+// Tapping the bullet crosses a line off. The bullet is a ::before pseudo-element
+// so it can't take a listener directly — instead we treat a tap inside the left
+// gutter as a bullet tap, and let taps on the text place the caret as normal.
+const BULLET_HIT_PX = 24;
+
+function handleNotepadPointer(e){
+  const el = getNotepadEl(); if(!el) return;
+  const li = e.target.closest ? e.target.closest('li') : null;
+  if(!li || li.classList.contains('np-divider')) return;
+  const x = e.clientX - li.getBoundingClientRect().left;
+  if(x > BULLET_HIT_PX) return;          // tapped the text — leave the caret alone
+  if(li.textContent.trim() === '') return; // nothing to cross off yet
+  e.preventDefault();
+  e.stopPropagation();
+  const done = li.dataset.done === '1';
+  li.dataset.done = done ? '0' : '1';
+  li.classList.toggle('np-done', !done);
+  scheduleNotepadSave();
+}
+
+// Browsers clone the current <li> when Enter splits it, which would copy its
+// date and crossed-off state onto the new line — so a new day could never start
+// a new group. We build the new line ourselves instead.
+function placeCaretAtStart(node){
+  const r = document.createRange();
+  r.selectNodeContents(node); r.collapse(true);
+  const sel = window.getSelection();
+  sel.removeAllRanges(); sel.addRange(r);
+}
+
+function caretLi(){
+  const sel = window.getSelection();
+  if(!sel.rangeCount) return null;
+  let n = sel.getRangeAt(0).startContainer;
+  if(n.nodeType === 3) n = n.parentNode;
+  return n && n.closest ? n.closest('li') : null;
+}
+
+function makeLine(ts, text, indent){
+  const li = document.createElement('li');
+  li.dataset.ts = ts;
+  li.dataset.done = '0';           // a new line is never born crossed off
+  li.dataset.indent = indent || 0; // but it does keep the indent you were at
+  if(text){ li.textContent = text; }
+  else { li.innerHTML = '<br>'; li.className = 'np-empty'; }
+  return li;
+}
+
+function indentOf(li){
+  return Math.min(MAX_INDENT, Math.max(0, parseInt(li.dataset.indent || '0', 10) || 0));
+}
+function setIndent(li, n){
+  li.dataset.indent = Math.min(MAX_INDENT, Math.max(0, n));
+}
+function shiftIndent(li, delta){
+  if(!li || li.classList.contains('np-divider')) return false;
+  const before = indentOf(li);
+  setIndent(li, before + delta);
+  const changed = indentOf(li) !== before;
+  if(changed) scheduleNotepadSave();
+  return changed;
+}
+
+// A line added at the end of the page belongs to today; one inserted inside an
+// earlier day keeps that day, so the group isn't split in two.
+function tsForNewLineAfter(li){
+  const el = getNotepadEl();
+  const lis = Array.from(el.querySelectorAll('li:not(.np-divider)'));
+  const isLast = lis[lis.length - 1] === li;
+  return isLast ? Date.now() : (parseInt(li.dataset.ts, 10) || Date.now());
+}
+
+function handleNotepadEnter(e){
+  const el = getNotepadEl();
+  const li = caretLi();
+  if(!li || li.classList.contains('np-divider')) return;
+  e.preventDefault();
+
+  const sel = window.getSelection();
+  const range = sel.getRangeAt(0);
+
+  // whatever sits after the caret moves down to the new line
+  const tail = range.cloneRange();
+  tail.selectNodeContents(li);
+  tail.setStart(range.endContainer, range.endOffset);
+  const moved = tail.toString();
+  tail.deleteContents();
+  if(li.textContent.replace(/\u200B/g,'').trim() === '') li.innerHTML = '<br>';
+
+  const nl = makeLine(tsForNewLineAfter(li), moved, indentOf(li));
+  li.after(nl);
+  placeCaretAtStart(nl);
+  markEmptyLines();
+  scheduleNotepadSave();
+}
+
+// Keep the crossed-off class and its attribute in step. Catches any line the
+// browser manufactured behind our back (autocorrect, drag, undo).
+// The page always ends with a blank line, and it gets saved with that day's
+// date. Open the notepad tomorrow and the caret lands on it, so text typed
+// today would otherwise inherit yesterday — and no new day could ever start.
+// A line is therefore dated the moment it stops being blank.
+function stampIfNewlyWritten(){
+  const li = caretLi();
+  if(!li || li.classList.contains('np-divider')) return;
+  const hasText = li.textContent.replace(/\u200B/g,'').trim() !== '';
+  if(hasText && li.classList.contains('np-empty')){
+    li.dataset.ts = Date.now();
+  }
+}
+
+function reconcileLines(){
+  const el = getNotepadEl(); if(!el) return;
+  el.querySelectorAll('li:not(.np-divider)').forEach(li=>{
+    if(!li.dataset.ts) li.dataset.ts = Date.now();
+    setIndent(li, indentOf(li));
+    if(li.dataset.done !== '1'){
+      li.dataset.done = '0';
+      li.classList.remove('np-done');
+    }
+  });
+}
+
 function initNotepadEvents(){
   const el = getNotepadEl(); if(!el || el._npBound) return;
   el._npBound = true;
+  // produce <b>/<i>/<u> instead of styled spans, which sanitise away cleanly
+  try { document.execCommand('styleWithCSS', false, false); } catch(e){}
 
   el.addEventListener('input', ()=>{
     ensureAtLeastOneLine();
+    stampIfNewlyWritten();   // must run before markEmptyLines clears the flag
+    reconcileLines();
     markEmptyLines();
     scheduleNotepadSave();
   });
 
-  // Strip formatting on paste — plain text only
+  // bullet taps — pointerdown so we beat the caret being placed
+  el.addEventListener('pointerdown', handleNotepadPointer, true);
+
+  el.addEventListener('keydown', (e)=>{
+    if(e.key === 'Enter' && !e.shiftKey){ handleNotepadEnter(e); return; }
+    if(e.key === 'Tab'){
+      e.preventDefault();
+      shiftIndent(caretLi(), e.shiftKey ? -1 : 1);
+      return;
+    }
+    // bold / italic / underline are deliberately allowed through
+  });
+
+  // Touch has no Tab key and there's no toolbar, so a horizontal swipe on a
+  // line nudges it in or out. Vertical movement is ignored so scrolling still
+  // works, and swipes starting in the bullet gutter are left to the tap handler.
+  let swipeX = 0, swipeY = 0, swipeLi = null;
+  el.addEventListener('touchstart', (e)=>{
+    const t = e.touches[0];
+    const li = e.target.closest ? e.target.closest('li') : null;
+    swipeLi = (li && !li.classList.contains('np-divider')
+               && (t.clientX - li.getBoundingClientRect().left) > BULLET_HIT_PX) ? li : null;
+    swipeX = t.clientX; swipeY = t.clientY;
+  }, {passive:true});
+  el.addEventListener('touchend', (e)=>{
+    if(!swipeLi) return;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - swipeX, dy = t.clientY - swipeY;
+    if(Math.abs(dx) > 45 && Math.abs(dy) < 25) shiftIndent(swipeLi, dx > 0 ? 1 : -1);
+    swipeLi = null;
+  });
+
+  // plain text only; multi-line pastes become properly dated lines
   el.addEventListener('paste', (e)=>{
     e.preventDefault();
     const text = (e.clipboardData || window.clipboardData).getData('text/plain') || '';
     const parts = text.split(/\r?\n/);
-    document.execCommand('insertText', false, parts.join('\n'));
-    setTimeout(()=>{ ensureAtLeastOneLine(); markEmptyLines(); scheduleNotepadSave(); }, 0);
-  });
-
-  // Block bold/italic/underline keyboard shortcuts — plain text only
-  el.addEventListener('keydown', (e)=>{
-    if((e.metaKey || e.ctrlKey) && ['b','i','u'].includes(e.key.toLowerCase())){
-      e.preventDefault();
+    document.execCommand('insertText', false, parts[0]);
+    if(parts.length > 1){
+      let li = caretLi();
+      if(li && !li.classList.contains('np-divider')){
+        const ts = tsForNewLineAfter(li);
+        for(let i = 1; i < parts.length; i++){
+          const nl = makeLine(ts, parts[i], indentOf(li));
+          li.after(nl);
+          li = nl;
+        }
+        placeCaretAtEnd(li);
+      }
     }
+    setTimeout(()=>{ ensureAtLeastOneLine(); reconcileLines(); markEmptyLines(); scheduleNotepadSave(); }, 0);
   });
 
-  el.addEventListener('blur', ()=>{ saveNotepad(); });
+  // re-group into days once editing stops
+  el.addEventListener('blur', async ()=>{
+    await saveNotepad();
+    renderNotes();
+  });
 }
 
-// Migrate old card-style notes into the notepad, then remove them
+// ── migration ──
+// Handles both shapes: the older array-of-strings, and the card-style notes
+// that predate the notepad entirely.
+function normaliseLines(lines, fallbackTs){
+  return (lines || []).map(l =>
+    (typeof l === 'string')
+      ? { text: l, done: false, ts: fallbackTs, html: '', indent: 0 }
+      : { text: l.text || '', done: !!l.done, ts: l.ts || fallbackTs,
+          html: sanitizeInline(l.html || ''),
+          indent: Math.min(2, Math.max(0, l.indent || 0)) }
+  );
+}
+
 async function migrateNotesToNotepad(){
   const pad = standaloneNotes.find(n => n.id === NOTEPAD_ID);
   const legacy = standaloneNotes.filter(n => n.id !== NOTEPAD_ID);
+  const padTs = (pad && pad.updatedAt) || Date.now();
 
-  if(pad && Array.isArray(pad.lines)) notepadLines = pad.lines.slice();
-  else notepadLines = [];
+  notepadLines = pad ? normaliseLines(pad.lines, padTs) : [];
 
   if(legacy.length){
-    // convert each legacy note's html into plain-text lines
     const tmp = document.createElement('div');
-    const converted = [];
-    legacy
-      .sort((a,b)=>(a.createdAt||0)-(b.createdAt||0))
-      .forEach(n=>{
-        tmp.innerHTML = (n.html || '')
-          .replace(/<\/(p|div|li|ul|ol|h[1-6])>/gi,'\n')
-          .replace(/<br\s*\/?>/gi,'\n');
-        const text = (tmp.textContent || '');
-        text.split(/\n+/).map(s=>s.trim()).filter(Boolean).forEach(line=>converted.push(line));
-      });
-    if(converted.length) notepadLines = notepadLines.concat(converted);
-    // delete legacy records
-    for(const n of legacy){
-      await deleteNoteFromDB(n.id);
-    }
+    legacy.sort((a,b)=>(a.createdAt||0)-(b.createdAt||0)).forEach(n=>{
+      tmp.innerHTML = (n.html || '')
+        .replace(/<\/(p|div|li|ul|ol|h[1-6])>/gi,'\n')
+        .replace(/<br\s*\/?>/gi,'\n');
+      (tmp.textContent || '').split(/\n+/).map(x=>x.trim()).filter(Boolean)
+        .forEach(line => notepadLines.push({
+          text: line, done: false, ts: n.createdAt || padTs
+        }));
+    });
+    for(const n of legacy) await deleteNoteFromDB(n.id);
     standaloneNotes = standaloneNotes.filter(n => n.id === NOTEPAD_ID);
-    // persist merged result
+  }
+
+  if(!notepadLines.length) notepadLines = [blankLine()];
+
+  // persist if anything was converted
+  const needsWrite = legacy.length ||
+    (pad && (pad.lines || []).some(l => typeof l === 'string'));
+  if(needsWrite){
     const rec = { id: NOTEPAD_ID, lines: notepadLines, updatedAt: Date.now() };
     const i = standaloneNotes.findIndex(n => n.id === NOTEPAD_ID);
     if(i >= 0) standaloneNotes[i] = rec; else standaloneNotes.push(rec);
     await saveNote(rec);
   }
-
-  if(!notepadLines.length) notepadLines = [''];
 }
 
 async function clearNotepad(){
   if(!confirm('Clear all notes? This cannot be undone.')) return;
-  notepadLines = [''];
+  notepadLines = [blankLine()];
   const rec = { id: NOTEPAD_ID, lines: notepadLines, updatedAt: Date.now() };
   const i = standaloneNotes.findIndex(n => n.id === NOTEPAD_ID);
   if(i >= 0) standaloneNotes[i] = rec; else standaloneNotes.push(rec);
@@ -1652,7 +2046,6 @@ async function clearNotepad(){
   renderNotes();
   showToast('Notes cleared');
 }
-
 
 // SHARED RENDER
 function renderShared(){
@@ -1803,12 +2196,10 @@ function renderAccount(){
 
 function updateBadges(){
   const pending=tasks.filter(t=>!t.done&&!t.current).length,current=tasks.filter(t=>t.current).length;
-  const activeNotes=(typeof notepadLines!=='undefined'?notepadLines:[]).filter(l=>l && l.trim()!=='').length;
   const sharedPending = sharedLists.reduce((acc,l)=>{const ts=sharedTasksByList[l.id]||[];return acc+ts.filter(t=>!t.done).length;},0);
-  const bt=document.getElementById('badge-tasks'),bc=document.getElementById('badge-current'),bn=document.getElementById('badge-notes'),bs=document.getElementById('badge-shared');
+  const bt=document.getElementById('badge-tasks'),bc=document.getElementById('badge-current'),bs=document.getElementById('badge-shared');
   bt.style.display=pending>0?'flex':'none';bt.textContent=pending;
   bc.style.display=current>0?'flex':'none';bc.textContent=current;
-  bn.style.display=activeNotes>0?'flex':'none';bn.textContent=activeNotes;
   bs.style.display=sharedPending>0?'flex':'none';bs.textContent=sharedPending;
 }
 
@@ -1872,6 +2263,8 @@ function openActionSheet(id){
   document.getElementById('action-sheet-task-name').textContent=t.text;
   const cat=getCat(t.categoryId);
   document.getElementById('action-cat-label').textContent=cat?`Category: ${cat.name}`:'Set category';
+  document.getElementById('action-repeat-label').textContent =
+    t.repeat ? formatRepeatLong(t.repeat) : 'Suggest repetition';
   document.getElementById('action-sheet-overlay').classList.add('active');
 }
 function closeActionSheet(e){if(e&&!e.target.classList.contains('action-sheet-overlay')&&!e.target.matches('.action-row'))return;document.getElementById('action-sheet-overlay').classList.remove('active');actionSheetTaskId=null;}
@@ -1879,6 +2272,79 @@ function actionRename(){renameTaskId=actionSheetTaskId;const t=tasks.find(t=>t.i
 function closeRename(){document.getElementById('rename-popup').classList.remove('active');renameTaskId=null;}
 async function confirmRename(){const newText=document.getElementById('rename-input').value.trim();if(!newText){closeRename();return;}const t=tasks.find(t=>t.id===renameTaskId);if(t){t.text=newText;await saveTask(t);}closeRename();render();}
 function actionCategorize(){const id=actionSheetTaskId;document.getElementById('action-sheet-overlay').classList.remove('active');if(!settings.categories.length){showToast('Add a category in Settings first');return;}openCatAssign(id);}
+
+// ── REPETITION PICKER ──
+let repeatTaskId = null;
+let pendingRepeat = null;      // {n, unit} or null
+
+function actionSetRepeat(){
+  repeatTaskId = actionSheetTaskId;
+  const t = tasks.find(t => t.id === repeatTaskId);
+  if(!t){ closeActionSheet({target:document.getElementById('action-sheet-overlay')}); return; }
+  document.getElementById('action-sheet-overlay').classList.remove('active');
+  pendingRepeat = t.repeat ? {...t.repeat} : null;
+  renderRepeatPopup(t);
+  document.getElementById('repeat-popup').classList.add('active');
+}
+
+function renderRepeatPopup(t){
+  const label = document.getElementById('repeat-current-label');
+  if(t.repeat){
+    if(t.lastCompletedAt){
+      const due = addInterval(t.lastCompletedAt, t.repeat);
+      const days = Math.ceil((due - Date.now()) / 86400000);
+      label.textContent = days <= 0
+        ? formatRepeatLong(t.repeat) + ' — due now'
+        : formatRepeatLong(t.repeat) + ' — next in ' + days + ' day' + (days!==1?'s':'');
+    } else {
+      label.textContent = formatRepeatLong(t.repeat) + ' — starts after the first completion';
+    }
+  } else {
+    label.textContent = 'Suggest this task again once an interval has passed since you last completed it.';
+  }
+  document.getElementById('repeat-quick-picks').innerHTML = REPEAT_PRESETS.map(r=>{
+    const picked = pendingRepeat && pendingRepeat.n === r.n && pendingRepeat.unit === r.unit;
+    return `<button class="repeat-quick-pick${picked?' picked':''}" onclick="pickRepeat(${r.n},'${r.unit}')">${formatRepeatLong(r).replace('Every ','')}</button>`;
+  }).join('');
+  document.getElementById('repeat-n').value = pendingRepeat ? pendingRepeat.n : 1;
+  document.getElementById('repeat-unit').value = pendingRepeat ? pendingRepeat.unit : 'months';
+}
+
+function pickRepeat(n, unit){
+  pendingRepeat = {n, unit};
+  const t = tasks.find(t => t.id === repeatTaskId);
+  if(t) renderRepeatPopup(t);
+}
+
+function closeRepeat(){
+  document.getElementById('repeat-popup').classList.remove('active');
+  repeatTaskId = null; pendingRepeat = null;
+}
+
+async function confirmRepeat(){
+  const t = tasks.find(t => t.id === repeatTaskId);
+  if(!t){ closeRepeat(); return; }
+  // a typed value overrides whichever preset is highlighted
+  const n = parseInt(document.getElementById('repeat-n').value, 10);
+  const unit = document.getElementById('repeat-unit').value;
+  const rep = (n >= 1 && n <= 99) ? {n, unit} : pendingRepeat;
+  if(!rep){ closeRepeat(); return; }
+  t.repeat = rep;
+  await saveTask(t);
+  closeRepeat();
+  render();
+  showToast(formatRepeatLong(rep));
+}
+
+async function removeRepeat(){
+  const t = tasks.find(t => t.id === repeatTaskId);
+  if(!t){ closeRepeat(); return; }
+  t.repeat = null;
+  await saveTask(t);
+  closeRepeat();
+  render();
+  showToast('Repetition removed');
+}
 
 // ── DEADLINE PICKER ──
 // deadlineCtx: { type:'local'|'shared', taskId, listId? }
@@ -1952,7 +2418,7 @@ function showExtraPopup(id){const n=settings.nTasks;document.getElementById('ext
 function resolveExtraPopup(yes){document.getElementById('extra-sel-popup').classList.remove('active');if(yes){extraSelAllowed=true;if(pendingSelectId){const t=tasks.find(t=>t.id===pendingSelectId);if(t){t.selected=true;saveTask(t);}pendingSelectId=null;render();}}else{pendingSelectId=null;}}
 function closeWelldone(){document.getElementById('welldone-overlay').classList.remove('active');}
 
-async function addTask(text){text=text.trim();if(!text)return;const t={id:uid(),text,done:false,selected:false,current:false,lastCompletedAt:null,categoryId:null,createdAt:Date.now(),deadline:null};tasks.unshift(t);await saveTask(t);render();}
+async function addTask(text){text=text.trim();if(!text)return;const t={id:uid(),text,done:false,selected:false,current:false,lastCompletedAt:null,categoryId:null,createdAt:Date.now(),deadline:null,repeat:null};tasks.unshift(t);await saveTask(t);render();}
 async function toggleSelected(id){const t=tasks.find(t=>t.id===id);if(!t)return;if(t.current)return;if(t.done&&!t.selected){showToast('Task already completed today');return;}const selCount=tasks.filter(t=>t.selected).length,n=settings.nTasks;if(!t.selected){if(selCount>=n&&!extraSelAllowed){showExtraPopup(id);return;}t.selected=true;}else{t.selected=false;}await saveTask(t);render();}
 async function toggleDone(id,locked){if(locked){showToast('Complete all subtasks first');return;}const t=tasks.find(t=>t.id===id);if(!t)return;if(hasSubs(id)){showToast('Toggle via subtasks');return;}t.done=!t.done;if(t.done){t.lastCompletedAt=Date.now();await recordCompletion(t);}else{const todayStart=new Date();todayStart.setHours(0,0,0,0);const recent=await db.history.where('taskId').equals(id).reverse().sortBy('completedAt');const todayEntry=recent.find(h=>h.completedAt>=todayStart.getTime());if(todayEntry)await db.history.delete(todayEntry.id);}await saveTask(t);render();}
 async function removeFromCurrent(id){const t=tasks.find(t=>t.id===id);if(!t)return;t.current=false;t.selected=false;if(t.deadline)t.deadline=null;await saveTask(t);render();}
@@ -1963,54 +2429,69 @@ async function changeStaleWeeks(d){settings.staleWeeks=Math.max(1,Math.min(52,se
 async function clearCompleted(){if(!tasks.some(t=>t.done))return;if(confirm('Remove all completed tasks?')){const toDelete=tasks.filter(t=>t.done);await Promise.all(toDelete.map(t=>deleteTaskFromDB(t.id)));tasks=tasks.filter(t=>!t.done);render();}}
 async function clearAll(){if(!confirm('Remove ALL local data? This cannot be undone.'))return;await db.tasks.clear();await db.notes.clear();await db.history.clear();await db.standaloneNotes.clear();tasks=[];subtasks={};standaloneNotes=[];render();showToast('Local data cleared. Cloud data still exists if signed in.');}
 
-// ── MORE MENU ──
-let moreMenuOpen = false;
-function toggleMoreMenu(){
-  moreMenuOpen ? closeMoreMenu() : openMoreMenu();
+// ── CURRENT TAB SUB-VIEWS (tasks / notepad) ──
+// The notepad used to be its own tab; it now lives behind the ✎ button in the
+// Current header, since notes are things you jot while working through the day.
+let currentView = 'tasks';   // 'tasks' | 'notes'
+
+function setCurrentView(v){
+  currentView = v;
+  const notes = v === 'notes';
+  document.getElementById('current-tasks-view').style.display = notes ? 'none' : 'flex';
+  document.getElementById('current-notes-view').style.display = notes ? 'flex' : 'none';
+
+  const btn = document.getElementById('btn-current-notes');
+  btn.textContent = notes ? '◎' : '✎';
+  btn.title = notes ? "Back to today's tasks" : 'Notes';
+  btn.classList.toggle('active', notes);
+
+  document.getElementById('current-title').textContent = notes ? 'Notes' : 'Current';
+
+  if(notes){
+    resetBg();                       // paper, not the completion gradient
+    initNotepadEvents();
+    renderNotes();
+    updateCurrentSubtitle();
+    setTimeout(focusNotepad, 60);
+  } else {
+    const cur = tasks.filter(t=>t.current);
+    const done = cur.filter(t=>t.done).length;
+    applyCurrentBg(cur.length>0 ? done/cur.length : 0);
+    renderCurrent();
+  }
 }
-function openMoreMenu(){
-  moreMenuOpen = true;
-  document.getElementById('more-overlay').style.display = 'block';
-  document.getElementById('more-menu').style.display = 'block';
-  document.getElementById('tab-more').classList.add('active');
-  // highlight whichever screen is currently open in the More section
-  const cur = document.querySelector('.screen.active');
-  const curId = cur ? cur.id.replace('screen-','') : '';
-  document.getElementById('more-btn-notes').classList.toggle('active-screen', curId==='notes');
-  document.getElementById('more-btn-settings').classList.toggle('active-screen', curId==='settings');
+
+function toggleCurrentNotes(){
+  setCurrentView(currentView === 'notes' ? 'tasks' : 'notes');
 }
-function closeMoreMenu(){
-  moreMenuOpen = false;
-  document.getElementById('more-overlay').style.display = 'none';
-  document.getElementById('more-menu').style.display = 'none';
-  document.getElementById('tab-more').classList.remove('active');
-}
-function moreNav(name){
-  closeMoreMenu();
-  switchTab(name);
-  // keep More button highlighted while on Notes/Settings
-  document.getElementById('tab-more').classList.add('active');
-  document.querySelectorAll('.tab[data-screen]').forEach(t=>t.classList.remove('active'));
+
+function updateCurrentSubtitle(){
+  const el = document.getElementById('current-subtitle');
+  if(!el) return;
+  if(currentView === 'notes'){
+    const n = (typeof notepadLines !== 'undefined' ? notepadLines : [])
+      .filter(l => l && (l.text || '').trim() !== '').length;
+    el.textContent = n === 0 ? 'Empty' : `${n} line${n!==1?'s':''}`;
+    return;
+  }
+  const total = tasks.filter(t=>t.current).length;
+  el.textContent = total > 0
+    ? `${total} task${total!==1?'s':''} in focus`
+    : 'No tasks confirmed yet';
 }
 
 function switchTab(name){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(`screen-${name}`).classList.add('active');
-  // only highlight the main tab bar button if it's one of the main 3
-  const mainTabs = ['tasks','current','shared'];
-  if(mainTabs.includes(name)){
-    document.querySelectorAll('.tab[data-screen]').forEach(t=>t.classList.remove('active'));
-    const tab = document.querySelector(`[data-screen="${name}"]`);
-    if(tab) tab.classList.add('active');
-    document.getElementById('tab-more').classList.remove('active');
-  }
-  if(name==='current'){const cur=tasks.filter(t=>t.current),done=cur.filter(t=>t.done).length;applyCurrentBg(cur.length>0?done/cur.length:0);}
-  else resetBg();
-  if(name==='notes'){
-    initNotepadEvents();
-    renderNotes();
-    // opening the tab is a user gesture, so focus brings the keyboard up
-    setTimeout(focusNotepad, 60);
+  document.querySelectorAll('.tab[data-screen]').forEach(t=>t.classList.remove('active'));
+  const tab = document.querySelector(`[data-screen="${name}"]`);
+  if(tab) tab.classList.add('active');
+
+  if(name==='current'){
+    // returning to Current always lands on the task list
+    setCurrentView('tasks');
+  } else {
+    resetBg();
   }
 }
 
