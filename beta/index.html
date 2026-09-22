@@ -411,6 +411,8 @@
     .sched-type.self{background:var(--sch-self-soft);color:var(--sch-self)}
     .sched-type.memorize{background:var(--sch-mem-soft);color:var(--sch-mem)}
     .sched-type.revision{background:var(--sch-rev-soft);color:var(--sch-rev)}
+    .sched-rule{font-size:10.5px;font-family:'DM Mono',monospace;padding:2px 7px;
+      border-radius:10px;background:var(--surface2);color:var(--text-muted)}
     .sched-live{font-size:10.5px;font-weight:600;padding:2px 7px;border-radius:10px;
       font-family:'DM Mono',monospace}
     .sched-live.now{background:var(--sch-self);color:#fff}
@@ -877,7 +879,7 @@
         <button class="btn-danger-row" onclick="clearNotepad()">Clear all notes</button>
         <button class="btn-danger-row" onclick="clearAll()">Clear all data</button>
       </div>
-      <div class="app-version">my tasks / v11.03</div>
+      <div class="app-version">my tasks / v11.04</div>
     </div>
   </div>
 
@@ -2665,11 +2667,12 @@ function beforeResetBoundary(){
   const d = new Date();
   return d.getHours()*60 + d.getMinutes() < hh*60 + mm;
 }
-function scheduleDayIndex(){
+function scheduleDate(){
   const d = new Date();
   if(beforeResetBoundary()) d.setDate(d.getDate() - 1);
-  return d.getDay();
+  return d;
 }
+function scheduleDayIndex(){ return scheduleDate().getDay(); }
 function scheduleNowMinutes(){
   const d = new Date();
   let m = d.getHours()*60 + d.getMinutes();
@@ -2745,7 +2748,8 @@ function renderTodaySchedule(){
   }
   if(picks) picks.style.display = 'flex';
 
-  const blocks = blocksForDay(scheduleDayIndex());
+  const today = scheduleDate();
+  const blocks = blocksForDay(today.getDay()).filter(e => blockAppliesOn(e, today));
   if(!blocks.length){
     box.innerHTML = '<div class="cur-section-label">Today\u2019s schedule</div>'
       + '<div class="sched-empty">Nothing scheduled today.</div>';
@@ -2779,6 +2783,7 @@ function renderTodaySchedule(){
           +     '<div class="sched-meta">'
           +       live
           +       '<span class="sched-type ' + e.type + '">' + (SCHED_TYPE_LABEL[e.type] || e.type) + '</span>'
+          +       (e.rule ? '<span class="sched-rule">' + escHtml(ruleChipText(e)) + '</span>' : '')
           +       '<span>' + escHtml(scheduleTimeText(e)) + '</span>'
           +     '</div>'
           +   '</div>'
@@ -2801,8 +2806,8 @@ function renderWeekSchedule(){
   let html = '';
   if(!schedule.length){
     html += '<div class="week-import"><p>No weekly schedule yet. Add blocks to any day below, '
-          + 'or import a schedule file you\u2019ve been given.</p>'
-          + '<button onclick="pickScheduleFile()">Import from file</button></div>';
+          + 'or import a schedule CSV you\u2019ve been given.</p>'
+          + '<button onclick="pickScheduleFile()">Import CSV</button></div>';
   }
   WEEK_ORDER.forEach(d => {
     const blocks = blocksForDay(d);
@@ -2815,51 +2820,140 @@ function renderWeekSchedule(){
       html += '<div class="week-row"><div class="sched-main">'
             + '<div class="sched-label">' + escHtml(t ? t.text : e.label) + '</div>'
             + '<div class="sched-meta"><span class="sched-type ' + e.type + '">' + (SCHED_TYPE_LABEL[e.type] || e.type) + '</span>'
+            + (e.rule ? '<span class="sched-rule">' + escHtml(ruleChipText(e)) + '</span>' : '')
             + '<span>' + escHtml(scheduleTimeText(e)) + '</span></div></div>'
             + '<button class="week-del" onclick="deleteBlock(\'' + e.id + '\')">\u2715</button></div>';
     });
     html += '<button class="week-add" onclick="openBlockPopup(' + d + ')">+ Add block</button></div>';
   });
   if(schedule.length){
-    html += '<button class="week-file-link" onclick="pickScheduleFile()">Import a schedule file\u2026</button>';
+    html += '<button class="week-file-link" onclick="pickScheduleFile()">Import a new schedule CSV\u2026</button>';
   }
   box.innerHTML = html;
 }
 
-// ── import from a schedule file ──
-// A schedule arrives as a file handed over privately rather than living in the
-// app's source, which sits in a public repo. It's plain JSON in a .dat file:
-//   { "format":"mytasks-schedule", "version":1, "name":"…",
-//     "blocks":[ {"day":"Monday","label":"…","type":"fixed",
-//                 "start":"07:00","end":"07:30","note":""}, … ] }
-const SCHEDULE_FILE_FORMAT = 'mytasks-schedule';
+// ── import from a CSV ──
+// Columns: Day, Time, Item, Type, Notes. Time is either a clock range
+// ("7:00-7:30 AM", "11:00 AM") or a prayer window ("Dhuhr-Asr", "After Isha"),
+// which has no fixed clock time and so is shown but never tracked live.
+// Notes may carry a monthly rule, e.g. "Second Saturday of the month only".
+// A schedule arrives as a file handed over privately; none ships in the source,
+// which sits in a public repo.
 const SCHEDULE_FILE_MAX_BYTES = 1024 * 1024;
-const HHMM_RE = /^([01]\d|2[0-3]):[0-5]\d$/;
 
-// Throws a readable message on the first problem; nothing is imported unless
-// every block is valid.
-function validateScheduleFile(obj){
-  if(!obj || typeof obj !== 'object') throw new Error('This file isn\u2019t a schedule.');
-  if(obj.format !== SCHEDULE_FILE_FORMAT) throw new Error('This file isn\u2019t a My Tasks schedule.');
-  if(obj.version !== 1) throw new Error('This schedule was made by a newer version of the app.');
-  if(!Array.isArray(obj.blocks) || !obj.blocks.length) throw new Error('This schedule has no blocks in it.');
-  if(obj.blocks.length > 500) throw new Error('This schedule has too many blocks.');
-  return obj.blocks.map((b, i) => {
-    const where = 'Block ' + (i + 1);
-    const day = DAY_FULL.indexOf(b && b.day);
-    if(day < 0) throw new Error(where + ' has an unknown day.');
-    const label = typeof b.label === 'string' ? b.label.trim() : '';
-    if(!label || label.length > 80) throw new Error(where + ' needs a name of up to 80 characters.');
-    if(!SCHED_TYPE_LABEL[b.type]) throw new Error(where + ' has an unknown type.');
-    const start = b.start == null ? null : b.start;
-    const end   = b.end   == null ? null : b.end;
-    if(start !== null && !HHMM_RE.test(start)) throw new Error(where + ' has an invalid start time.');
-    if(end   !== null && !HHMM_RE.test(end))   throw new Error(where + ' has an invalid end time.');
-    if(end !== null && start === null) throw new Error(where + ' has an end time but no start.');
-    if(start !== null && end !== null && toMin(end) <= toMin(start)) throw new Error(where + ' ends before it starts.');
-    const note = typeof b.note === 'string' ? b.note.trim().slice(0, 60) : '';
-    return { weekday: day, label, type: b.type, start, end, note };
-  });
+const CSV_TYPE_MAP = {
+  'fixed':'fixed', 'fixed class':'fixed', 'class':'fixed',
+  'self-paced':'self', 'self paced':'self', 'self':'self',
+  'new memorization':'memorize', 'new memorisation':'memorize',
+  'memorization':'memorize', 'memorisation':'memorize', 'memorize':'memorize',
+  'revision':'revision', 'review':'revision',
+};
+
+// Roughly where each prayer window falls, so rows sort into day order however
+// they were listed in the file. Only used for ordering, never shown.
+const WINDOW_ANCHORS = [
+  [/after\s*fajr|fajr\s*[-–—]\s*sunrise/, 330],
+  [/dhuhr\s*[-–—]\s*asr/,    780],
+  [/asr\s*[-–—]\s*maghrib/,  990],
+  [/maghrib\s*[-–—]\s*isha/, 1170],
+  [/after\s*isha/,           1260],
+];
+function dayAnchor(start, timeText){
+  if(start) return toMin(start);
+  const t = (timeText || '').toLowerCase();
+  for(const [re, min] of WINDOW_ANCHORS) if(re.test(t)) return min;
+  return 1440;                       // unknown windows sort to the end
+}
+
+// Handles quoted fields, since a note may contain a comma.
+function parseCsv(text){
+  const rows = []; let row = [], field = '', quoted = false;
+  text = String(text).replace(/^\uFEFF/, '');
+  for(let i = 0; i < text.length; i++){
+    const c = text[i];
+    if(quoted){
+      if(c === '"'){
+        if(text[i+1] === '"'){ field += '"'; i++; } else quoted = false;
+      } else field += c;
+    }
+    else if(c === '"') quoted = true;
+    else if(c === ','){ row.push(field); field = ''; }
+    else if(c === '\n'){ row.push(field); rows.push(row); row = []; field = ''; }
+    else if(c !== '\r') field += c;
+  }
+  if(field.length || row.length){ row.push(field); rows.push(row); }
+  return rows.filter(r => r.some(x => x.trim() !== ''));
+}
+
+// "7:00-7:30 AM" / "2:00-4:00 PM" / "11:00 AM" -> clock times; anything else is
+// a window with no fixed time.
+function parseClockTime(text){
+  const t = (text || '').trim();
+  const conv = (h, m, ap) => { h = (+h) % 12; if(/pm/i.test(ap)) h += 12;
+                               return String(h).padStart(2,'0') + ':' + m; };
+  let m = t.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)?\s*[-–—]\s*(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+  if(m){
+    const endAp = m[6], startAp = m[3] || endAp;
+    let start = conv(m[1], m[2], startAp);
+    const end = conv(m[4], m[5], endAp);
+    // "11:30-12:30 PM": the meridiem belongs to the end, so pull the start back
+    if(!m[3] && toMin(start) > toMin(end))
+      start = String((+start.slice(0,2)) - 12).padStart(2,'0') + start.slice(2);
+    return { start, end };
+  }
+  m = t.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+  if(m) return { start: conv(m[1], m[2], m[3]), end: null };
+  return null;
+}
+
+// Monthly rules written in the Notes column:
+//   "Second Saturday of the month only"        -> only the 2nd
+//   "regular Saturdays only (not 2nd Saturday)"-> every one except the 2nd
+// Only read when the note also names a weekday or the month, so a note like
+// "first 10 pages" isn't mistaken for a rule.
+const ORDINALS = { first:1, '1st':1, second:2, '2nd':2, third:3, '3rd':3,
+                   fourth:4, '4th':4, last:-1 };
+const ORD_RE = /\b(first|second|third|fourth|last|1st|2nd|3rd|4th)\b/g;
+const RULE_CONTEXT = /\b(month|monday|tuesday|wednesday|thursday|friday|saturday|sunday)s?\b/;
+
+function parseWeekRule(note){
+  const t = (note || '').toLowerCase();
+  if(!RULE_CONTEXT.test(t)) return null;
+  const hits = [...t.matchAll(ORD_RE)];
+  if(!hits.length) return null;
+  for(const h of hits){
+    const before = t.slice(Math.max(0, h.index - 14), h.index);
+    if(/\b(not|except|excluding)\b[^a-z]*$/.test(before))
+      return { mode:'exclude', n: ORDINALS[h[1]] };
+  }
+  return { mode:'only', n: ORDINALS[hits[0][1]] };
+}
+
+// The rule shows as its own small chip, so drop it from the note text.
+function stripRuleFromNote(note){
+  if(!note) return '';
+  return note.split(/\s*[,]\s*|\s+[-–—]\s+/)
+             .filter(seg => seg && !(RULE_CONTEXT.test(seg.toLowerCase()) || /\bonly\b/i.test(seg)))
+             .join(', ')
+             .trim();
+}
+
+function nthWeekdayOfMonth(d){ return Math.floor((d.getDate() - 1) / 7) + 1; }
+function isLastWeekdayOfMonth(d){
+  const last = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+  return d.getDate() + 7 > last;
+}
+function blockAppliesOn(e, d){
+  if(!e.rule) return true;
+  const hit = e.rule.n === -1 ? isLastWeekdayOfMonth(d) : nthWeekdayOfMonth(d) === e.rule.n;
+  return e.rule.mode === 'only' ? hit : !hit;
+}
+const ORD_SHORT = { 1:'1st', 2:'2nd', 3:'3rd', 4:'4th' };
+function ruleChipText(e){
+  if(!e.rule) return '';
+  const day = DAY_FULL[e.weekday].slice(0, 3);
+  const nth = e.rule.n === -1 ? 'last' : (ORD_SHORT[e.rule.n] || e.rule.n + 'th');
+  return e.rule.mode === 'only' ? nth + ' ' + day + ' only' : 'not ' + nth + ' ' + day;
 }
 
 function readFileText(file){
@@ -2873,20 +2967,52 @@ function readFileText(file){
 
 function pickScheduleFile(){ document.getElementById('schedule-file-input').click(); }
 
-// Works signed in or out: saveSchedule syncs to the account when there is one.
+// A new schedule replaces the old one outright. Works signed in or out;
+// saveSchedule syncs to the account when there is one.
 async function handleScheduleFile(input){
   const file = input.files && input.files[0];
   input.value = '';                     // so the same file can be picked again
   if(!file) return;
   try {
     if(file.size > SCHEDULE_FILE_MAX_BYTES) throw new Error('That file is too large to be a schedule.');
-    let data;
-    try { data = JSON.parse(await readFileText(file)); }
-    catch(e){ throw new Error('That file isn\u2019t a readable schedule.'); }
-    const blocks = validateScheduleFile(data);
+    const rows = parseCsv(await readFileText(file));
+    if(rows.length < 2) throw new Error('That file has no schedule rows in it.');
 
-    const days = new Set(blocks.map(b => b.weekday)).size;
-    let msg = 'Import ' + blocks.length + ' block' + (blocks.length !== 1 ? 's' : '')
+    const head = rows[0].map(h => h.trim().toLowerCase());
+    const iDay = head.indexOf('day'), iTime = head.indexOf('time');
+    const iItem = head.indexOf('item'), iType = head.indexOf('type');
+    const iNote = head.indexOf('notes');
+    if(iDay < 0 || iTime < 0 || iItem < 0 || iType < 0)
+      throw new Error('That CSV needs Day, Time, Item and Type columns.');
+
+    const parsed = rows.slice(1).map((r, n) => {
+      const where = 'Row ' + (n + 2);
+      const get = i => (i >= 0 && r[i] != null) ? String(r[i]).trim() : '';
+      const dayName = get(iDay);
+      const weekday = DAY_FULL.findIndex(d => d.toLowerCase() === dayName.toLowerCase());
+      if(weekday < 0) throw new Error(where + ': "' + dayName + '" isn\u2019t a day of the week.');
+      const label = get(iItem);
+      if(!label) throw new Error(where + ' has no item name.');
+      if(label.length > 80) throw new Error(where + ': that item name is too long.');
+      const type = CSV_TYPE_MAP[get(iType).toLowerCase()];
+      if(!type) throw new Error(where + ': "' + get(iType) + '" isn\u2019t a known type.');
+      const timeText = get(iTime);
+      const clock = parseClockTime(timeText);
+      const rawNote = get(iNote);
+      const rule = parseWeekRule(rawNote);
+      const clean = stripRuleFromNote(rawNote);
+      return { weekday, label, type,
+               start: clock ? clock.start : null,
+               end:   clock ? clock.end   : null,
+               note:  clock ? clean : [timeText, clean].filter(Boolean).join(' \u00b7 '),
+               rule,
+               anchor: dayAnchor(clock && clock.start, timeText),
+               seq: n };
+    });
+    if(!parsed.length) throw new Error('That file has no schedule rows in it.');
+
+    const days = new Set(parsed.map(b => b.weekday)).size;
+    let msg = 'Import ' + parsed.length + ' block' + (parsed.length !== 1 ? 's' : '')
             + ' across ' + days + ' day' + (days !== 1 ? 's' : '') + '?';
     if(schedule.length){
       msg += '\n\nThis replaces your current schedule of ' + schedule.length
@@ -2894,15 +3020,16 @@ async function handleScheduleFile(input){
     }
     if(!confirm(msg)) return;
 
+    parsed.sort((a, b) => a.weekday - b.weekday || a.anchor - b.anchor || a.seq - b.seq);
     const entries = [], nextOrder = {};
-    for(const b of blocks){
+    for(const b of parsed){
       const t = await findOrCreateTaskByLabel(b.label);   // one task per distinct name
       nextOrder[b.weekday] = nextOrder[b.weekday] || 0;
       entries.push({ id:uid(), weekday:b.weekday, order:nextOrder[b.weekday]++,
                      taskId:t.id, label:b.label, type:b.type,
-                     start:b.start, end:b.end, note:b.note });
+                     start:b.start, end:b.end, note:b.note, rule:b.rule });
     }
-    schedule = entries;
+    schedule = entries;                  // a new schedule replaces the old one
     await saveSchedule();
     render();
     renderWeekSchedule();
@@ -3154,6 +3281,10 @@ const BETA_CHANGES = [
   ]},
   { version: 'v11.02', items: [
     { icon:'\u21e9', text: '<b>Import a schedule from a file.</b> If someone gives you a schedule file, open \u25a6 in the Current header and choose Import from file. You\u2019ll see how many blocks it holds before anything changes, and importing replaces your current schedule.' },
+  ]},
+  { version: 'v11.04', items: [
+    { icon:'\u2913', text: '<b>Import your schedule as a CSV.</b> Open \u25a6 in the Current header and choose Import CSV. A new file replaces the whole schedule, and rows are sorted into day order automatically.' },
+    { icon:'\u25d1', text: '<b>Monthly blocks.</b> A note like \u201cSecond Saturday of the month only\u201d now shows that block only on those Saturdays, and blocks marked as not applying that week are hidden.' },
   ]},
   { version: 'v11.03', items: [
     { icon:'\u2212', text: '<b>Quieter tab bar.</b> The Tasks tab no longer shows a running count of every task in your pool.' },

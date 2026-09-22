@@ -12,6 +12,35 @@ always tell you exactly which build they're on.
 
 ## Unreleased (beta)
 
+## v11.04
+
+### Changed
+- **Schedules now import as CSV**, since that's the format they arrive in.
+  Columns are `Day, Time, Item, Type, Notes`. `Time` is either a clock range
+  ("7:00-7:30 AM", "2:00-4:00 PM", "11:00 AM") or a prayer window ("Dhuhr-Asr",
+  "After Isha") which is shown as written and never tracked live. `Type` accepts
+  Fixed, Self-paced, New memorization and Revision. Importing replaces the whole
+  schedule outright. Quoted fields are handled, so a note may contain a comma.
+- **The JSON `.dat` format is gone.** Only CSV is accepted now.
+
+### Added
+- **Monthly rules, read from the Notes column.** "Second Saturday of the month
+  only" shows a block on the 2nd Saturday alone; "regular Saturdays only (not
+  2nd Saturday)" shows it on every other one. Without this the app would have
+  shown two competing memorization blocks and a monthly class on all four
+  Saturdays. Rules are only read when the note also names a weekday or the
+  month, so "first 10 pages" isn't mistaken for one. Conditional blocks carry a
+  small chip — "2nd Sat only", "not 2nd Sat" — in both the day and week views,
+  and the rule text is stripped from the note so it doesn't read twice.
+- **Rows sort into day order on import**, by clock time where there is one and
+  by where each prayer window falls otherwise: morning, Dhuhr–Asr, Asr–Maghrib,
+  Maghrib–Isha, After Isha. The file's own row order is only a tiebreak, so a
+  7:30 AM row listed after a 2:00 PM one still appears first.
+
+### Note
+A malformed file is rejected whole, naming the row — "Row 7: 'Funday' isn't a
+day of the week" — and the current schedule is left untouched.
+
 ## v11.03
 
 ### Changed
