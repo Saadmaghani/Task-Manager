@@ -12,10 +12,73 @@ always tell you exactly which build they're on.
 
 ## Unreleased (beta)
 
-> Summaries of the entries below are shown on the beta splash screen. Keep them
-> short — the detail lives here.
+## v11.01
 
-## v10.06
+### Added
+- **Weekly schedule, live at the top of Current.** Today's blocks sit above your
+  picked tasks under "Today's schedule", with a done count. The block happening
+  now is highlighted with a **Now** marker; the next timed block shows
+  **Next · in 25 min**. Timed blocks that have passed unticked are dimmed rather
+  than flagged.
+- **Schedule items are tasks.** Each block points at a real task in the pool —
+  one task per distinct name, so "Hifdh revision" on six days is one task.
+  Ticking a block completes that task through the normal path: it's logged to
+  history, shows as done in the Tasks tab, and resets at the daily reset time. If
+  a linked task is deleted from the pool, it's recreated when the block is next
+  ticked.
+- **Week view** behind the ▦ button in the Current header, alongside ✎ for notes.
+  Lists every day Monday to Sunday with today marked; add a block to any day or
+  remove one. New timed blocks slot in by start time.
+- **One-tap import** of the weekly study timetable, offered only when the
+  schedule is empty. It's opt-in rather than seeded so other testers don't
+  inherit someone else's timetable.
+- Schedule syncs across devices when signed in.
+
+### Behaviour worth knowing
+- **Prayer-window blocks aren't live.** "Dhuhr–Asr", "After Isha" and the like
+  have no clock time, so they're shown as written with no Now/Next marker. Only
+  blocks with a clock time are tracked.
+- **The schedule's day runs reset-to-reset**, like the rest of the app. At 1am
+  you're still in yesterday's schedule, with its blocks shown as past; the next
+  day starts at the reset time, not midnight.
+- A block with only a start time (e.g. "11:00 AM") counts as live for 30
+  minutes.
+- There's no now-line between blocks: with prayer windows interleaved there's no
+  honest place to draw one.
+
+### Storage
+Stored under a `schedule` key in the existing settings store and a
+`meta/schedule` document in Firestore — **no new Dexie table**. Beta and
+production share one IndexedDB per domain, and a Dexie version bump in beta would
+stop the production build from opening the database at all. The v10.06
+production build ignores the new key entirely.
+
+### Not yet
+Editing an existing block means removing and re-adding it. Reordering blocks
+within a day isn't supported yet.
+
+> The beta splash screen shows short summaries of whatever sits in this
+> section. Keep them brief — the detail lives in the entries themselves.
+
+<!--
+Template for the next beta change:
+
+## v11.01
+### Added
+-
+### Changed
+-
+### Fixed
+-
+-->
+
+---
+
+## v10.06 — current production
+
+Released from beta builds v10.01 – v10.06, detailed below.
+
+### v10.06
 
 ### Added
 - **Bold, italic and underline in notes.** Select text and use the platform's
@@ -41,7 +104,7 @@ production build still loads notes without error — but it doesn't know about
 them, and saving a note there will drop formatting and indentation. Worth
 promoting before doing much note editing in the live app.
 
-## v10.05
+### v10.05
 
 ### Fixed
 - **Day dividers still never appeared.** v10.04 fixed the Enter path, but that
@@ -56,7 +119,7 @@ promoting before doing much note editing in the live app.
 - Blank lines no longer open a day group, so the leftover trailing blank can't
   strand a stale dated rule beneath the notes you just wrote.
 
-## v10.04
+### v10.04
 
 ### Fixed
 - **Day dividers never appeared.** When Enter splits a line, browsers clone the
@@ -82,7 +145,7 @@ Lines that predate v10.03 all carry a single timestamp, because the date a line
 was written wasn't recorded before then. They'll sit under one divider forever;
 anything written from now on groups correctly by day.
 
-## v10.03
+### v10.03
 
 ### Added
 - **Notes can be crossed off.** Tap the bullet at the left of a line to strike it
@@ -102,7 +165,7 @@ anything written from now on groups correctly by day.
 - Day grouping is recalculated when you leave the notepad, not while typing, so
   the cursor never jumps mid-sentence.
 
-## v10.02
+### v10.02
 
 ### Changed
 - **Notes moved into the Current tab.** The notepad is now behind a ✎ button in
@@ -117,7 +180,7 @@ anything written from now on groups correctly by day.
   fourth tab is now Settings directly. The tab bar is Tasks / Current / Shared /
   Settings.
 
-## v10.01
+### v10.01
 
 ### Added
 - **Suggested repetition.** Long-press a task in the Tasks tab and choose
@@ -133,21 +196,9 @@ anything written from now on groups correctly by day.
 - Tasks that have never been completed are never suggested — the clock only
   starts on the first completion.
 
-<!--
-Template for the next beta change:
-
-## v10.01
-### Added
--
-### Changed
--
-### Fixed
--
--->
-
 ---
 
-## v9.01 — current production (hotfix)
+## v9.01 (hotfix)
 
 ### Fixed
 - **The live app failed to load: "t.trim is not a function".** Beta v10.03
