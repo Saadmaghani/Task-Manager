@@ -67,7 +67,7 @@
   </script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap');
-    :root{--bg:#fdf8f0;--surface:#ffffff;--surface2:#f4eee2;--surface3:#e8e0cf;--border:#e6dec9;--border-strong:#d4c9ab;--accent:#7ab86e;--accent-light:#b8e0a8;--accent-dim:rgba(122,184,110,0.12);--text:#2c2a23;--text-muted:#7a7468;--text-dim:#a8a294;--danger:#d96666;--shared:#5da9d6;--suggest:#c98a4b;--shared-dim:rgba(93,169,214,0.12);--safe-bottom:env(safe-area-inset-bottom,0px);--safe-top:env(safe-area-inset-top,0px);--tab-h:64px}
+    :root{--bg:#fdf8f0;--surface:#ffffff;--surface2:#f4eee2;--surface3:#e8e0cf;--border:#e6dec9;--border-strong:#d4c9ab;--accent:#7ab86e;--accent-light:#b8e0a8;--accent-dim:rgba(122,184,110,0.12);--text:#2c2a23;--text-muted:#7a7468;--text-dim:#a8a294;--danger:#d96666;--shared:#5da9d6;--suggest:#c98a4b;--sch-fixed:#5e7285;--sch-fixed-soft:#e1e7ec;--sch-self:#a9823f;--sch-self-soft:#f1e6cc;--sch-mem:#3e6459;--sch-mem-soft:#dce7e2;--sch-rev:#a9694f;--sch-rev-soft:#f3e3db;--shared-dim:rgba(93,169,214,0.12);--safe-bottom:env(safe-area-inset-bottom,0px);--safe-top:env(safe-area-inset-top,0px);--tab-h:64px}
     *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
     html,body{height:100%;width:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;overscroll-behavior:none;user-select:none}
     #app{display:flex;flex-direction:column;height:100%;max-width:480px;margin:0 auto}
@@ -388,6 +388,71 @@
       font-size:15px;font-weight:600;letter-spacing:2.5px;
     }
 
+    /* ─── SCHEDULE ─── */
+    .cur-section-label{font-size:11px;font-family:'DM Mono',monospace;color:var(--text-muted);
+      text-transform:uppercase;letter-spacing:1.2px;margin:4px 2px 9px;display:flex;
+      justify-content:space-between;align-items:center}
+    .cur-section-label span{color:var(--accent);font-weight:500}
+    .sched-list{display:flex;flex-direction:column;gap:7px;margin-bottom:20px}
+    .sched-item{display:flex;align-items:flex-start;gap:11px;background:var(--surface);
+      border:1px solid var(--border);border-radius:12px;padding:11px 12px;cursor:pointer;
+      transition:background .2s,border-color .2s,opacity .2s}
+    .sched-item:active{transform:scale(.99)}
+    .sched-item.now{border-color:var(--sch-self);background:var(--sch-self-soft)}
+    .sched-item.past{opacity:.5}
+    .sched-item.checked{opacity:.55}
+    .sched-item.checked .sched-label{text-decoration:line-through;color:var(--text-muted)}
+    .sched-main{flex:1;min-width:0}
+    .sched-label{font-size:14px;font-weight:500;line-height:1.35}
+    .sched-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:4px;
+      font-size:11.5px;color:var(--text-muted)}
+    .sched-type{font-size:10.5px;font-weight:600;padding:2px 7px;border-radius:10px}
+    .sched-type.fixed{background:var(--sch-fixed-soft);color:var(--sch-fixed)}
+    .sched-type.self{background:var(--sch-self-soft);color:var(--sch-self)}
+    .sched-type.memorize{background:var(--sch-mem-soft);color:var(--sch-mem)}
+    .sched-type.revision{background:var(--sch-rev-soft);color:var(--sch-rev)}
+    .sched-live{font-size:10.5px;font-weight:600;padding:2px 7px;border-radius:10px;
+      font-family:'DM Mono',monospace}
+    .sched-live.now{background:var(--sch-self);color:#fff}
+    .sched-live.next{background:var(--surface2);color:var(--text)}
+    .sched-empty{font-size:13px;color:var(--text-muted);padding:4px 2px 18px;line-height:1.5}
+    .sched-empty a{color:var(--accent);cursor:pointer;text-decoration:underline}
+
+    .week-day{background:var(--surface);border:1px solid var(--border);border-radius:14px;
+      margin-bottom:12px;overflow:hidden}
+    .week-day.today{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+    .week-day-head{display:flex;justify-content:space-between;align-items:baseline;
+      padding:12px 14px 6px}
+    .week-day-name{font-size:15px;font-weight:600}
+    .week-day-name em{font-style:normal;font-size:10px;font-family:'DM Mono',monospace;
+      color:var(--accent);background:var(--accent-dim);padding:2px 7px;border-radius:10px;
+      margin-left:7px;vertical-align:middle}
+    .week-day-count{font-size:11px;font-family:'DM Mono',monospace;color:var(--text-dim)}
+    .week-row{display:flex;align-items:flex-start;gap:9px;padding:8px 14px;
+      border-top:1px solid var(--border)}
+    .week-row .sched-main{padding-top:1px}
+    .week-add{display:block;width:100%;background:none;border:none;border-top:1px dashed var(--border);
+      color:var(--text-muted);font-size:12.5px;font-family:'DM Mono',monospace;padding:10px 14px;
+      text-align:left;cursor:pointer}
+    .week-add:active{background:var(--surface2)}
+    .week-del{background:none;border:none;color:var(--text-dim);font-size:14px;cursor:pointer;
+      padding:2px 4px;flex-shrink:0}
+    .week-del:active{color:var(--danger)}
+    .week-import{background:var(--surface);border:1px dashed var(--border-strong);border-radius:14px;
+      padding:18px;text-align:center;margin-bottom:14px}
+    .week-import p{font-size:13px;color:var(--text-muted);line-height:1.5;margin-bottom:12px}
+    .week-import button{background:var(--accent);color:#fff;border:none;border-radius:10px;
+      padding:10px 18px;font-size:13.5px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer}
+
+    .week-file-link{display:block;margin:6px auto 4px;background:none;border:none;
+      color:var(--text-muted);font-size:12.5px;font-family:'DM Mono',monospace;
+      text-decoration:underline;cursor:pointer;padding:8px}
+    .block-row{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+    .block-row select,.block-row input[type=time]{flex:1;background:var(--surface2);border:1px solid var(--border);
+      border-radius:9px;padding:9px 10px;color:var(--text);font-size:14px;font-family:'DM Sans',sans-serif;outline:none;min-width:0}
+    .block-lbl{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace}
+    .block-hint{font-size:11.5px;color:var(--text-dim);line-height:1.45;margin:-4px 0 16px}
+
     /* Current tab sub-views */
     .current-subview{display:flex;flex-direction:column;flex:1;overflow:hidden}
     #current-notes-view{background:var(--np-paper)}
@@ -695,6 +760,7 @@
     <div class="header">
       <div class="header-left"><h1><span class="accent-dot"></span><span id="current-title">Current</span></h1><div class="subtitle" id="current-subtitle">Your active focus</div></div>
       <div class="header-actions">
+        <button class="btn-icon-action" id="btn-current-week" onclick="toggleCurrentWeek()" title="Weekly schedule">▦</button>
         <button class="btn-icon-action" id="btn-current-notes" onclick="toggleCurrentNotes()" title="Notes">✎</button>
         <div class="header-date"><div class="hd-day" id="hd-day-current"></div><div class="hd-date" id="hd-date-current"></div></div>
       </div>
@@ -703,7 +769,16 @@
     <!-- view: today's tasks -->
     <div class="current-subview" id="current-tasks-view">
       <div class="current-progress-bar"><span class="cur-prog-label"><span id="cur-done-count">0</span> / <span id="cur-total-count">0</span> done</span><div class="cur-prog-track"><div class="cur-prog-fill" id="cur-prog-fill" style="width:0%"></div></div></div>
-      <div class="screen-body"><div class="current-list" id="current-list"></div></div>
+      <div class="screen-body">
+        <div id="today-schedule"></div>
+        <div class="cur-section-label" id="picks-label">Your picks</div>
+        <div class="current-list" id="current-list"></div>
+      </div>
+    </div>
+
+    <!-- view: weekly schedule -->
+    <div class="current-subview" id="current-week-view" style="display:none">
+      <div class="screen-body"><div id="week-schedule"></div></div>
     </div>
 
     <!-- view: notepad -->
@@ -802,7 +877,7 @@
         <button class="btn-danger-row" onclick="clearNotepad()">Clear all notes</button>
         <button class="btn-danger-row" onclick="clearAll()">Clear all data</button>
       </div>
-      <div class="app-version">my tasks / v10.06</div>
+      <div class="app-version">my tasks / v11.02</div>
     </div>
   </div>
 
@@ -880,6 +955,34 @@
 </div>
 
 <!-- DEADLINE PICKER -->
+<input type="file" id="schedule-file-input" style="display:none" onchange="handleScheduleFile(this)"/>
+
+<!-- SCHEDULE BLOCK EDITOR -->
+<div class="popup-overlay" id="block-popup">
+  <div class="popup">
+    <div class="popup-title" id="block-popup-title">Add block</div>
+    <input type="text" id="block-label" placeholder="What is it? e.g. Morning class" maxlength="80"/>
+    <div class="block-row">
+      <select id="block-type">
+        <option value="fixed">Class</option>
+        <option value="self">Self-paced</option>
+        <option value="memorize">Memorize</option>
+        <option value="revision">Revision</option>
+      </select>
+    </div>
+    <div class="block-row">
+      <label class="block-lbl">From</label><input type="time" id="block-start"/>
+      <label class="block-lbl">to</label><input type="time" id="block-end"/>
+    </div>
+    <input type="text" id="block-note" placeholder="Or a window — e.g. Asr–Maghrib · 30 min" maxlength="60"/>
+    <div class="block-hint">Only blocks with a clock time are tracked live. A window like "Dhuhr–Asr" is shown as written.</div>
+    <div class="popup-actions">
+      <button class="popup-btn secondary" onclick="closeBlockPopup()">Cancel</button>
+      <button class="popup-btn primary" onclick="confirmBlock()">Save</button>
+    </div>
+  </div>
+</div>
+
 <!-- REPETITION PICKER -->
 <div class="popup-overlay" id="repeat-popup">
   <div class="popup">
@@ -949,6 +1052,7 @@ let extraSelAllowed=false, pendingSelectId=null;
 let activeFilter=null, pendingCatAssignId=null, colorPickerCatId=null, welldoneShown=false;
 let actionSheetTaskId=null, renameTaskId=null, singleDeleteTaskId=null;
 let searchQuery='';
+let schedule=[];   // weekly schedule blocks, see SCHEDULE module
 let searchMode=false;        // when true, the add-bar input becomes a search box
 let hideStaleActive=false;   // filter button on/off
 let deadlineTaskId=null;     // task currently being edited in deadline popup
@@ -980,6 +1084,7 @@ async function loadAll(){
   settings.resetTime=await dbGetSetting('resetTime','05:00');
   settings.categories=await dbGetSetting('categories',[]);
   settings.staleWeeks=await dbGetSetting('staleWeeks',3);
+  schedule=await dbGetSetting('schedule',[]);   // settings store: no Dexie schema change
   const allSubs=await db.notes.toArray();subtasks={};allSubs.forEach(r=>{subtasks[r.taskId]=r.items||[];});
   standaloneNotes=await db.standaloneNotes.toArray();
   await migrateNotesToNotepad();
@@ -1123,6 +1228,7 @@ async function pushLocalToCloud(){
   for(const taskId in subtasks){ await cloudSaveSubs(taskId,subtasks[taskId]); }
   for(const n of standaloneNotes){ await cloudSaveNote(n); }
   await cloudSaveSettings();
+  if(schedule.length) await cloudSaveSchedule();
 }
 
 // PULL CLOUD → LOCAL (overrides local if cloud has data)
@@ -1158,6 +1264,11 @@ async function pullCloudToLocal(){
       const s = sDoc.data();
       settings = {...settings, ...s};
       await saveSettings();
+    }
+    const schDoc = await window.fb.getDoc(userDoc('meta','schedule'));
+    if(schDoc.exists() && Array.isArray(schDoc.data().entries)){
+      schedule = schDoc.data().entries;
+      await dbSetSetting('schedule', schedule);
     }
   } catch(e){console.warn('pullCloudToLocal',e);}
 }
@@ -1202,6 +1313,15 @@ function attachCloudListeners(){
       const s=doc.data();
       settings={...settings,...s};
       render();
+    }
+  }));
+  // schedule edits on another device show up here
+  cloudUnsubs.push(window.fb.onSnapshot(userDoc('meta','schedule'),(doc)=>{
+    if(doc.exists() && Array.isArray(doc.data().entries)){
+      schedule = doc.data().entries;
+      dbSetSetting('schedule', schedule);
+      renderTodaySchedule();
+      if(currentView === 'week') renderWeekSchedule();
     }
   }));
 }
@@ -1659,6 +1779,7 @@ function renderTasks(){
 }
 
 function renderCurrent(){
+  renderTodaySchedule();
   const list=document.getElementById('current-list');
   const current=tasks.filter(t=>t.current);
   const doneCount=current.filter(t=>t.done).length,total=current.length,progress=total>0?doneCount/total:0;
@@ -2501,6 +2622,348 @@ async function changeStaleWeeks(d){settings.staleWeeks=Math.max(1,Math.min(52,se
 async function clearCompleted(){if(!tasks.some(t=>t.done))return;if(confirm('Remove all completed tasks?')){const toDelete=tasks.filter(t=>t.done);await Promise.all(toDelete.map(t=>deleteTaskFromDB(t.id)));tasks=tasks.filter(t=>!t.done);render();}}
 async function clearAll(){if(!confirm('Remove ALL local data? This cannot be undone.'))return;await db.tasks.clear();await db.notes.clear();await db.history.clear();await db.standaloneNotes.clear();tasks=[];subtasks={};standaloneNotes=[];render();showToast('Local data cleared. Cloud data still exists if signed in.');}
 
+// ═══════════════════════════════════════════
+// SCHEDULE — a fixed weekly timetable, shown live at the top of Current
+// No schedule ships in the source; one arrives by file import (below) or is
+// built in the week view.
+// A block is {id, weekday 0-6 (Sun..Sat), order, taskId, label, type,
+//             start 'HH:MM'|null, end 'HH:MM'|null, note}
+// Every block points at a real task, so ticking it completes that task: it logs
+// to history and resets with everything else. Stored under the 'schedule'
+// settings key rather than a new Dexie table — beta and production share one
+// IndexedDB per domain, and a schema bump here would stop production opening it.
+// ═══════════════════════════════════════════
+const DAY_FULL = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const WEEK_ORDER = [1,2,3,4,5,6,0];
+const SCHED_TYPE_LABEL = { fixed:'Class', self:'Self-paced', memorize:'Memorize', revision:'Revision' };
+
+function toMin(hhmm){ const [h, m] = hhmm.split(':').map(Number); return h*60 + m; }
+
+function fmt12(hhmm){
+  let [h, m] = hhmm.split(':').map(Number);
+  const ap = h >= 12 ? 'PM' : 'AM';
+  h = h % 12 || 12;
+  return h + ':' + String(m).padStart(2,'0') + ' ' + ap;
+}
+
+function scheduleTimeText(e){
+  if(!e.start) return e.note || '';
+  let t;
+  if(e.end){
+    const a = fmt12(e.start), b = fmt12(e.end);
+    t = a.slice(-2) === b.slice(-2) ? a.slice(0,-3) + '–' + b : a + '–' + b;
+  } else {
+    t = fmt12(e.start);
+  }
+  return e.note ? t + ' · ' + e.note : t;
+}
+
+// The app's day runs reset-to-reset, not midnight-to-midnight. At 1am you're
+// still in yesterday's schedule, and everything on it has already happened.
+function beforeResetBoundary(){
+  const [hh, mm] = settings.resetTime.split(':').map(Number);
+  const d = new Date();
+  return d.getHours()*60 + d.getMinutes() < hh*60 + mm;
+}
+function scheduleDayIndex(){
+  const d = new Date();
+  if(beforeResetBoundary()) d.setDate(d.getDate() - 1);
+  return d.getDay();
+}
+function scheduleNowMinutes(){
+  const d = new Date();
+  let m = d.getHours()*60 + d.getMinutes();
+  if(beforeResetBoundary()) m += 1440;
+  return m;
+}
+
+// null for untimed blocks; a block with only a start time is live for 30 min.
+function blockLiveState(e, now){
+  if(!e.start) return null;
+  const s = toMin(e.start);
+  const en = e.end ? toMin(e.end) : s + 30;
+  if(now >= s && now < en) return 'now';
+  if(now >= en) return 'past';
+  return 'upcoming';
+}
+
+function inMinutesText(mins){
+  if(mins < 60) return 'in ' + mins + ' min';
+  const h = Math.floor(mins / 60), m = mins % 60;
+  return 'in ' + h + ' h' + (m ? ' ' + m + ' min' : '');
+}
+
+function blocksForDay(d){
+  return schedule.filter(e => e.weekday === d).sort((a,b) => a.order - b.order);
+}
+function taskForBlock(e){ return tasks.find(t => t.id === e.taskId) || null; }
+
+async function findOrCreateTaskByLabel(label){
+  const key = label.trim().toLowerCase();
+  let t = tasks.find(x => (x.text || '').trim().toLowerCase() === key);
+  if(!t){
+    t = { id:uid(), text:label.trim(), done:false, selected:false, current:false,
+          lastCompletedAt:null, categoryId:null, createdAt:Date.now(),
+          deadline:null, repeat:null };
+    tasks.unshift(t);
+    await saveTask(t);
+  }
+  return t;
+}
+
+// If the linked task was deleted from the pool, recreate it so a block is
+// always backed by a task.
+async function ensureTaskForBlock(e){
+  let t = taskForBlock(e);
+  if(!t){
+    t = await findOrCreateTaskByLabel(e.label);
+    e.taskId = t.id;
+    await saveSchedule();
+  }
+  return t;
+}
+
+async function saveSchedule(){
+  await dbSetSetting('schedule', schedule);
+  if(cloudSyncEnabled) await cloudSaveSchedule();
+}
+async function cloudSaveSchedule(){
+  try { await window.fb.setDoc(userDoc('meta','schedule'), { entries: schedule }); }
+  catch(e){ console.warn('cloudSaveSchedule', e); }
+}
+
+// ── today, at the top of Current ──
+function renderTodaySchedule(){
+  const box = document.getElementById('today-schedule');
+  const picks = document.getElementById('picks-label');
+  if(!box) return;
+  if(!schedule.length){
+    box.innerHTML = '<div class="sched-empty">No weekly schedule yet. '
+      + '<a onclick="setCurrentView(\'week\')">Set one up</a></div>';
+    if(picks) picks.style.display = 'none';
+    return;
+  }
+  if(picks) picks.style.display = 'flex';
+
+  const blocks = blocksForDay(scheduleDayIndex());
+  if(!blocks.length){
+    box.innerHTML = '<div class="cur-section-label">Today\u2019s schedule</div>'
+      + '<div class="sched-empty">Nothing scheduled today.</div>';
+    return;
+  }
+
+  const now = scheduleNowMinutes();
+  const states = blocks.map(e => blockLiveState(e, now));
+  let nextIdx = -1, nextStart = Infinity;
+  blocks.forEach((e, i) => {
+    if(states[i] === 'upcoming' && toMin(e.start) < nextStart){
+      nextStart = toMin(e.start); nextIdx = i;
+    }
+  });
+  const done = blocks.filter(e => { const t = taskForBlock(e); return t && t.done; }).length;
+
+  let html = '<div class="cur-section-label">Today\u2019s schedule<span>' + done + '/' + blocks.length + '</span></div>'
+           + '<div class="sched-list">';
+  blocks.forEach((e, i) => {
+    const t = taskForBlock(e);
+    const checked = !!(t && t.done);
+    const st = states[i];
+    const cls = checked ? 'checked' : (st === 'now' ? 'now' : (st === 'past' ? 'past' : ''));
+    let live = '';
+    if(!checked && st === 'now') live = '<span class="sched-live now">Now</span>';
+    else if(!checked && i === nextIdx) live = '<span class="sched-live next">Next \u00b7 ' + inMinutesText(nextStart - now) + '</span>';
+    html += '<div class="sched-item ' + cls + '" onclick="toggleScheduleBlock(\'' + e.id + '\')">'
+          +   '<div class="sq-check' + (checked ? ' checked' : '') + '"></div>'
+          +   '<div class="sched-main">'
+          +     '<div class="sched-label">' + escHtml(t ? t.text : e.label) + '</div>'
+          +     '<div class="sched-meta">'
+          +       live
+          +       '<span class="sched-type ' + e.type + '">' + (SCHED_TYPE_LABEL[e.type] || e.type) + '</span>'
+          +       '<span>' + escHtml(scheduleTimeText(e)) + '</span>'
+          +     '</div>'
+          +   '</div>'
+          + '</div>';
+  });
+  box.innerHTML = html + '</div>';
+}
+
+async function toggleScheduleBlock(id){
+  const e = schedule.find(x => x.id === id); if(!e) return;
+  const t = await ensureTaskForBlock(e);
+  if(hasSubs(t.id)){ showToast('This task has subtasks \u2014 tick those in your picks'); return; }
+  await toggleDone(t.id, false);   // same path as ticking it anywhere else
+}
+
+// ── the whole week ──
+function renderWeekSchedule(){
+  const box = document.getElementById('week-schedule'); if(!box) return;
+  const today = scheduleDayIndex();
+  let html = '';
+  if(!schedule.length){
+    html += '<div class="week-import"><p>No weekly schedule yet. Add blocks to any day below, '
+          + 'or import a schedule file you\u2019ve been given.</p>'
+          + '<button onclick="pickScheduleFile()">Import from file</button></div>';
+  }
+  WEEK_ORDER.forEach(d => {
+    const blocks = blocksForDay(d);
+    html += '<div class="week-day' + (d === today ? ' today' : '') + '">'
+          + '<div class="week-day-head"><span class="week-day-name">' + DAY_FULL[d]
+          + (d === today ? '<em>today</em>' : '') + '</span>'
+          + '<span class="week-day-count">' + blocks.length + ' block' + (blocks.length !== 1 ? 's' : '') + '</span></div>';
+    blocks.forEach(e => {
+      const t = taskForBlock(e);
+      html += '<div class="week-row"><div class="sched-main">'
+            + '<div class="sched-label">' + escHtml(t ? t.text : e.label) + '</div>'
+            + '<div class="sched-meta"><span class="sched-type ' + e.type + '">' + (SCHED_TYPE_LABEL[e.type] || e.type) + '</span>'
+            + '<span>' + escHtml(scheduleTimeText(e)) + '</span></div></div>'
+            + '<button class="week-del" onclick="deleteBlock(\'' + e.id + '\')">\u2715</button></div>';
+    });
+    html += '<button class="week-add" onclick="openBlockPopup(' + d + ')">+ Add block</button></div>';
+  });
+  if(schedule.length){
+    html += '<button class="week-file-link" onclick="pickScheduleFile()">Import a schedule file\u2026</button>';
+  }
+  box.innerHTML = html;
+}
+
+// ── import from a schedule file ──
+// A schedule arrives as a file handed over privately rather than living in the
+// app's source, which sits in a public repo. It's plain JSON in a .dat file:
+//   { "format":"mytasks-schedule", "version":1, "name":"…",
+//     "blocks":[ {"day":"Monday","label":"…","type":"fixed",
+//                 "start":"07:00","end":"07:30","note":""}, … ] }
+const SCHEDULE_FILE_FORMAT = 'mytasks-schedule';
+const SCHEDULE_FILE_MAX_BYTES = 1024 * 1024;
+const HHMM_RE = /^([01]\d|2[0-3]):[0-5]\d$/;
+
+// Throws a readable message on the first problem; nothing is imported unless
+// every block is valid.
+function validateScheduleFile(obj){
+  if(!obj || typeof obj !== 'object') throw new Error('This file isn\u2019t a schedule.');
+  if(obj.format !== SCHEDULE_FILE_FORMAT) throw new Error('This file isn\u2019t a My Tasks schedule.');
+  if(obj.version !== 1) throw new Error('This schedule was made by a newer version of the app.');
+  if(!Array.isArray(obj.blocks) || !obj.blocks.length) throw new Error('This schedule has no blocks in it.');
+  if(obj.blocks.length > 500) throw new Error('This schedule has too many blocks.');
+  return obj.blocks.map((b, i) => {
+    const where = 'Block ' + (i + 1);
+    const day = DAY_FULL.indexOf(b && b.day);
+    if(day < 0) throw new Error(where + ' has an unknown day.');
+    const label = typeof b.label === 'string' ? b.label.trim() : '';
+    if(!label || label.length > 80) throw new Error(where + ' needs a name of up to 80 characters.');
+    if(!SCHED_TYPE_LABEL[b.type]) throw new Error(where + ' has an unknown type.');
+    const start = b.start == null ? null : b.start;
+    const end   = b.end   == null ? null : b.end;
+    if(start !== null && !HHMM_RE.test(start)) throw new Error(where + ' has an invalid start time.');
+    if(end   !== null && !HHMM_RE.test(end))   throw new Error(where + ' has an invalid end time.');
+    if(end !== null && start === null) throw new Error(where + ' has an end time but no start.');
+    if(start !== null && end !== null && toMin(end) <= toMin(start)) throw new Error(where + ' ends before it starts.');
+    const note = typeof b.note === 'string' ? b.note.trim().slice(0, 60) : '';
+    return { weekday: day, label, type: b.type, start, end, note };
+  });
+}
+
+function readFileText(file){
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(String(r.result || ''));
+    r.onerror = () => reject(new Error('That file couldn\u2019t be read.'));
+    r.readAsText(file);
+  });
+}
+
+function pickScheduleFile(){ document.getElementById('schedule-file-input').click(); }
+
+// Works signed in or out: saveSchedule syncs to the account when there is one.
+async function handleScheduleFile(input){
+  const file = input.files && input.files[0];
+  input.value = '';                     // so the same file can be picked again
+  if(!file) return;
+  try {
+    if(file.size > SCHEDULE_FILE_MAX_BYTES) throw new Error('That file is too large to be a schedule.');
+    let data;
+    try { data = JSON.parse(await readFileText(file)); }
+    catch(e){ throw new Error('That file isn\u2019t a readable schedule.'); }
+    const blocks = validateScheduleFile(data);
+
+    const days = new Set(blocks.map(b => b.weekday)).size;
+    let msg = 'Import ' + blocks.length + ' block' + (blocks.length !== 1 ? 's' : '')
+            + ' across ' + days + ' day' + (days !== 1 ? 's' : '') + '?';
+    if(schedule.length){
+      msg += '\n\nThis replaces your current schedule of ' + schedule.length
+           + ' block' + (schedule.length !== 1 ? 's' : '') + '. Its tasks stay in your pool.';
+    }
+    if(!confirm(msg)) return;
+
+    const entries = [], nextOrder = {};
+    for(const b of blocks){
+      const t = await findOrCreateTaskByLabel(b.label);   // one task per distinct name
+      nextOrder[b.weekday] = nextOrder[b.weekday] || 0;
+      entries.push({ id:uid(), weekday:b.weekday, order:nextOrder[b.weekday]++,
+                     taskId:t.id, label:b.label, type:b.type,
+                     start:b.start, end:b.end, note:b.note });
+    }
+    schedule = entries;
+    await saveSchedule();
+    render();
+    renderWeekSchedule();
+    updateCurrentSubtitle();
+    showToast('Schedule imported \u2014 ' + entries.length + ' blocks');
+  } catch(err){
+    alert(err.message || 'That file couldn\u2019t be imported.');
+  }
+}
+
+// ── add / remove ──
+let blockDay = null;
+function openBlockPopup(d){
+  blockDay = d;
+  ['block-label','block-start','block-end','block-note'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('block-type').value = 'fixed';
+  document.getElementById('block-popup-title').textContent = 'Add block \u00b7 ' + DAY_FULL[d];
+  document.getElementById('block-popup').classList.add('active');
+  setTimeout(() => document.getElementById('block-label').focus(), 80);
+}
+function closeBlockPopup(){
+  document.getElementById('block-popup').classList.remove('active');
+  blockDay = null;
+}
+async function confirmBlock(){
+  if(blockDay === null){ closeBlockPopup(); return; }
+  const label = document.getElementById('block-label').value.trim();
+  const type  = document.getElementById('block-type').value;
+  const start = document.getElementById('block-start').value || null;
+  const end   = document.getElementById('block-end').value || null;
+  const note  = document.getElementById('block-note').value.trim();
+  if(!label){ showToast('Give the block a name'); return; }
+  if(end && !start){ showToast('Add a start time too'); return; }
+  if(start && end && toMin(end) <= toMin(start)){ showToast('End must be after start'); return; }
+
+  const t = await findOrCreateTaskByLabel(label);
+  // timed blocks slot in before the first later timed block; untimed go last
+  const day = blocksForDay(blockDay);
+  let insertAt = day.length;
+  if(start){
+    const later = day.findIndex(e => e.start && toMin(e.start) > toMin(start));
+    if(later >= 0) insertAt = later;
+  }
+  day.splice(insertAt, 0, { id:uid(), weekday:blockDay, order:0, taskId:t.id,
+                            label, type, start, end, note });
+  day.forEach((e, i) => e.order = i);
+  schedule = schedule.filter(e => e.weekday !== blockDay).concat(day);
+
+  await saveSchedule();
+  closeBlockPopup();
+  renderWeekSchedule();
+  render();
+}
+async function deleteBlock(id){
+  if(!confirm('Remove this block from the schedule? The task stays in your pool.')) return;
+  schedule = schedule.filter(e => e.id !== id);
+  await saveSchedule();
+  renderWeekSchedule();
+  render();
+}
+
 // ── CURRENT TAB SUB-VIEWS (tasks / notepad) ──
 // The notepad used to be its own tab; it now lives behind the ✎ button in the
 // Current header, since notes are things you jot while working through the day.
@@ -2508,23 +2971,33 @@ let currentView = 'tasks';   // 'tasks' | 'notes'
 
 function setCurrentView(v){
   currentView = v;
-  const notes = v === 'notes';
-  document.getElementById('current-tasks-view').style.display = notes ? 'none' : 'flex';
-  document.getElementById('current-notes-view').style.display = notes ? 'flex' : 'none';
+  const views = { tasks:'current-tasks-view', notes:'current-notes-view', week:'current-week-view' };
+  Object.keys(views).forEach(k =>
+    document.getElementById(views[k]).style.display = (k === v) ? 'flex' : 'none');
 
-  const btn = document.getElementById('btn-current-notes');
-  btn.textContent = notes ? '◎' : '✎';
-  btn.title = notes ? "Back to today's tasks" : 'Notes';
-  btn.classList.toggle('active', notes);
+  // each header button toggles its own view; ◎ means "back to today"
+  const nb = document.getElementById('btn-current-notes');
+  const wb = document.getElementById('btn-current-week');
+  nb.textContent = v === 'notes' ? '◎' : '✎';
+  nb.title = v === 'notes' ? "Back to today's tasks" : 'Notes';
+  nb.classList.toggle('active', v === 'notes');
+  wb.textContent = v === 'week' ? '◎' : '▦';
+  wb.title = v === 'week' ? "Back to today's tasks" : 'Weekly schedule';
+  wb.classList.toggle('active', v === 'week');
 
-  document.getElementById('current-title').textContent = notes ? 'Notes' : 'Current';
+  document.getElementById('current-title').textContent =
+    v === 'notes' ? 'Notes' : (v === 'week' ? 'Week' : 'Current');
 
-  if(notes){
+  if(v === 'notes'){
     resetBg();                       // paper, not the completion gradient
     initNotepadEvents();
     renderNotes();
     updateCurrentSubtitle();
     setTimeout(focusNotepad, 60);
+  } else if(v === 'week'){
+    resetBg();
+    renderWeekSchedule();
+    updateCurrentSubtitle();
   } else {
     const cur = tasks.filter(t=>t.current);
     const done = cur.filter(t=>t.done).length;
@@ -2536,6 +3009,9 @@ function setCurrentView(v){
 function toggleCurrentNotes(){
   setCurrentView(currentView === 'notes' ? 'tasks' : 'notes');
 }
+function toggleCurrentWeek(){
+  setCurrentView(currentView === 'week' ? 'tasks' : 'week');
+}
 
 function updateCurrentSubtitle(){
   const el = document.getElementById('current-subtitle');
@@ -2544,6 +3020,12 @@ function updateCurrentSubtitle(){
     const n = (typeof notepadLines !== 'undefined' ? notepadLines : [])
       .filter(l => l && (l.text || '').trim() !== '').length;
     el.textContent = n === 0 ? 'Empty' : `${n} line${n!==1?'s':''}`;
+    return;
+  }
+  if(currentView === 'week'){
+    el.textContent = schedule.length
+      ? `${schedule.length} block${schedule.length!==1?'s':''} across the week`
+      : 'No schedule yet';
     return;
   }
   const total = tasks.filter(t=>t.current).length;
@@ -2665,22 +3147,13 @@ markBetaUI();
 // Shown on every load so testers always know what they're being asked to try.
 // Summaries only — CHANGELOG.md carries the detail.
 const BETA_CHANGES = [
-  { version: 'v10.01', items: [
-    { icon:'↻', text: '<b>Suggested repetition.</b> Long-press a task to set an interval — every 2 weeks, every 3 months. Once that long has passed since you last completed it, the task collects under a new "Suggested" chip.' },
+  { version: 'v11.01', items: [
+    { icon:'\u25a6', text: '<b>Weekly schedule.</b> Today\u2019s schedule now sits at the top of Current. The block happening now is highlighted, and the next one shows how long until it starts. Blocks set to a prayer window, like Asr\u2013Maghrib, are shown but not tracked live.' },
+    { icon:'\u2713', text: '<b>Schedule items are tasks.</b> Ticking a block completes its task \u2014 it counts in your history and resets at the usual daily reset time.' },
+    { icon:'+', text: '<b>Edit the week.</b> Tap \u25a6 in the Current header to see every day, add blocks, or remove them.' },
   ]},
-  { version: 'v10.02', items: [
-    { icon:'✎', text: '<b>Notes moved into Current.</b> The notepad is now behind the ✎ button in the Current header instead of its own tab. Settings took its place in the tab bar.' },
-  ]},
-  { version: 'v10.03', items: [
-    { icon:'✓', text: '<b>Cross notes off.</b> Tap the bullet at the left of a line to strike it through. Tapping the text still just moves the cursor.' },
-    { icon:'—', text: '<b>Dated day dividers.</b> Each day\'s notes now sit under a dated rule.' },
-  ]},
-  { version: 'v10.04 – 10.05', items: [
-    { icon:'⚠', text: '<b>Fixed:</b> day dividers in Notes never appeared — text written on a new day kept inheriting the date of the previous day. A line is now dated when you actually write it, so each day gets its own dated rule.' },
-  ]},
-  { version: 'v10.06', items: [
-    { icon:'B', text: '<b>Formatting in notes.</b> Select text and use your phone\u2019s own selection menu for bold, italic and underline. There is no toolbar.' },
-    { icon:'\u21e5', text: '<b>Indenting.</b> Swipe a note line right to indent it and left to pull it back \u2014 three levels, with the bullet changing shape as it nests. Tab and Shift+Tab work on a keyboard.' },
+  { version: 'v11.02', items: [
+    { icon:'\u21e9', text: '<b>Import a schedule from a file.</b> If someone gives you a schedule file, open \u25a6 in the Current header and choose Import from file. You\u2019ll see how many blocks it holds before anything changes, and importing replaces your current schedule.' },
   ]},
 ];
 
@@ -2739,6 +3212,7 @@ async function init(){
   showBetaSplash();
   /* BETA:END */
   setInterval(updateDates,60000);
+  setInterval(renderTodaySchedule,60000);   // move the Now / Next markers along
 }
 init().catch(err=>{console.error('init failed',err);document.getElementById('loading').textContent='failed to load — '+err.message;});
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});

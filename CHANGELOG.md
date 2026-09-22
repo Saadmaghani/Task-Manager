@@ -12,6 +12,33 @@ always tell you exactly which build they're on.
 
 ## Unreleased (beta)
 
+## v11.02
+
+### Added
+- **Import a schedule from a file.** In the week view (▦), choose "Import from
+  file" and pick a schedule file. It's validated in full before anything
+  changes; you see a preview — "Import 33 blocks across 7 days?" — and importing
+  over an existing schedule warns that it will replace it. A malformed file is
+  rejected whole with a specific reason ("Block 4 has an unknown day"), leaving
+  the current schedule untouched. Works signed in or out; signed in, it syncs to
+  the account.
+- The file is plain JSON with a `.dat` extension. The picker deliberately has no
+  file-type filter, because iOS greys out extensions it doesn't recognise and
+  would make a `.dat` file unselectable.
+
+### Removed
+- **The built-in timetable.** v11.01 shipped one person's weekly schedule inside
+  the app's source as a one-tap import. The repo is public, so that published
+  their routine — including when they're out of the house each week — to anyone
+  who looked, and offered it to every tester. Personal schedules now travel only
+  as files handed over privately.
+- `.gitignore` now excludes `*.dat`, so a schedule file dropped into the repo
+  folder can't be committed by accident.
+
+### Note
+Removing the timetable from the current source doesn't remove it from git
+history. If v11.01 was pushed, the history needs rewriting for it to be gone.
+
 ## v11.01
 
 ### Added
@@ -21,7 +48,7 @@ always tell you exactly which build they're on.
   **Next · in 25 min**. Timed blocks that have passed unticked are dimmed rather
   than flagged.
 - **Schedule items are tasks.** Each block points at a real task in the pool —
-  one task per distinct name, so "Hifdh revision" on six days is one task.
+  one task per distinct name, so a block repeated across several days is one task.
   Ticking a block completes that task through the normal path: it's logged to
   history, shows as done in the Tasks tab, and resets at the daily reset time. If
   a linked task is deleted from the pool, it's recreated when the block is next
@@ -29,9 +56,6 @@ always tell you exactly which build they're on.
 - **Week view** behind the ▦ button in the Current header, alongside ✎ for notes.
   Lists every day Monday to Sunday with today marked; add a block to any day or
   remove one. New timed blocks slot in by start time.
-- **One-tap import** of the weekly study timetable, offered only when the
-  schedule is empty. It's opt-in rather than seeded so other testers don't
-  inherit someone else's timetable.
 - Schedule syncs across devices when signed in.
 
 ### Behaviour worth knowing
