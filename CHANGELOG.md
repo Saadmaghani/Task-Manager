@@ -12,6 +12,17 @@ always tell you exactly which build they're on.
 
 ## Unreleased (beta)
 
+## v11.05
+
+### Changed
+- **The beta what's-new screen no longer appears on every load.** It shows for a
+  new version only, and at most three times — enough to be noticed without
+  becoming something testers tap past. The count restarts whenever the version
+  changes, and it still waits for the first-run onboarding screen rather than
+  stacking on top of it, without burning a showing while it waits.
+- Kept in `localStorage`, since how often someone has seen a notice is a
+  per-device detail: it stays out of the shared database and never syncs.
+
 ## v11.04
 
 ### Changed
