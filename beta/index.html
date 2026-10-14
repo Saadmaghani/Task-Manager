@@ -67,7 +67,7 @@
   </script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap');
-    :root{--bg:#fdf8f0;--surface:#ffffff;--surface2:#f4eee2;--surface3:#e8e0cf;--border:#e6dec9;--border-strong:#d4c9ab;--accent:#7ab86e;--accent-light:#b8e0a8;--accent-dim:rgba(122,184,110,0.12);--text:#2c2a23;--text-muted:#7a7468;--text-dim:#a8a294;--danger:#d96666;--shared:#5da9d6;--suggest:#c98a4b;--sch-fixed:#5e7285;--sch-fixed-soft:#e1e7ec;--sch-self:#a9823f;--sch-self-soft:#f1e6cc;--sch-mem:#3e6459;--sch-mem-soft:#dce7e2;--sch-rev:#a9694f;--sch-rev-soft:#f3e3db;--np-paper:#f2f1ec;--np-line:#b5b3ab;--np-ink:#2e2d29;--np-bullet-dim:#c2c0b8;--np-rule-strong:rgba(46,45,41,0.35);--overlay-wash:rgba(252,248,240,0.96);--heat1:#dcebd1;--heat2:#b8e0a8;--heat3:#7ab86e;--heat4:#5a9050;--shared-dim:rgba(93,169,214,0.12);--safe-bottom:env(safe-area-inset-bottom,0px);--safe-top:env(safe-area-inset-top,0px);--tab-h:64px}
+    :root{--bg:#fdf8f0;--surface:#ffffff;--surface2:#f4eee2;--surface3:#e8e0cf;--border:#e6dec9;--border-strong:#d4c9ab;--on-accent:#ffffff;--accent:#7ab86e;--accent-light:#b8e0a8;--accent-dim:rgba(122,184,110,0.12);--text:#2c2a23;--text-muted:#7a7468;--text-dim:#a8a294;--danger:#d96666;--shared:#5da9d6;--suggest:#c98a4b;--sch-fixed:#5e7285;--sch-fixed-soft:#e1e7ec;--sch-self:#a9823f;--sch-self-soft:#f1e6cc;--sch-mem:#3e6459;--sch-mem-soft:#dce7e2;--sch-rev:#a9694f;--sch-rev-soft:#f3e3db;--np-paper:#f2f1ec;--np-line:#b5b3ab;--np-ink:#2e2d29;--np-bullet-dim:#c2c0b8;--np-rule-strong:rgba(46,45,41,0.35);--overlay-wash:rgba(252,248,240,0.96);--heat1:#dcebd1;--heat2:#b8e0a8;--heat3:#7ab86e;--heat4:#5a9050;--shared-dim:rgba(93,169,214,0.12);--safe-bottom:env(safe-area-inset-bottom,0px);--safe-top:env(safe-area-inset-top,0px);--tab-h:64px}
     *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
     html,body{height:100%;width:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;overscroll-behavior:none;user-select:none}
     #app{display:flex;flex-direction:column;height:100%;max-width:480px;margin:0 auto}
@@ -96,7 +96,7 @@
 
     .btn-search-icon{background:var(--surface);border:1px solid var(--border);width:34px;height:34px;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--text-muted);transition:background 0.15s,border-color 0.15s}
     .btn-search-icon:active{background:var(--surface2)}
-    .btn-search-icon.active{background:var(--accent);color:white;border-color:var(--accent)}
+    .btn-search-icon.active{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
     .search-bar{display:none;padding:10px 12px;border-bottom:1px solid var(--border);background:var(--bg);gap:8px;align-items:center}
     .search-bar.active{display:flex}
     .search-bar input{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:9px 13px;color:var(--text);font-size:14px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color 0.2s}
@@ -108,21 +108,21 @@
     .add-bar input{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:10px 13px;color:var(--text);font-size:15px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color 0.2s}
     .add-bar input:focus{border-color:var(--accent)}
     .add-bar input::placeholder{color:var(--text-dim)}
-    .btn-add{background:var(--accent);color:white;border:none;border-radius:11px;width:42px;height:42px;font-size:22px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform 0.1s;box-shadow:0 2px 6px rgba(122,184,110,0.25)}
+    .btn-add{background:var(--accent);color:var(--on-accent);border:none;border-radius:11px;width:42px;height:42px;font-size:22px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform 0.1s;box-shadow:0 2px 6px rgba(122,184,110,0.25)}
     .btn-add:active{transform:scale(0.91)}
     .btn-add.shared{background:var(--shared);box-shadow:0 2px 6px rgba(93,169,214,0.25)}
 
     /* small icon buttons next to + (search/filter) */
     .btn-icon-action{background:var(--surface);border:1px solid var(--border);width:38px;height:42px;border-radius:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--text-muted);transition:background 0.15s,border-color 0.15s,color 0.15s;flex-shrink:0;font-family:'DM Mono',monospace}
     .btn-icon-action:active{background:var(--surface2)}
-    .btn-icon-action.active{background:var(--accent);color:white;border-color:var(--accent)}
+    .btn-icon-action.active{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
     #add-bar input.search-mode{border-color:var(--accent);background:var(--accent-dim)}
 
     /* deadline badge on task card */
     .task-deadline{font-size:10px;font-family:'DM Mono',monospace;color:var(--accent);background:var(--accent-dim);padding:2px 6px;border-radius:5px;line-height:1.2;display:inline-flex;align-items:center;gap:3px}
     .task-deadline.overdue{color:var(--danger);background:rgba(217,102,102,0.12)}
     .task-deadline.due-today{color:#c89a3a;background:rgba(232,196,104,0.18)}
-    .task-card.selected .task-deadline{background:rgba(255,255,255,0.18);color:white !important}
+    .task-card.selected .task-deadline{background:rgba(255,255,255,0.18);color:var(--on-accent) !important}
     .task-card.selected .task-deadline.overdue{background:rgba(255,255,255,0.18);color:#ffe0e0 !important}
 
     /* dim stale tasks (visible state when filter inactive) */
@@ -149,8 +149,8 @@
     .task-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
     .task-card{background:var(--surface);border:2px solid var(--border);border-radius:13px;padding:12px 11px;cursor:pointer;transition:background 0.2s,transform 0.1s,border-color 0.2s,color 0.2s;animation:slideIn 0.18s ease;position:relative;min-height:70px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 1px 2px rgba(60,50,30,0.04)}
     .task-card:active{transform:scale(0.96)}
-    .task-card.selected{color:white;box-shadow:0 3px 10px rgba(0,0,0,0.10)}
-    .task-card.selected .task-card-text,.task-card.selected .task-cat-label,.task-card.selected .task-last-done,.task-card.selected .task-subtask-count{color:white;opacity:0.95}
+    .task-card.selected{color:var(--on-accent);box-shadow:0 3px 10px rgba(0,0,0,0.10)}
+    .task-card.selected .task-card-text,.task-card.selected .task-cat-label,.task-card.selected .task-last-done,.task-card.selected .task-subtask-count{color:var(--on-accent);opacity:0.95}
     .task-card.selected .task-last-done,.task-card.selected .task-subtask-count{opacity:0.8}
     @keyframes slideIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
     .task-card-text{font-size:13px;line-height:1.4;word-break:break-word;flex:1;color:var(--text)}
@@ -164,7 +164,7 @@
 
     .confirm-bar{padding:10px 12px calc(11px + var(--safe-bottom));border-top:1px solid var(--border);background:var(--bg)}
     .confirm-btn{width:100%;padding:13px;border-radius:12px;border:none;font-size:15px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:default;transition:all 0.2s,transform 0.1s;background:var(--surface2);color:var(--text-muted)}
-    .confirm-btn.ready{background:var(--accent);color:white;cursor:pointer;box-shadow:0 3px 10px rgba(122,184,110,0.3)}
+    .confirm-btn.ready{background:var(--accent);color:var(--on-accent);cursor:pointer;box-shadow:0 3px 10px rgba(122,184,110,0.3)}
     .confirm-btn.ready:active{transform:scale(0.98)}
     .empty{text-align:center;padding:48px 16px;color:var(--text-muted)}
     .empty .icon{font-size:36px;margin-bottom:10px;opacity:0.4}
@@ -182,7 +182,7 @@
     .current-item.done-item .current-item-main{opacity:0.55}
     .sq-check{width:21px;height:21px;border-radius:6px;border:2px solid var(--border-strong);flex-shrink:0;cursor:pointer;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:border-color 0.2s,background 0.2s}
     .sq-check.checked{background:var(--accent);border-color:var(--accent)}
-    .sq-check.checked::after{content:'';width:5px;height:9px;border:2px solid white;border-top:none;border-left:none;transform:rotate(45deg) translateY(-1px)}
+    .sq-check.checked::after{content:'';width:5px;height:9px;border:2px solid var(--on-accent);border-top:none;border-left:none;transform:rotate(45deg) translateY(-1px)}
     .sq-check.locked{cursor:not-allowed;opacity:0.6}
     .current-item-label{flex:1;font-size:14px;line-height:1.4;color:var(--text);font-weight:500}
     .current-progress-mini{font-size:11px;font-family:'DM Mono',monospace;color:var(--text-muted);margin-top:2px;font-weight:400}
@@ -195,7 +195,7 @@
     .subtask-row{display:flex;align-items:flex-start;gap:9px;cursor:pointer;padding:2px 0}
     .subtask-check{width:15px;height:15px;border-radius:4px;border:1.5px solid var(--text-dim);flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;transition:border-color 0.2s,background 0.2s}
     .subtask-row.done-sub .subtask-check{background:var(--accent);border-color:var(--accent)}
-    .subtask-row.done-sub .subtask-check::after{content:'';width:3px;height:6px;border:1.5px solid white;border-top:none;border-left:none;transform:rotate(45deg) translateY(-0.5px)}
+    .subtask-row.done-sub .subtask-check::after{content:'';width:3px;height:6px;border:1.5px solid var(--on-accent);border-top:none;border-left:none;transform:rotate(45deg) translateY(-0.5px)}
     .subtask-text{font-size:12.5px;line-height:1.5;color:var(--text-muted);flex:1;word-break:break-word;padding-top:1px}
     .subtask-row.done-sub .subtask-text{text-decoration:line-through;color:var(--text-dim);opacity:0.6}
     .subtask-del{background:none;border:none;color:var(--text-dim);font-size:13px;cursor:pointer;padding:0 4px;opacity:0;transition:opacity 0.15s}
@@ -208,7 +208,7 @@
     .shared-lists-bar{display:flex;gap:8px;padding:9px 12px;overflow-x:auto;border-bottom:1px solid var(--border);scrollbar-width:none}
     .shared-lists-bar::-webkit-scrollbar{display:none}
     .shared-list-chip{flex-shrink:0;padding:7px 14px;border-radius:11px;font-size:12.5px;font-family:'DM Mono',monospace;border:1.5px solid var(--border);background:var(--surface);color:var(--text-muted);cursor:pointer;transition:all 0.15s;white-space:nowrap;display:flex;align-items:center;gap:7px}
-    .shared-list-chip.active{background:var(--shared);color:white;border-color:var(--shared)}
+    .shared-list-chip.active{background:var(--shared);color:var(--on-accent);border-color:var(--shared)}
     .shared-list-chip-count{font-size:10px;opacity:0.7}
     .btn-new-list{flex-shrink:0;padding:7px 12px;border-radius:11px;font-size:18px;font-family:'DM Mono',monospace;border:1.5px dashed var(--border-strong);background:var(--surface2);color:var(--text-muted);cursor:pointer;font-weight:600}
     .btn-new-list:active{background:var(--surface3)}
@@ -256,7 +256,7 @@
     .signin-tagline{font-size:12px;color:var(--text-muted);line-height:1.5;margin-bottom:13px;text-align:center}
 
     .user-card{display:flex;align-items:center;gap:11px;padding:13px 14px;background:var(--surface);border:1px solid var(--border);border-radius:11px;margin:0 14px 14px}
-    .user-avatar{width:38px;height:38px;border-radius:50%;flex-shrink:0;background:var(--accent);color:white;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;overflow:hidden}
+    .user-avatar{width:38px;height:38px;border-radius:50%;flex-shrink:0;background:var(--accent);color:var(--on-accent);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;overflow:hidden}
     .user-avatar img{width:100%;height:100%;object-fit:cover}
     .user-info{flex:1;min-width:0}
     .user-name{font-size:13px;font-weight:500;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -415,6 +415,7 @@
       --bg:#15181d;--surface:#1d2128;--surface2:#252a33;--surface3:#2f3540;
       --border:#2c323b;--border-strong:#3d4551;
       --accent:#7fa8c9;--accent-light:#a9c8de;--accent-dim:rgba(127,168,201,0.16);
+      --on-accent:#10161c;color-scheme:dark;   /* dark text on the light accent; dark native pickers */
       --text:#e6eaf0;--text-muted:#98a3b2;--text-dim:#6d7787;--danger:#e07a7a;
       --shared:#6fa8cf;--suggest:#d0a06a;
       --sch-fixed:#93acc2;--sch-fixed-soft:#212b33;
@@ -426,6 +427,7 @@
       --overlay-wash:rgba(21,24,29,0.96);
       --heat1:#243444;--heat2:#2f4a63;--heat3:#7fa8c9;--heat4:#a9c8de;
     }
+    :root[data-season="winter"] .task-card.selected .task-deadline.overdue{color:#6b1d1d !important}
 
     /* ─── SCHEDULE ─── */
     .cur-section-label{font-size:11px;font-family:'DM Mono',monospace;color:var(--text-muted);
@@ -454,7 +456,7 @@
       border-radius:10px;background:var(--surface2);color:var(--text-muted)}
     .sched-live{font-size:10.5px;font-weight:600;padding:2px 7px;border-radius:10px;
       font-family:'DM Mono',monospace}
-    .sched-live.now{background:var(--sch-self);color:#fff}
+    .sched-live.now{background:var(--sch-self);color:var(--on-accent)}
     .sched-live.next{background:var(--surface2);color:var(--text)}
     .sched-empty{font-size:13px;color:var(--text-muted);padding:4px 2px 18px;line-height:1.5}
     .sched-empty a{color:var(--accent);cursor:pointer;text-decoration:underline}
@@ -482,7 +484,7 @@
     .week-import{background:var(--surface);border:1px dashed var(--border-strong);border-radius:14px;
       padding:18px;text-align:center;margin-bottom:14px}
     .week-import p{font-size:13px;color:var(--text-muted);line-height:1.5;margin-bottom:12px}
-    .week-import button{background:var(--accent);color:#fff;border:none;border-radius:10px;
+    .week-import button{background:var(--accent);color:var(--on-accent);border:none;border-radius:10px;
       padding:10px 18px;font-size:13.5px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer}
 
     .week-file-link{display:block;margin:6px auto 4px;background:none;border:none;
@@ -514,7 +516,7 @@
     .splash-feature-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:3px}
     .splash-feature-sub{font-size:12px;color:var(--text-muted);line-height:1.4}
     .splash-actions{display:flex;flex-direction:column;gap:11px;width:100%;max-width:300px;align-self:center}
-    .splash-signin{display:flex;align-items:center;justify-content:center;gap:11px;background:var(--accent);color:white;border:none;padding:14px 20px;border-radius:12px;font-size:15px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;box-shadow:0 3px 12px rgba(122,184,110,0.3);transition:transform 0.1s}
+    .splash-signin{display:flex;align-items:center;justify-content:center;gap:11px;background:var(--accent);color:var(--on-accent);border:none;padding:14px 20px;border-radius:12px;font-size:15px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;box-shadow:0 3px 12px rgba(122,184,110,0.3);transition:transform 0.1s}
     .splash-signin:active{transform:scale(0.97)}
     .splash-signin svg{width:18px;height:18px;flex-shrink:0;background:white;padding:2px;border-radius:50%;box-sizing:content-box}
     .splash-skip{background:none;border:none;color:var(--text-muted);padding:9px;font-size:13px;font-family:'DM Mono',monospace;cursor:pointer;text-decoration:underline;letter-spacing:0.5px}
@@ -528,7 +530,7 @@
     .tab[data-screen=shared].active{color:var(--shared)}
     .tab-icon{font-size:18px;line-height:1}
     .tab-label{font-size:9px;font-family:'DM Mono',monospace;letter-spacing:0.5px;font-weight:500}
-    .tab-badge{position:absolute;top:6px;right:calc(50% - 17px);background:var(--accent);color:white;border-radius:8px;min-width:15px;height:15px;font-size:9px;font-weight:600;display:flex;align-items:center;justify-content:center;padding:0 4px;font-family:'DM Mono',monospace}
+    .tab-badge{position:absolute;top:6px;right:calc(50% - 17px);background:var(--accent);color:var(--on-accent);border-radius:8px;min-width:15px;height:15px;font-size:9px;font-weight:600;display:flex;align-items:center;justify-content:center;padding:0 4px;font-family:'DM Mono',monospace}
     .tab[data-screen=shared] .tab-badge{background:var(--shared)}
     .tab.hidden{display:none}
 
@@ -543,8 +545,8 @@
     .popup-btn{flex:1;padding:11px;border-radius:10px;border:none;font-size:14px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;transition:transform 0.1s}
     .popup-btn:active{transform:scale(0.96)}
     .popup-btn.secondary{background:var(--surface2);color:var(--text-muted)}
-    .popup-btn.primary{background:var(--accent);color:white}
-    .popup-btn.shared{background:var(--shared);color:white}
+    .popup-btn.primary{background:var(--accent);color:var(--on-accent)}
+    .popup-btn.shared{background:var(--shared);color:var(--on-accent)}
     .popup input[type=text],.popup input[type=email]{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;color:var(--text);font-size:14px;font-family:'DM Sans',sans-serif;outline:none;margin-bottom:14px}
     .popup input[type=text]:focus,.popup input[type=email]:focus{border-color:var(--accent)}
 
@@ -552,7 +554,7 @@
     .member-item{display:flex;align-items:center;gap:9px;padding:8px 10px;background:var(--surface2);border-radius:9px;font-size:12px}
     .member-item .member-email{flex:1;font-family:'DM Mono',monospace;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .member-item .member-role{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;padding:2px 7px;border-radius:5px;background:var(--surface3)}
-    .member-item .member-role.owner{background:var(--accent);color:white}
+    .member-item .member-role.owner{background:var(--accent);color:var(--on-accent)}
     .btn-member-remove{background:none;border:none;color:var(--text-muted);font-size:14px;cursor:pointer;padding:2px 5px}
     .btn-member-remove:active{color:var(--danger)}
 
@@ -588,7 +590,7 @@
     @keyframes bounce{0%,100%{transform:translateY(0)}40%{transform:translateY(-16px)}}
     .welldone-title{font-size:34px;font-weight:600;color:var(--accent);margin-bottom:8px}
     .welldone-sub{font-size:15px;color:var(--text-muted);margin-bottom:28px}
-    .welldone-close{background:var(--accent);color:white;border:none;border-radius:12px;padding:13px 32px;font-size:15px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer}
+    .welldone-close{background:var(--accent);color:var(--on-accent);border:none;border-radius:12px;padding:13px 32px;font-size:15px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer}
 
     #toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--text);color:var(--bg);padding:8px 18px;border-radius:20px;font-size:12px;font-family:'DM Mono',monospace;z-index:300;transition:opacity 0.3s;pointer-events:none;white-space:nowrap;box-shadow:0 4px 16px rgba(40,30,20,0.18)}
 
@@ -630,7 +632,7 @@
     .repeat-quick-picks{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
     .repeat-quick-pick{background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);padding:6px 11px;border-radius:8px;font-size:12px;font-family:'DM Mono',monospace;cursor:pointer}
     .repeat-quick-pick:active{background:var(--surface3)}
-    .repeat-quick-pick.picked{background:var(--suggest);border-color:var(--suggest);color:#fff}
+    .repeat-quick-pick.picked{background:var(--suggest);border-color:var(--suggest);color:var(--on-accent)}
     .repeat-custom-row{display:flex;align-items:center;gap:8px;margin-bottom:18px}
     .repeat-custom-label{font-size:13px;color:var(--text-muted);font-family:'DM Mono',monospace}
     .repeat-custom-row input[type=number]{width:60px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);font-size:14px;font-family:'DM Mono',monospace;outline:none;text-align:center}
@@ -638,13 +640,13 @@
     .repeat-custom-row select{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);font-size:14px;font-family:'DM Sans',sans-serif;outline:none}
     .task-repeat{font-size:10px;font-family:'DM Mono',monospace;color:var(--text-dim);line-height:1.2;display:inline-flex;align-items:center;gap:2px;white-space:nowrap}
     .task-repeat.is-suggested{color:var(--suggest);font-weight:500}
-    .task-card.selected .task-repeat{color:white !important;opacity:0.8}
+    .task-card.selected .task-repeat{color:var(--on-accent) !important;opacity:0.8}
 
     /* repetition picker + suggested badge */
     .repeat-quick-picks{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
     .repeat-quick-pick{background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);padding:6px 11px;border-radius:8px;font-size:12px;font-family:'DM Mono',monospace;cursor:pointer}
     .repeat-quick-pick:active{background:var(--surface3)}
-    .repeat-quick-pick.picked{background:var(--suggest);border-color:var(--suggest);color:#fff}
+    .repeat-quick-pick.picked{background:var(--suggest);border-color:var(--suggest);color:var(--on-accent)}
     .repeat-custom-row{display:flex;align-items:center;gap:8px;margin-bottom:18px}
     .repeat-custom-label{font-size:13px;color:var(--text-muted);font-family:'DM Mono',monospace}
     .repeat-custom-row input[type=number]{width:60px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);font-size:14px;font-family:'DM Mono',monospace;outline:none;text-align:center}
@@ -652,7 +654,7 @@
     .repeat-custom-row select{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);font-size:14px;font-family:'DM Sans',sans-serif;outline:none}
     .task-repeat{font-size:10px;font-family:'DM Mono',monospace;color:var(--text-dim);line-height:1.2;display:inline-flex;align-items:center;gap:2px;white-space:nowrap}
     .task-repeat.is-suggested{color:var(--suggest);font-weight:500}
-    .task-card.selected .task-repeat{color:white !important;opacity:0.8}
+    .task-card.selected .task-repeat{color:var(--on-accent) !important;opacity:0.8}
 
     /* BETA:START */
     .beta-badge{
@@ -703,7 +705,7 @@
     }
     .bs-btn{
       width:100%;padding:14px;border-radius:12px;border:none;
-      background:var(--accent);color:#fff;font-size:15px;font-weight:600;
+      background:var(--accent);color:var(--on-accent);font-size:15px;font-weight:600;
       font-family:'DM Sans',sans-serif;cursor:pointer;
       box-shadow:0 3px 12px rgba(122,184,110,0.3);
     }
@@ -918,7 +920,7 @@
         <button class="btn-danger-row" onclick="clearNotepad()">Clear all notes</button>
         <button class="btn-danger-row" onclick="clearAll()">Clear all data</button>
       </div>
-      <div class="app-version">my tasks / v11.05</div>
+      <div class="app-version">my tasks / v12.01</div>
     </div>
   </div>
 
@@ -1643,6 +1645,11 @@ setInterval(checkAndRunReset,30000);
 // Only the CSS custom properties change; nothing else knows about seasons.
 // ═══════════════════════════════════════════
 function currentSeason(d){
+  // ?season=winter previews a palette out of season, since winter can't be seen until December
+  if(!d){ try {
+    const f = new URLSearchParams(location.search).get('season');
+    if(['spring','summer','fall','winter'].indexOf(f) >= 0) return f;
+  } catch(e){} }
   const m = (d || new Date()).getMonth();          // 0 = January
   if(m >= 2 && m <= 4)  return 'spring';           // Mar–May
   if(m >= 5 && m <= 7)  return 'summer';           // Jun–Aug
@@ -1675,6 +1682,7 @@ function lerp(a,b,t){return{r:Math.round(a.r+(b.r-a.r)*t),g:Math.round(a.g+(b.g-
 function palColor(p){const S=bgStops(),s=S.length-1,sc=p*s,i=Math.min(Math.floor(sc),s-1);return lerp(S[i],S[i+1],sc-i);}
 function rgb(c){return`rgb(${c.r},${c.g},${c.b})`;}
 let _bgP=-1;
+applySeason();   // before the first paint, so there is no flash of the wrong palette
 function applyCurrentBg(p){if(Math.abs(p-_bgP)<0.005)return;_bgP=p;document.body.style.background=rgb(palColor(p));document.documentElement.style.setProperty('--bg',rgb(palColor(p)));}
 function resetBg(){_bgP=-1;document.body.style.background='';document.documentElement.style.removeProperty('--bg');}
 
@@ -1739,12 +1747,17 @@ function formatRepeatLong(rep){
   return 'Every ' + rep.n + ' ' + unit;
 }
 
+// The repeat interval has elapsed since the last completion. Only this colours
+// the repeat badge, so a deadline alone doesn't make it look overdue for repeating.
+function isRepeatDue(t){
+  if(t.done || !t.repeat || !t.lastCompletedAt || t.current) return false;
+  return Date.now() >= addInterval(t.lastCompletedAt, t.repeat);
+}
+
+// Suggested: anything with an open deadline (Current or not), or a repeat that has come due.
 function isSuggested(t){
   if(t.done) return false;
-  if(t.deadline) return true;            // an open deadline always surfaces, Current or not
-  if(!t.repeat || !t.lastCompletedAt) return false;
-  if(t.current) return false;            // a repeating task you're already working on stays put
-  return Date.now() >= addInterval(t.lastCompletedAt, t.repeat);
+  return !!t.deadline || isRepeatDue(t);
 }
 
 function suggestedCount(){ return tasks.filter(isSuggested).length; }
@@ -1795,13 +1808,13 @@ function getSorted(list){let o=[...list];if(settings.doneBottom)o.sort((a,b)=>a.
 
 function renderCategoryFilter(){
   const bar=document.getElementById('cat-filter-bar');
-  const chips=[{id:null,name:'All',color:'#7ab86e'},...settings.categories];
-  let html=chips.map(c=>{const active=activeFilter===c.id;return`<div class="cat-chip" style="background:${active?c.color:'var(--surface)'};color:${active?'white':'var(--text-muted)'};border-color:${active?c.color:'var(--border)'}" onclick="setFilter(${c.id===null?'null':`'${c.id}'`})">${escHtml(c.name)}</div>`;}).join('');
+  const chips=[{id:null,name:'All',color:'var(--accent)'},...settings.categories];
+  let html=chips.map(c=>{const active=activeFilter===c.id;return`<div class="cat-chip" style="background:${active?c.color:'var(--surface)'};color:${active?'var(--on-accent)':'var(--text-muted)'};border-color:${active?c.color:'var(--border)'}" onclick="setFilter(${c.id===null?'null':`'${c.id}'`})">${escHtml(c.name)}</div>`;}).join('');
   // "Suggested" sits right after All, and only appears once something is due
   const sc = suggestedCount();
   if(sc > 0){
     const active = activeFilter === SUGGESTED_FILTER;
-    const chip = `<div class="cat-chip" style="background:${active?'var(--suggest)':'var(--surface)'};color:${active?'white':'var(--suggest)'};border-color:var(--suggest)" onclick="setFilter('${SUGGESTED_FILTER}')">↻ Suggested ${sc}</div>`;
+    const chip = `<div class="cat-chip" style="background:${active?'var(--suggest)':'var(--surface)'};color:${active?'var(--on-accent)':'var(--suggest)'};border-color:var(--suggest)" onclick="setFilter('${SUGGESTED_FILTER}')">↻ Suggested ${sc}</div>`;
     const first = html.indexOf('</div>') + 6;
     html = html.slice(0, first) + chip + html.slice(first);
   } else if(activeFilter === SUGGESTED_FILTER){
@@ -1849,9 +1862,9 @@ function renderTasks(){
     const sp=subProgress(t.id);
     const subBadge=sp?`<span class="task-subtask-count">☰ ${sp.done}/${sp.total}</span>`:'';
     const repeatBadge = t.repeat
-      ? `<span class="task-repeat${isSuggested(t)?' is-suggested':''}">↻ ${formatRepeat(t.repeat)}</span>`
+      ? `<span class="task-repeat${isRepeatDue(t)?' is-suggested':''}">↻ ${formatRepeat(t.repeat)}</span>`
       : '';
-    const catLabel=cat?`<span class="task-cat-label" style="color:${isSelected?'white':cat.color};opacity:${isSelected?0.95:0.85}">${highlightMatch(cat.name,q)}</span>`:'';
+    const catLabel=cat?`<span class="task-cat-label" style="color:${isSelected?'var(--on-accent)':cat.color};opacity:${isSelected?0.95:0.85}">${highlightMatch(cat.name,q)}</span>`:'';
     let deadlineBadge='';
     if(t.deadline){
       const overdue=isOverdue(t.deadline) && !t.done;
@@ -3201,8 +3214,7 @@ function setCurrentView(v){
 
   if(v === 'notes'){
     resetBg();                       // paper, not the completion gradient
-    applySeason();
-  initNotepadEvents();
+    initNotepadEvents();
     renderNotes();
     updateCurrentSubtitle();
     setTimeout(focusNotepad, 60);
@@ -3359,23 +3371,10 @@ markBetaUI();
 // Shown on every load so testers always know what they're being asked to try.
 // Summaries only — CHANGELOG.md carries the detail.
 const BETA_CHANGES = [
-  { version: 'v11.01', items: [
-    { icon:'\u25a6', text: '<b>Weekly schedule.</b> Today\u2019s schedule now sits at the top of Current. The block happening now is highlighted, and the next one shows how long until it starts. Blocks set to a prayer window, like Asr\u2013Maghrib, are shown but not tracked live.' },
-    { icon:'\u2713', text: '<b>Schedule items are tasks.</b> Ticking a block completes its task \u2014 it counts in your history and resets at the usual daily reset time.' },
-    { icon:'+', text: '<b>Edit the week.</b> Tap \u25a6 in the Current header to see every day, add blocks, or remove them.' },
-  ]},
-  { version: 'v11.02', items: [
-    { icon:'\u21e9', text: '<b>Import a schedule from a file.</b> If someone gives you a schedule file, open \u25a6 in the Current header and choose Import from file. You\u2019ll see how many blocks it holds before anything changes, and importing replaces your current schedule.' },
-  ]},
-  { version: 'v11.05', items: [
-    { icon:'\u2715', text: '<b>This screen now bows out.</b> It appears only when the beta version changes, and at most three times.' },
-  ]},
-  { version: 'v11.04', items: [
-    { icon:'\u2913', text: '<b>Import your schedule as a CSV.</b> Open \u25a6 in the Current header and choose Import CSV. A new file replaces the whole schedule, and rows are sorted into day order automatically.' },
-    { icon:'\u25d1', text: '<b>Monthly blocks.</b> A note like \u201cSecond Saturday of the month only\u201d now shows that block only on those Saturdays, and blocks marked as not applying that week are hidden.' },
-  ]},
-  { version: 'v11.03', items: [
-    { icon:'\u2212', text: '<b>Quieter tab bar.</b> The Tasks tab no longer shows a running count of every task in your pool.' },
+  { version: 'v12.01', items: [
+    { icon:'❄', text: '<b>Seasonal themes.</b> The colours now follow the time of year. It is fall right now, so you will see earthy pastels. Winter turns dark, and spring and summer have palettes of their own. Nothing to switch on.' },
+    { icon:'✓', text: '<b>Finished checklists clear themselves.</b> When a task with subtasks is completed, its subtasks are deleted at the next daily reset, so they stay visible for the rest of the day. Tasks you have not finished keep theirs.' },
+    { icon:'⏰', text: '<b>Deadlines surface in Suggested.</b> Any task with an open deadline now appears under Suggested, even while it sits in Current.' },
   ]},
 ];
 

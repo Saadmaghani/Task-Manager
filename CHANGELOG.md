@@ -12,6 +12,32 @@ always tell you exactly which build they're on.
 
 ## Unreleased (beta)
 
+## v12.01
+
+### Added
+- **Seasonal themes.** The palette follows the time of year, by month: spring
+  Mar-May, summer Jun-Aug, fall Sep-Nov, winter Dec-Feb (northern hemisphere).
+  Fall is earthy pastels; winter is dark. The Current tab's completion gradient
+  follows the season too. The season turns over by itself while the app is open.
+  `?season=winter` on the URL previews any palette out of season.
+- **Open deadlines appear in Suggested**, even while the task sits in Current.
+  Completed tasks drop out. A deadline on its own no longer makes a task's
+  repeat badge look due; that still needs the interval to have elapsed.
+
+### Changed
+- **Subtasks of a completed task are deleted at the next daily reset**, so they
+  stay visible for the rest of the day. **Tasks you haven't finished now keep
+  their subtasks across the reset.** Previously every subtask was wiped nightly,
+  which also stripped the checklist from a deadline task carried over in Current.
+- Text on accent-coloured fills uses a new `--on-accent` token: white in the
+  light seasons, dark in winter, where white on the light-blue accent was hard
+  to read. Winter also sets `color-scheme: dark` so native date/time pickers
+  match.
+
+### Fixed
+- The season was only applied from the Notes view or after the first minute, so
+  the app opened in the wrong palette. It now applies before first paint.
+
 ## v11.05
 
 ### Changed
