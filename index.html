@@ -67,7 +67,7 @@
   </script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap');
-    :root{--bg:#fdf8f0;--surface:#ffffff;--surface2:#f4eee2;--surface3:#e8e0cf;--border:#e6dec9;--border-strong:#d4c9ab;--accent:#7ab86e;--accent-light:#b8e0a8;--accent-dim:rgba(122,184,110,0.12);--text:#2c2a23;--text-muted:#7a7468;--text-dim:#a8a294;--danger:#d96666;--shared:#5da9d6;--suggest:#c98a4b;--shared-dim:rgba(93,169,214,0.12);--safe-bottom:env(safe-area-inset-bottom,0px);--safe-top:env(safe-area-inset-top,0px);--tab-h:64px}
+    :root{--bg:#fdf8f0;--surface:#ffffff;--surface2:#f4eee2;--surface3:#e8e0cf;--border:#e6dec9;--border-strong:#d4c9ab;--accent:#7ab86e;--accent-light:#b8e0a8;--accent-dim:rgba(122,184,110,0.12);--text:#2c2a23;--text-muted:#7a7468;--text-dim:#a8a294;--danger:#d96666;--shared:#5da9d6;--suggest:#c98a4b;--sch-fixed:#5e7285;--sch-fixed-soft:#e1e7ec;--sch-self:#a9823f;--sch-self-soft:#f1e6cc;--sch-mem:#3e6459;--sch-mem-soft:#dce7e2;--sch-rev:#a9694f;--sch-rev-soft:#f3e3db;--np-paper:#f2f1ec;--np-line:#b5b3ab;--np-ink:#2e2d29;--np-bullet-dim:#c2c0b8;--np-rule-strong:rgba(46,45,41,0.35);--overlay-wash:rgba(252,248,240,0.96);--heat1:#dcebd1;--heat2:#b8e0a8;--heat3:#7ab86e;--heat4:#5a9050;--shared-dim:rgba(93,169,214,0.12);--safe-bottom:env(safe-area-inset-bottom,0px);--safe-top:env(safe-area-inset-top,0px);--tab-h:64px}
     *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
     html,body{height:100%;width:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;overscroll-behavior:none;user-select:none}
     #app{display:flex;flex-direction:column;height:100%;max-width:480px;margin:0 auto}
@@ -282,10 +282,6 @@
     /* ─── NOTEPAD (ruled paper) ─── */
     :root{
       --np-rule:38px;              /* spacing between ruled lines */
-      --np-paper:#f2f1ec;
-      --np-line:#b5b3ab;
-      --np-ink:#2e2d29;
-      --np-bullet-dim:#c2c0b8;
     }
     
     .notepad-scroll{
@@ -361,7 +357,7 @@
     .notepad-lines li.np-divider{
       height:var(--np-rule);line-height:var(--np-rule);
       padding-left:0;
-      border-top:1.5px solid rgba(46,45,41,0.35);
+      border-top:1.5px solid var(--np-rule-strong);
       display:flex;align-items:center;justify-content:flex-end;
       -webkit-user-select:none;user-select:none;
       cursor:default;
@@ -387,6 +383,116 @@
     .notepad-footer-center{
       font-size:15px;font-weight:600;letter-spacing:2.5px;
     }
+
+
+    /* ─── SEASONS ─── the palette follows the time of year ─── */
+    /* Summer — bright sand and sea */
+    :root[data-season="summer"]{
+      --bg:#fcf9f2;--surface:#ffffff;--surface2:#f3f0e6;--surface3:#e6e1d2;
+      --border:#e4ddcb;--border-strong:#cfc6ae;
+      --accent:#3fa39b;--accent-light:#9ed9d3;--accent-dim:rgba(63,163,155,0.12);
+      --text:#23302e;--text-muted:#6d7a77;--text-dim:#a0aaa7;--danger:#d9694f;
+      --shared:#4f9bc9;--suggest:#c98a4b;
+      --np-paper:#f6f3ea;--np-line:#b9b5a8;--np-ink:#2a3330;--np-bullet-dim:#c4c0b2;
+      --np-rule-strong:rgba(42,51,48,0.35);
+      --overlay-wash:rgba(252,249,242,0.96);
+      --heat1:#d4eeea;--heat2:#a3ddd6;--heat3:#3fa39b;--heat4:#2d7f78;
+    }
+    /* Fall — earthy pastels, soft terracotta and ochre */
+    :root[data-season="fall"]{
+      --bg:#f7f0e6;--surface:#fffaf3;--surface2:#f0e6d8;--surface3:#e3d5c2;
+      --border:#e0d2bf;--border-strong:#cbb79e;
+      --accent:#b07a52;--accent-light:#e2c3a4;--accent-dim:rgba(176,122,82,0.13);
+      --text:#33291f;--text-muted:#7d6f5f;--text-dim:#ab9c89;--danger:#c25b4e;
+      --shared:#6f8fa3;--suggest:#a9823f;
+      --np-paper:#f3ece0;--np-line:#bdae99;--np-ink:#33291f;--np-bullet-dim:#cbbda8;
+      --np-rule-strong:rgba(51,41,31,0.35);
+      --overlay-wash:rgba(247,240,230,0.96);
+      --heat1:#efe0cd;--heat2:#ddc0a0;--heat3:#b07a52;--heat4:#8a5a37;
+    }
+    /* Winter — dark, cold and quiet */
+    :root[data-season="winter"]{
+      --bg:#15181d;--surface:#1d2128;--surface2:#252a33;--surface3:#2f3540;
+      --border:#2c323b;--border-strong:#3d4551;
+      --accent:#7fa8c9;--accent-light:#a9c8de;--accent-dim:rgba(127,168,201,0.16);
+      --text:#e6eaf0;--text-muted:#98a3b2;--text-dim:#6d7787;--danger:#e07a7a;
+      --shared:#6fa8cf;--suggest:#d0a06a;
+      --sch-fixed:#93acc2;--sch-fixed-soft:#212b33;
+      --sch-self:#d4b06a;--sch-self-soft:#332c1b;
+      --sch-mem:#7fa99a;--sch-mem-soft:#26332d;
+      --sch-rev:#d19478;--sch-rev-soft:#362521;
+      --np-paper:#1b1f25;--np-line:#39414d;--np-ink:#e3e8ef;--np-bullet-dim:#4e5765;
+      --np-rule-strong:rgba(227,232,239,0.35);
+      --overlay-wash:rgba(21,24,29,0.96);
+      --heat1:#243444;--heat2:#2f4a63;--heat3:#7fa8c9;--heat4:#a9c8de;
+    }
+
+    /* ─── SCHEDULE ─── */
+    .cur-section-label{font-size:11px;font-family:'DM Mono',monospace;color:var(--text-muted);
+      text-transform:uppercase;letter-spacing:1.2px;margin:4px 2px 9px;display:flex;
+      justify-content:space-between;align-items:center}
+    .cur-section-label span{color:var(--accent);font-weight:500}
+    .sched-list{display:flex;flex-direction:column;gap:7px;margin-bottom:20px}
+    .sched-item{display:flex;align-items:flex-start;gap:11px;background:var(--surface);
+      border:1px solid var(--border);border-radius:12px;padding:11px 12px;cursor:pointer;
+      transition:background .2s,border-color .2s,opacity .2s}
+    .sched-item:active{transform:scale(.99)}
+    .sched-item.now{border-color:var(--sch-self);background:var(--sch-self-soft)}
+    .sched-item.past{opacity:.5}
+    .sched-item.checked{opacity:.55}
+    .sched-item.checked .sched-label{text-decoration:line-through;color:var(--text-muted)}
+    .sched-main{flex:1;min-width:0}
+    .sched-label{font-size:14px;font-weight:500;line-height:1.35}
+    .sched-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:4px;
+      font-size:11.5px;color:var(--text-muted)}
+    .sched-type{font-size:10.5px;font-weight:600;padding:2px 7px;border-radius:10px}
+    .sched-type.fixed{background:var(--sch-fixed-soft);color:var(--sch-fixed)}
+    .sched-type.self{background:var(--sch-self-soft);color:var(--sch-self)}
+    .sched-type.memorize{background:var(--sch-mem-soft);color:var(--sch-mem)}
+    .sched-type.revision{background:var(--sch-rev-soft);color:var(--sch-rev)}
+    .sched-rule{font-size:10.5px;font-family:'DM Mono',monospace;padding:2px 7px;
+      border-radius:10px;background:var(--surface2);color:var(--text-muted)}
+    .sched-live{font-size:10.5px;font-weight:600;padding:2px 7px;border-radius:10px;
+      font-family:'DM Mono',monospace}
+    .sched-live.now{background:var(--sch-self);color:#fff}
+    .sched-live.next{background:var(--surface2);color:var(--text)}
+    .sched-empty{font-size:13px;color:var(--text-muted);padding:4px 2px 18px;line-height:1.5}
+    .sched-empty a{color:var(--accent);cursor:pointer;text-decoration:underline}
+
+    .week-day{background:var(--surface);border:1px solid var(--border);border-radius:14px;
+      margin-bottom:12px;overflow:hidden}
+    .week-day.today{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+    .week-day-head{display:flex;justify-content:space-between;align-items:baseline;
+      padding:12px 14px 6px}
+    .week-day-name{font-size:15px;font-weight:600}
+    .week-day-name em{font-style:normal;font-size:10px;font-family:'DM Mono',monospace;
+      color:var(--accent);background:var(--accent-dim);padding:2px 7px;border-radius:10px;
+      margin-left:7px;vertical-align:middle}
+    .week-day-count{font-size:11px;font-family:'DM Mono',monospace;color:var(--text-dim)}
+    .week-row{display:flex;align-items:flex-start;gap:9px;padding:8px 14px;
+      border-top:1px solid var(--border)}
+    .week-row .sched-main{padding-top:1px}
+    .week-add{display:block;width:100%;background:none;border:none;border-top:1px dashed var(--border);
+      color:var(--text-muted);font-size:12.5px;font-family:'DM Mono',monospace;padding:10px 14px;
+      text-align:left;cursor:pointer}
+    .week-add:active{background:var(--surface2)}
+    .week-del{background:none;border:none;color:var(--text-dim);font-size:14px;cursor:pointer;
+      padding:2px 4px;flex-shrink:0}
+    .week-del:active{color:var(--danger)}
+    .week-import{background:var(--surface);border:1px dashed var(--border-strong);border-radius:14px;
+      padding:18px;text-align:center;margin-bottom:14px}
+    .week-import p{font-size:13px;color:var(--text-muted);line-height:1.5;margin-bottom:12px}
+    .week-import button{background:var(--accent);color:#fff;border:none;border-radius:10px;
+      padding:10px 18px;font-size:13.5px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer}
+
+    .week-file-link{display:block;margin:6px auto 4px;background:none;border:none;
+      color:var(--text-muted);font-size:12.5px;font-family:'DM Mono',monospace;
+      text-decoration:underline;cursor:pointer;padding:8px}
+    .block-row{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+    .block-row select,.block-row input[type=time]{flex:1;background:var(--surface2);border:1px solid var(--border);
+      border-radius:9px;padding:9px 10px;color:var(--text);font-size:14px;font-family:'DM Sans',sans-serif;outline:none;min-width:0}
+    .block-lbl{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace}
+    .block-hint{font-size:11.5px;color:var(--text-dim);line-height:1.45;margin:-4px 0 16px}
 
     /* Current tab sub-views */
     .current-subview{display:flex;flex-direction:column;flex:1;overflow:hidden}
@@ -474,7 +580,7 @@
     .cat-assign-name{flex:1;font-size:14px;color:var(--text)}
     .cat-assign-check{color:var(--accent);font-size:16px}
 
-    .welldone-overlay{display:none;position:fixed;inset:0;z-index:150;background:rgba(252,248,240,0.96);backdrop-filter:blur(8px);align-items:center;justify-content:center}
+    .welldone-overlay{display:none;position:fixed;inset:0;z-index:150;background:var(--overlay-wash);backdrop-filter:blur(8px);align-items:center;justify-content:center}
     .welldone-overlay.active{display:flex;animation:fadeIn 0.4s ease}
     @keyframes fadeIn{from{opacity:0}to{opacity:1}}
     .welldone-box{text-align:center;padding:0 32px}
@@ -503,7 +609,7 @@
     .heatmap-grid{display:flex;gap:3px}
     .heatmap-week{display:flex;flex-direction:column;gap:3px}
     .heatmap-day{width:14px;height:14px;border-radius:3px;background:var(--surface3)}
-    .heatmap-day.l1{background:#dcebd1}.heatmap-day.l2{background:#b8e0a8}.heatmap-day.l3{background:var(--accent)}.heatmap-day.l4{background:#5a9050}
+    .heatmap-day.l1{background:var(--heat1)}.heatmap-day.l2{background:var(--heat2)}.heatmap-day.l3{background:var(--heat3)}.heatmap-day.l4{background:var(--heat4)}
     .heatmap-day.future{opacity:0.25}
     .heatmap-day.today{box-shadow:0 0 0 2px var(--accent),0 0 0 3px var(--bg) inset}
     .heatmap-labels{display:flex;justify-content:space-between;margin-top:8px;font-size:9px;font-family:'DM Mono',monospace;color:var(--text-dim)}
@@ -623,6 +729,7 @@
     <div class="header">
       <div class="header-left"><h1><span class="accent-dot"></span><span id="current-title">Current</span></h1><div class="subtitle" id="current-subtitle">Your active focus</div></div>
       <div class="header-actions">
+        <button class="btn-icon-action" id="btn-current-week" onclick="toggleCurrentWeek()" title="Weekly schedule">▦</button>
         <button class="btn-icon-action" id="btn-current-notes" onclick="toggleCurrentNotes()" title="Notes">✎</button>
         <div class="header-date"><div class="hd-day" id="hd-day-current"></div><div class="hd-date" id="hd-date-current"></div></div>
       </div>
@@ -631,7 +738,16 @@
     <!-- view: today's tasks -->
     <div class="current-subview" id="current-tasks-view">
       <div class="current-progress-bar"><span class="cur-prog-label"><span id="cur-done-count">0</span> / <span id="cur-total-count">0</span> done</span><div class="cur-prog-track"><div class="cur-prog-fill" id="cur-prog-fill" style="width:0%"></div></div></div>
-      <div class="screen-body"><div class="current-list" id="current-list"></div></div>
+      <div class="screen-body">
+        <div id="today-schedule"></div>
+        <div class="cur-section-label" id="picks-label">Your picks</div>
+        <div class="current-list" id="current-list"></div>
+      </div>
+    </div>
+
+    <!-- view: weekly schedule -->
+    <div class="current-subview" id="current-week-view" style="display:none">
+      <div class="screen-body"><div id="week-schedule"></div></div>
     </div>
 
     <!-- view: notepad -->
@@ -730,12 +846,12 @@
         <button class="btn-danger-row" onclick="clearNotepad()">Clear all notes</button>
         <button class="btn-danger-row" onclick="clearAll()">Clear all data</button>
       </div>
-      <div class="app-version">my tasks / v10.06</div>
+      <div class="app-version">my tasks / v11.05</div>
     </div>
   </div>
 
   <nav class="tab-bar">
-    <button class="tab active" data-screen="tasks" onclick="switchTab('tasks')"><span class="tab-icon">☰</span><span class="tab-label">TASKS</span><span class="tab-badge" id="badge-tasks" style="display:none"></span></button>
+    <button class="tab active" data-screen="tasks" onclick="switchTab('tasks')"><span class="tab-icon">☰</span><span class="tab-label">TASKS</span></button>
     <button class="tab" data-screen="current" onclick="switchTab('current')"><span class="tab-icon">◎</span><span class="tab-label">CURRENT</span><span class="tab-badge" id="badge-current" style="display:none"></span></button>
     <button class="tab" data-screen="shared" onclick="switchTab('shared')"><span class="tab-icon">⤴</span><span class="tab-label">SHARED</span><span class="tab-badge" id="badge-shared" style="display:none"></span></button>
     <button class="tab" data-screen="settings" onclick="switchTab('settings')"><span class="tab-icon">⊙</span><span class="tab-label">SETTINGS</span></button>
@@ -751,7 +867,7 @@
     <div class="stat-row"><div class="stat-card"><div class="stat-num" id="stat-total-completions">0</div><div class="stat-label">Total Completions</div></div><div class="stat-card"><div class="stat-num" id="stat-streak">0</div><div class="stat-label">Day Streak</div></div></div>
     <div class="stat-row"><div class="stat-card"><div class="stat-num" id="stat-active-days">0</div><div class="stat-label">Active Days</div></div><div class="stat-card"><div class="stat-num" id="stat-this-week">0</div><div class="stat-label">This Week</div></div></div>
     <div class="history-section-title">Last 12 Weeks</div>
-    <div class="heatmap-container"><div class="heatmap-grid" id="heatmap-grid"></div><div class="heatmap-labels" id="heatmap-labels"></div><div class="heatmap-legend"><span>less</span><div class="heatmap-legend-cell" style="background:var(--surface3)"></div><div class="heatmap-legend-cell" style="background:#dcebd1"></div><div class="heatmap-legend-cell" style="background:#b8e0a8"></div><div class="heatmap-legend-cell" style="background:var(--accent)"></div><div class="heatmap-legend-cell" style="background:#5a9050"></div><span>more</span></div></div>
+    <div class="heatmap-container"><div class="heatmap-grid" id="heatmap-grid"></div><div class="heatmap-labels" id="heatmap-labels"></div><div class="heatmap-legend"><span>less</span><div class="heatmap-legend-cell" style="background:var(--surface3)"></div><div class="heatmap-legend-cell" style="background:var(--heat1)"></div><div class="heatmap-legend-cell" style="background:var(--heat2)"></div><div class="heatmap-legend-cell" style="background:var(--accent)"></div><div class="heatmap-legend-cell" style="background:var(--heat4)"></div><span>more</span></div></div>
     <div class="history-section-title">By Category</div><div class="cat-chart" id="cat-chart"></div>
     <div class="history-section-title">Most Completed Tasks</div><div id="top-tasks-list"></div>
   </div>
@@ -808,6 +924,34 @@
 </div>
 
 <!-- DEADLINE PICKER -->
+<input type="file" id="schedule-file-input" style="display:none" onchange="handleScheduleFile(this)"/>
+
+<!-- SCHEDULE BLOCK EDITOR -->
+<div class="popup-overlay" id="block-popup">
+  <div class="popup">
+    <div class="popup-title" id="block-popup-title">Add block</div>
+    <input type="text" id="block-label" placeholder="What is it? e.g. Morning class" maxlength="80"/>
+    <div class="block-row">
+      <select id="block-type">
+        <option value="fixed">Class</option>
+        <option value="self">Self-paced</option>
+        <option value="memorize">Memorize</option>
+        <option value="revision">Revision</option>
+      </select>
+    </div>
+    <div class="block-row">
+      <label class="block-lbl">From</label><input type="time" id="block-start"/>
+      <label class="block-lbl">to</label><input type="time" id="block-end"/>
+    </div>
+    <input type="text" id="block-note" placeholder="Or a window — e.g. Asr–Maghrib · 30 min" maxlength="60"/>
+    <div class="block-hint">Only blocks with a clock time are tracked live. A window like "Dhuhr–Asr" is shown as written.</div>
+    <div class="popup-actions">
+      <button class="popup-btn secondary" onclick="closeBlockPopup()">Cancel</button>
+      <button class="popup-btn primary" onclick="confirmBlock()">Save</button>
+    </div>
+  </div>
+</div>
+
 <!-- REPETITION PICKER -->
 <div class="popup-overlay" id="repeat-popup">
   <div class="popup">
@@ -877,6 +1021,7 @@ let extraSelAllowed=false, pendingSelectId=null;
 let activeFilter=null, pendingCatAssignId=null, colorPickerCatId=null, welldoneShown=false;
 let actionSheetTaskId=null, renameTaskId=null, singleDeleteTaskId=null;
 let searchQuery='';
+let schedule=[];   // weekly schedule blocks, see SCHEDULE module
 let searchMode=false;        // when true, the add-bar input becomes a search box
 let hideStaleActive=false;   // filter button on/off
 let deadlineTaskId=null;     // task currently being edited in deadline popup
@@ -908,6 +1053,7 @@ async function loadAll(){
   settings.resetTime=await dbGetSetting('resetTime','05:00');
   settings.categories=await dbGetSetting('categories',[]);
   settings.staleWeeks=await dbGetSetting('staleWeeks',3);
+  schedule=await dbGetSetting('schedule',[]);   // settings store: no Dexie schema change
   const allSubs=await db.notes.toArray();subtasks={};allSubs.forEach(r=>{subtasks[r.taskId]=r.items||[];});
   standaloneNotes=await db.standaloneNotes.toArray();
   await migrateNotesToNotepad();
@@ -1051,6 +1197,7 @@ async function pushLocalToCloud(){
   for(const taskId in subtasks){ await cloudSaveSubs(taskId,subtasks[taskId]); }
   for(const n of standaloneNotes){ await cloudSaveNote(n); }
   await cloudSaveSettings();
+  if(schedule.length) await cloudSaveSchedule();
 }
 
 // PULL CLOUD → LOCAL (overrides local if cloud has data)
@@ -1086,6 +1233,11 @@ async function pullCloudToLocal(){
       const s = sDoc.data();
       settings = {...settings, ...s};
       await saveSettings();
+    }
+    const schDoc = await window.fb.getDoc(userDoc('meta','schedule'));
+    if(schDoc.exists() && Array.isArray(schDoc.data().entries)){
+      schedule = schDoc.data().entries;
+      await dbSetSetting('schedule', schedule);
     }
   } catch(e){console.warn('pullCloudToLocal',e);}
 }
@@ -1130,6 +1282,15 @@ function attachCloudListeners(){
       const s=doc.data();
       settings={...settings,...s};
       render();
+    }
+  }));
+  // schedule edits on another device show up here
+  cloudUnsubs.push(window.fb.onSnapshot(userDoc('meta','schedule'),(doc)=>{
+    if(doc.exists() && Array.isArray(doc.data().entries)){
+      schedule = doc.data().entries;
+      dbSetSetting('schedule', schedule);
+      renderTodaySchedule();
+      if(currentView === 'week') renderWeekSchedule();
     }
   }));
 }
@@ -1370,6 +1531,11 @@ async function checkAndRunReset(){const last=parseInt(await dbGetSetting('lastRe
 async function runReset(manual){
   // Tasks with a deadline stay in Current day-to-day UNTIL they're completed.
   // Once marked done, they should leave Current and reset normally — same as any other task.
+  // A finished task's subtasks are done with, so they're deleted for good. An
+  // unfinished one keeps its checklist — it would otherwise lose its progress,
+  // which matters now that a task with a deadline stays in Current overnight.
+  const dropSubs = tasks.filter(t => t.done).map(t => t.id);
+
   tasks.forEach(t=>{
     const stayInCurrent = !!t.deadline && t.current && !t.done;
     if(stayInCurrent){
@@ -1382,8 +1548,14 @@ async function runReset(manual){
     }
   });
   await saveTasks(tasks);
-  subtasks={};await db.notes.clear();
-  if(cloudSyncEnabled){try{const snap=await window.fb.getDocs(userCol('subtasks'));for(const d of snap.docs)await window.fb.deleteDoc(d.ref);}catch(e){}}
+
+  for(const id of dropSubs){
+    delete subtasks[id];
+    await db.notes.delete(id);
+    if(cloudSyncEnabled){
+      try { await window.fb.deleteDoc(userDoc('subtasks', id)); } catch(e){}
+    }
+  }
   extraSelAllowed=false;welldoneShown=false;
   await dbSetSetting('lastReset',Date.now().toString());
   render();updateNextResetDisplay();
@@ -1394,13 +1566,45 @@ async function setResetTime(v){settings.resetTime=v;await saveSettings();updateN
 setInterval(checkAndRunReset,30000);
 
 // BG GRADIENT
-const BG_STOPS=[{r:253,g:248,b:240},{r:230,g:240,b:215},{r:200,g:225,b:175},{r:155,g:200,b:135}];
+// ═══════════════════════════════════════════
+// SEASONS — the palette follows the time of year, northern hemisphere.
+// Only the CSS custom properties change; nothing else knows about seasons.
+// ═══════════════════════════════════════════
+function currentSeason(d){
+  const m = (d || new Date()).getMonth();          // 0 = January
+  if(m >= 2 && m <= 4)  return 'spring';           // Mar–May
+  if(m >= 5 && m <= 7)  return 'summer';           // Jun–Aug
+  if(m >= 8 && m <= 10) return 'fall';             // Sep–Nov
+  return 'winter';                                 // Dec–Feb
+}
+
+function applySeason(){
+  const s = currentSeason();
+  if(document.documentElement.dataset.season === s) return;
+  document.documentElement.dataset.season = s;
+  _bgP = -1;                                       // the gradient must be redrawn
+  // keep the PWA status bar in step with the new background
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if(meta){
+    const bg = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim();
+    if(bg) meta.setAttribute('content', bg);
+  }
+}
+
+// How the Current tab's background deepens as the day's tasks are completed.
+const SEASON_GRADIENTS = {
+  spring: [{r:253,g:248,b:240},{r:230,g:240,b:215},{r:200,g:225,b:175},{r:155,g:200,b:135}],
+  summer: [{r:252,g:249,b:242},{r:225,g:241,b:238},{r:178,g:222,b:216},{r:120,g:190,b:180}],
+  fall:   [{r:247,g:240,b:230},{r:240,g:223,b:201},{r:223,g:189,b:152},{r:196,g:146,b: 98}],
+  winter: [{r: 21,g: 24,b: 29},{r: 28,g: 38,b: 50},{r: 42,g: 64,b: 86},{r: 60,g: 95,b:125}],
+};
+function bgStops(){ return SEASON_GRADIENTS[currentSeason()] || SEASON_GRADIENTS.spring; }
 function lerp(a,b,t){return{r:Math.round(a.r+(b.r-a.r)*t),g:Math.round(a.g+(b.g-a.g)*t),b:Math.round(a.b+(b.b-a.b)*t)};}
-function palColor(p){const s=BG_STOPS.length-1,sc=p*s,i=Math.min(Math.floor(sc),s-1);return lerp(BG_STOPS[i],BG_STOPS[i+1],sc-i);}
+function palColor(p){const S=bgStops(),s=S.length-1,sc=p*s,i=Math.min(Math.floor(sc),s-1);return lerp(S[i],S[i+1],sc-i);}
 function rgb(c){return`rgb(${c.r},${c.g},${c.b})`;}
 let _bgP=-1;
 function applyCurrentBg(p){if(Math.abs(p-_bgP)<0.005)return;_bgP=p;document.body.style.background=rgb(palColor(p));document.documentElement.style.setProperty('--bg',rgb(palColor(p)));}
-function resetBg(){_bgP=-1;document.body.style.background='';document.documentElement.style.setProperty('--bg','#fdf8f0');}
+function resetBg(){_bgP=-1;document.body.style.background='';document.documentElement.style.removeProperty('--bg');}
 
 // UTILS
 function formatDate(){const n=new Date(),days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return{day:days[n.getDay()],date:`${n.getDate()} ${months[n.getMonth()]}`};}
@@ -1464,8 +1668,10 @@ function formatRepeatLong(rep){
 }
 
 function isSuggested(t){
+  if(t.done) return false;
+  if(t.deadline) return true;            // an open deadline always surfaces, Current or not
   if(!t.repeat || !t.lastCompletedAt) return false;
-  if(t.current) return false;
+  if(t.current) return false;            // a repeating task you're already working on stays put
   return Date.now() >= addInterval(t.lastCompletedAt, t.repeat);
 }
 
@@ -1587,6 +1793,7 @@ function renderTasks(){
 }
 
 function renderCurrent(){
+  renderTodaySchedule();
   const list=document.getElementById('current-list');
   const current=tasks.filter(t=>t.current);
   const doneCount=current.filter(t=>t.done).length,total=current.length,progress=total>0?doneCount/total:0;
@@ -2195,10 +2402,10 @@ function renderAccount(){
 }
 
 function updateBadges(){
-  const pending=tasks.filter(t=>!t.done&&!t.current).length,current=tasks.filter(t=>t.current).length;
+  // The Tasks tab carries no count: the pool is a library, not a to-do list.
+  const current=tasks.filter(t=>t.current).length;
   const sharedPending = sharedLists.reduce((acc,l)=>{const ts=sharedTasksByList[l.id]||[];return acc+ts.filter(t=>!t.done).length;},0);
-  const bt=document.getElementById('badge-tasks'),bc=document.getElementById('badge-current'),bs=document.getElementById('badge-shared');
-  bt.style.display=pending>0?'flex':'none';bt.textContent=pending;
+  const bc=document.getElementById('badge-current'),bs=document.getElementById('badge-shared');
   bc.style.display=current>0?'flex':'none';bc.textContent=current;
   bs.style.display=sharedPending>0?'flex':'none';bs.textContent=sharedPending;
 }
@@ -2429,6 +2636,473 @@ async function changeStaleWeeks(d){settings.staleWeeks=Math.max(1,Math.min(52,se
 async function clearCompleted(){if(!tasks.some(t=>t.done))return;if(confirm('Remove all completed tasks?')){const toDelete=tasks.filter(t=>t.done);await Promise.all(toDelete.map(t=>deleteTaskFromDB(t.id)));tasks=tasks.filter(t=>!t.done);render();}}
 async function clearAll(){if(!confirm('Remove ALL local data? This cannot be undone.'))return;await db.tasks.clear();await db.notes.clear();await db.history.clear();await db.standaloneNotes.clear();tasks=[];subtasks={};standaloneNotes=[];render();showToast('Local data cleared. Cloud data still exists if signed in.');}
 
+// ═══════════════════════════════════════════
+// SCHEDULE — a fixed weekly timetable, shown live at the top of Current
+// No schedule ships in the source; one arrives by file import (below) or is
+// built in the week view.
+// A block is {id, weekday 0-6 (Sun..Sat), order, taskId, label, type,
+//             start 'HH:MM'|null, end 'HH:MM'|null, note}
+// Every block points at a real task, so ticking it completes that task: it logs
+// to history and resets with everything else. Stored under the 'schedule'
+// settings key rather than a new Dexie table — beta and production share one
+// IndexedDB per domain, and a schema bump here would stop production opening it.
+// ═══════════════════════════════════════════
+const DAY_FULL = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const WEEK_ORDER = [1,2,3,4,5,6,0];
+const SCHED_TYPE_LABEL = { fixed:'Class', self:'Self-paced', memorize:'Memorize', revision:'Revision' };
+
+function toMin(hhmm){ const [h, m] = hhmm.split(':').map(Number); return h*60 + m; }
+
+function fmt12(hhmm){
+  let [h, m] = hhmm.split(':').map(Number);
+  const ap = h >= 12 ? 'PM' : 'AM';
+  h = h % 12 || 12;
+  return h + ':' + String(m).padStart(2,'0') + ' ' + ap;
+}
+
+function scheduleTimeText(e){
+  if(!e.start) return e.note || '';
+  let t;
+  if(e.end){
+    const a = fmt12(e.start), b = fmt12(e.end);
+    t = a.slice(-2) === b.slice(-2) ? a.slice(0,-3) + '–' + b : a + '–' + b;
+  } else {
+    t = fmt12(e.start);
+  }
+  return e.note ? t + ' · ' + e.note : t;
+}
+
+// The app's day runs reset-to-reset, not midnight-to-midnight. At 1am you're
+// still in yesterday's schedule, and everything on it has already happened.
+function beforeResetBoundary(){
+  const [hh, mm] = settings.resetTime.split(':').map(Number);
+  const d = new Date();
+  return d.getHours()*60 + d.getMinutes() < hh*60 + mm;
+}
+function scheduleDate(){
+  const d = new Date();
+  if(beforeResetBoundary()) d.setDate(d.getDate() - 1);
+  return d;
+}
+function scheduleDayIndex(){ return scheduleDate().getDay(); }
+function scheduleNowMinutes(){
+  const d = new Date();
+  let m = d.getHours()*60 + d.getMinutes();
+  if(beforeResetBoundary()) m += 1440;
+  return m;
+}
+
+// null for untimed blocks; a block with only a start time is live for 30 min.
+function blockLiveState(e, now){
+  if(!e.start) return null;
+  const s = toMin(e.start);
+  const en = e.end ? toMin(e.end) : s + 30;
+  if(now >= s && now < en) return 'now';
+  if(now >= en) return 'past';
+  return 'upcoming';
+}
+
+function inMinutesText(mins){
+  if(mins < 60) return 'in ' + mins + ' min';
+  const h = Math.floor(mins / 60), m = mins % 60;
+  return 'in ' + h + ' h' + (m ? ' ' + m + ' min' : '');
+}
+
+function blocksForDay(d){
+  return schedule.filter(e => e.weekday === d).sort((a,b) => a.order - b.order);
+}
+function taskForBlock(e){ return tasks.find(t => t.id === e.taskId) || null; }
+
+async function findOrCreateTaskByLabel(label){
+  const key = label.trim().toLowerCase();
+  let t = tasks.find(x => (x.text || '').trim().toLowerCase() === key);
+  if(!t){
+    t = { id:uid(), text:label.trim(), done:false, selected:false, current:false,
+          lastCompletedAt:null, categoryId:null, createdAt:Date.now(),
+          deadline:null, repeat:null };
+    tasks.unshift(t);
+    await saveTask(t);
+  }
+  return t;
+}
+
+// If the linked task was deleted from the pool, recreate it so a block is
+// always backed by a task.
+async function ensureTaskForBlock(e){
+  let t = taskForBlock(e);
+  if(!t){
+    t = await findOrCreateTaskByLabel(e.label);
+    e.taskId = t.id;
+    await saveSchedule();
+  }
+  return t;
+}
+
+async function saveSchedule(){
+  await dbSetSetting('schedule', schedule);
+  if(cloudSyncEnabled) await cloudSaveSchedule();
+}
+async function cloudSaveSchedule(){
+  try { await window.fb.setDoc(userDoc('meta','schedule'), { entries: schedule }); }
+  catch(e){ console.warn('cloudSaveSchedule', e); }
+}
+
+// ── today, at the top of Current ──
+function renderTodaySchedule(){
+  const box = document.getElementById('today-schedule');
+  const picks = document.getElementById('picks-label');
+  if(!box) return;
+  if(!schedule.length){
+    box.innerHTML = '<div class="sched-empty">No weekly schedule yet. '
+      + '<a onclick="setCurrentView(\'week\')">Set one up</a></div>';
+    if(picks) picks.style.display = 'none';
+    return;
+  }
+  if(picks) picks.style.display = 'flex';
+
+  const today = scheduleDate();
+  const blocks = blocksForDay(today.getDay()).filter(e => blockAppliesOn(e, today));
+  if(!blocks.length){
+    box.innerHTML = '<div class="cur-section-label">Today\u2019s schedule</div>'
+      + '<div class="sched-empty">Nothing scheduled today.</div>';
+    return;
+  }
+
+  const now = scheduleNowMinutes();
+  const states = blocks.map(e => blockLiveState(e, now));
+  let nextIdx = -1, nextStart = Infinity;
+  blocks.forEach((e, i) => {
+    if(states[i] === 'upcoming' && toMin(e.start) < nextStart){
+      nextStart = toMin(e.start); nextIdx = i;
+    }
+  });
+  const done = blocks.filter(e => { const t = taskForBlock(e); return t && t.done; }).length;
+
+  let html = '<div class="cur-section-label">Today\u2019s schedule<span>' + done + '/' + blocks.length + '</span></div>'
+           + '<div class="sched-list">';
+  blocks.forEach((e, i) => {
+    const t = taskForBlock(e);
+    const checked = !!(t && t.done);
+    const st = states[i];
+    const cls = checked ? 'checked' : (st === 'now' ? 'now' : (st === 'past' ? 'past' : ''));
+    let live = '';
+    if(!checked && st === 'now') live = '<span class="sched-live now">Now</span>';
+    else if(!checked && i === nextIdx) live = '<span class="sched-live next">Next \u00b7 ' + inMinutesText(nextStart - now) + '</span>';
+    html += '<div class="sched-item ' + cls + '" onclick="toggleScheduleBlock(\'' + e.id + '\')">'
+          +   '<div class="sq-check' + (checked ? ' checked' : '') + '"></div>'
+          +   '<div class="sched-main">'
+          +     '<div class="sched-label">' + escHtml(t ? t.text : e.label) + '</div>'
+          +     '<div class="sched-meta">'
+          +       live
+          +       '<span class="sched-type ' + e.type + '">' + (SCHED_TYPE_LABEL[e.type] || e.type) + '</span>'
+          +       (e.rule ? '<span class="sched-rule">' + escHtml(ruleChipText(e)) + '</span>' : '')
+          +       '<span>' + escHtml(scheduleTimeText(e)) + '</span>'
+          +     '</div>'
+          +   '</div>'
+          + '</div>';
+  });
+  box.innerHTML = html + '</div>';
+}
+
+async function toggleScheduleBlock(id){
+  const e = schedule.find(x => x.id === id); if(!e) return;
+  const t = await ensureTaskForBlock(e);
+  if(hasSubs(t.id)){ showToast('This task has subtasks \u2014 tick those in your picks'); return; }
+  await toggleDone(t.id, false);   // same path as ticking it anywhere else
+}
+
+// ── the whole week ──
+function renderWeekSchedule(){
+  const box = document.getElementById('week-schedule'); if(!box) return;
+  const today = scheduleDayIndex();
+  let html = '';
+  if(!schedule.length){
+    html += '<div class="week-import"><p>No weekly schedule yet. Add blocks to any day below, '
+          + 'or import a schedule CSV you\u2019ve been given.</p>'
+          + '<button onclick="pickScheduleFile()">Import CSV</button></div>';
+  }
+  WEEK_ORDER.forEach(d => {
+    const blocks = blocksForDay(d);
+    html += '<div class="week-day' + (d === today ? ' today' : '') + '">'
+          + '<div class="week-day-head"><span class="week-day-name">' + DAY_FULL[d]
+          + (d === today ? '<em>today</em>' : '') + '</span>'
+          + '<span class="week-day-count">' + blocks.length + ' block' + (blocks.length !== 1 ? 's' : '') + '</span></div>';
+    blocks.forEach(e => {
+      const t = taskForBlock(e);
+      html += '<div class="week-row"><div class="sched-main">'
+            + '<div class="sched-label">' + escHtml(t ? t.text : e.label) + '</div>'
+            + '<div class="sched-meta"><span class="sched-type ' + e.type + '">' + (SCHED_TYPE_LABEL[e.type] || e.type) + '</span>'
+            + (e.rule ? '<span class="sched-rule">' + escHtml(ruleChipText(e)) + '</span>' : '')
+            + '<span>' + escHtml(scheduleTimeText(e)) + '</span></div></div>'
+            + '<button class="week-del" onclick="deleteBlock(\'' + e.id + '\')">\u2715</button></div>';
+    });
+    html += '<button class="week-add" onclick="openBlockPopup(' + d + ')">+ Add block</button></div>';
+  });
+  if(schedule.length){
+    html += '<button class="week-file-link" onclick="pickScheduleFile()">Import a new schedule CSV\u2026</button>';
+  }
+  box.innerHTML = html;
+}
+
+// ── import from a CSV ──
+// Columns: Day, Time, Item, Type, Notes. Time is either a clock range
+// ("7:00-7:30 AM", "11:00 AM") or a prayer window ("Dhuhr-Asr", "After Isha"),
+// which has no fixed clock time and so is shown but never tracked live.
+// Notes may carry a monthly rule, e.g. "Second Saturday of the month only".
+// A schedule arrives as a file handed over privately; none ships in the source,
+// which sits in a public repo.
+const SCHEDULE_FILE_MAX_BYTES = 1024 * 1024;
+
+const CSV_TYPE_MAP = {
+  'fixed':'fixed', 'fixed class':'fixed', 'class':'fixed',
+  'self-paced':'self', 'self paced':'self', 'self':'self',
+  'new memorization':'memorize', 'new memorisation':'memorize',
+  'memorization':'memorize', 'memorisation':'memorize', 'memorize':'memorize',
+  'revision':'revision', 'review':'revision',
+};
+
+// Roughly where each prayer window falls, so rows sort into day order however
+// they were listed in the file. Only used for ordering, never shown.
+const WINDOW_ANCHORS = [
+  [/after\s*fajr|fajr\s*[-–—]\s*sunrise/, 330],
+  [/dhuhr\s*[-–—]\s*asr/,    780],
+  [/asr\s*[-–—]\s*maghrib/,  990],
+  [/maghrib\s*[-–—]\s*isha/, 1170],
+  [/after\s*isha/,           1260],
+];
+function dayAnchor(start, timeText){
+  if(start) return toMin(start);
+  const t = (timeText || '').toLowerCase();
+  for(const [re, min] of WINDOW_ANCHORS) if(re.test(t)) return min;
+  return 1440;                       // unknown windows sort to the end
+}
+
+// Handles quoted fields, since a note may contain a comma.
+function parseCsv(text){
+  const rows = []; let row = [], field = '', quoted = false;
+  text = String(text).replace(/^\uFEFF/, '');
+  for(let i = 0; i < text.length; i++){
+    const c = text[i];
+    if(quoted){
+      if(c === '"'){
+        if(text[i+1] === '"'){ field += '"'; i++; } else quoted = false;
+      } else field += c;
+    }
+    else if(c === '"') quoted = true;
+    else if(c === ','){ row.push(field); field = ''; }
+    else if(c === '\n'){ row.push(field); rows.push(row); row = []; field = ''; }
+    else if(c !== '\r') field += c;
+  }
+  if(field.length || row.length){ row.push(field); rows.push(row); }
+  return rows.filter(r => r.some(x => x.trim() !== ''));
+}
+
+// "7:00-7:30 AM" / "2:00-4:00 PM" / "11:00 AM" -> clock times; anything else is
+// a window with no fixed time.
+function parseClockTime(text){
+  const t = (text || '').trim();
+  const conv = (h, m, ap) => { h = (+h) % 12; if(/pm/i.test(ap)) h += 12;
+                               return String(h).padStart(2,'0') + ':' + m; };
+  let m = t.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)?\s*[-–—]\s*(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+  if(m){
+    const endAp = m[6], startAp = m[3] || endAp;
+    let start = conv(m[1], m[2], startAp);
+    const end = conv(m[4], m[5], endAp);
+    // "11:30-12:30 PM": the meridiem belongs to the end, so pull the start back
+    if(!m[3] && toMin(start) > toMin(end))
+      start = String((+start.slice(0,2)) - 12).padStart(2,'0') + start.slice(2);
+    return { start, end };
+  }
+  m = t.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+  if(m) return { start: conv(m[1], m[2], m[3]), end: null };
+  return null;
+}
+
+// Monthly rules written in the Notes column:
+//   "Second Saturday of the month only"        -> only the 2nd
+//   "regular Saturdays only (not 2nd Saturday)"-> every one except the 2nd
+// Only read when the note also names a weekday or the month, so a note like
+// "first 10 pages" isn't mistaken for a rule.
+const ORDINALS = { first:1, '1st':1, second:2, '2nd':2, third:3, '3rd':3,
+                   fourth:4, '4th':4, last:-1 };
+const ORD_RE = /\b(first|second|third|fourth|last|1st|2nd|3rd|4th)\b/g;
+const RULE_CONTEXT = /\b(month|monday|tuesday|wednesday|thursday|friday|saturday|sunday)s?\b/;
+
+function parseWeekRule(note){
+  const t = (note || '').toLowerCase();
+  if(!RULE_CONTEXT.test(t)) return null;
+  const hits = [...t.matchAll(ORD_RE)];
+  if(!hits.length) return null;
+  for(const h of hits){
+    const before = t.slice(Math.max(0, h.index - 14), h.index);
+    if(/\b(not|except|excluding)\b[^a-z]*$/.test(before))
+      return { mode:'exclude', n: ORDINALS[h[1]] };
+  }
+  return { mode:'only', n: ORDINALS[hits[0][1]] };
+}
+
+// The rule shows as its own small chip, so drop it from the note text.
+function stripRuleFromNote(note){
+  if(!note) return '';
+  return note.split(/\s*[,]\s*|\s+[-–—]\s+/)
+             .filter(seg => seg && !(RULE_CONTEXT.test(seg.toLowerCase()) || /\bonly\b/i.test(seg)))
+             .join(', ')
+             .trim();
+}
+
+function nthWeekdayOfMonth(d){ return Math.floor((d.getDate() - 1) / 7) + 1; }
+function isLastWeekdayOfMonth(d){
+  const last = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+  return d.getDate() + 7 > last;
+}
+function blockAppliesOn(e, d){
+  if(!e.rule) return true;
+  const hit = e.rule.n === -1 ? isLastWeekdayOfMonth(d) : nthWeekdayOfMonth(d) === e.rule.n;
+  return e.rule.mode === 'only' ? hit : !hit;
+}
+const ORD_SHORT = { 1:'1st', 2:'2nd', 3:'3rd', 4:'4th' };
+function ruleChipText(e){
+  if(!e.rule) return '';
+  const day = DAY_FULL[e.weekday].slice(0, 3);
+  const nth = e.rule.n === -1 ? 'last' : (ORD_SHORT[e.rule.n] || e.rule.n + 'th');
+  return e.rule.mode === 'only' ? nth + ' ' + day + ' only' : 'not ' + nth + ' ' + day;
+}
+
+function readFileText(file){
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(String(r.result || ''));
+    r.onerror = () => reject(new Error('That file couldn\u2019t be read.'));
+    r.readAsText(file);
+  });
+}
+
+function pickScheduleFile(){ document.getElementById('schedule-file-input').click(); }
+
+// A new schedule replaces the old one outright. Works signed in or out;
+// saveSchedule syncs to the account when there is one.
+async function handleScheduleFile(input){
+  const file = input.files && input.files[0];
+  input.value = '';                     // so the same file can be picked again
+  if(!file) return;
+  try {
+    if(file.size > SCHEDULE_FILE_MAX_BYTES) throw new Error('That file is too large to be a schedule.');
+    const rows = parseCsv(await readFileText(file));
+    if(rows.length < 2) throw new Error('That file has no schedule rows in it.');
+
+    const head = rows[0].map(h => h.trim().toLowerCase());
+    const iDay = head.indexOf('day'), iTime = head.indexOf('time');
+    const iItem = head.indexOf('item'), iType = head.indexOf('type');
+    const iNote = head.indexOf('notes');
+    if(iDay < 0 || iTime < 0 || iItem < 0 || iType < 0)
+      throw new Error('That CSV needs Day, Time, Item and Type columns.');
+
+    const parsed = rows.slice(1).map((r, n) => {
+      const where = 'Row ' + (n + 2);
+      const get = i => (i >= 0 && r[i] != null) ? String(r[i]).trim() : '';
+      const dayName = get(iDay);
+      const weekday = DAY_FULL.findIndex(d => d.toLowerCase() === dayName.toLowerCase());
+      if(weekday < 0) throw new Error(where + ': "' + dayName + '" isn\u2019t a day of the week.');
+      const label = get(iItem);
+      if(!label) throw new Error(where + ' has no item name.');
+      if(label.length > 80) throw new Error(where + ': that item name is too long.');
+      const type = CSV_TYPE_MAP[get(iType).toLowerCase()];
+      if(!type) throw new Error(where + ': "' + get(iType) + '" isn\u2019t a known type.');
+      const timeText = get(iTime);
+      const clock = parseClockTime(timeText);
+      const rawNote = get(iNote);
+      const rule = parseWeekRule(rawNote);
+      const clean = stripRuleFromNote(rawNote);
+      return { weekday, label, type,
+               start: clock ? clock.start : null,
+               end:   clock ? clock.end   : null,
+               note:  clock ? clean : [timeText, clean].filter(Boolean).join(' \u00b7 '),
+               rule,
+               anchor: dayAnchor(clock && clock.start, timeText),
+               seq: n };
+    });
+    if(!parsed.length) throw new Error('That file has no schedule rows in it.');
+
+    const days = new Set(parsed.map(b => b.weekday)).size;
+    let msg = 'Import ' + parsed.length + ' block' + (parsed.length !== 1 ? 's' : '')
+            + ' across ' + days + ' day' + (days !== 1 ? 's' : '') + '?';
+    if(schedule.length){
+      msg += '\n\nThis replaces your current schedule of ' + schedule.length
+           + ' block' + (schedule.length !== 1 ? 's' : '') + '. Its tasks stay in your pool.';
+    }
+    if(!confirm(msg)) return;
+
+    parsed.sort((a, b) => a.weekday - b.weekday || a.anchor - b.anchor || a.seq - b.seq);
+    const entries = [], nextOrder = {};
+    for(const b of parsed){
+      const t = await findOrCreateTaskByLabel(b.label);   // one task per distinct name
+      nextOrder[b.weekday] = nextOrder[b.weekday] || 0;
+      entries.push({ id:uid(), weekday:b.weekday, order:nextOrder[b.weekday]++,
+                     taskId:t.id, label:b.label, type:b.type,
+                     start:b.start, end:b.end, note:b.note, rule:b.rule });
+    }
+    schedule = entries;                  // a new schedule replaces the old one
+    await saveSchedule();
+    render();
+    renderWeekSchedule();
+    updateCurrentSubtitle();
+    showToast('Schedule imported \u2014 ' + entries.length + ' blocks');
+  } catch(err){
+    alert(err.message || 'That file couldn\u2019t be imported.');
+  }
+}
+
+// ── add / remove ──
+let blockDay = null;
+function openBlockPopup(d){
+  blockDay = d;
+  ['block-label','block-start','block-end','block-note'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('block-type').value = 'fixed';
+  document.getElementById('block-popup-title').textContent = 'Add block \u00b7 ' + DAY_FULL[d];
+  document.getElementById('block-popup').classList.add('active');
+  setTimeout(() => document.getElementById('block-label').focus(), 80);
+}
+function closeBlockPopup(){
+  document.getElementById('block-popup').classList.remove('active');
+  blockDay = null;
+}
+async function confirmBlock(){
+  if(blockDay === null){ closeBlockPopup(); return; }
+  const label = document.getElementById('block-label').value.trim();
+  const type  = document.getElementById('block-type').value;
+  const start = document.getElementById('block-start').value || null;
+  const end   = document.getElementById('block-end').value || null;
+  const note  = document.getElementById('block-note').value.trim();
+  if(!label){ showToast('Give the block a name'); return; }
+  if(end && !start){ showToast('Add a start time too'); return; }
+  if(start && end && toMin(end) <= toMin(start)){ showToast('End must be after start'); return; }
+
+  const t = await findOrCreateTaskByLabel(label);
+  // timed blocks slot in before the first later timed block; untimed go last
+  const day = blocksForDay(blockDay);
+  let insertAt = day.length;
+  if(start){
+    const later = day.findIndex(e => e.start && toMin(e.start) > toMin(start));
+    if(later >= 0) insertAt = later;
+  }
+  day.splice(insertAt, 0, { id:uid(), weekday:blockDay, order:0, taskId:t.id,
+                            label, type, start, end, note });
+  day.forEach((e, i) => e.order = i);
+  schedule = schedule.filter(e => e.weekday !== blockDay).concat(day);
+
+  await saveSchedule();
+  closeBlockPopup();
+  renderWeekSchedule();
+  render();
+}
+async function deleteBlock(id){
+  if(!confirm('Remove this block from the schedule? The task stays in your pool.')) return;
+  schedule = schedule.filter(e => e.id !== id);
+  await saveSchedule();
+  renderWeekSchedule();
+  render();
+}
+
 // ── CURRENT TAB SUB-VIEWS (tasks / notepad) ──
 // The notepad used to be its own tab; it now lives behind the ✎ button in the
 // Current header, since notes are things you jot while working through the day.
@@ -2436,23 +3110,34 @@ let currentView = 'tasks';   // 'tasks' | 'notes'
 
 function setCurrentView(v){
   currentView = v;
-  const notes = v === 'notes';
-  document.getElementById('current-tasks-view').style.display = notes ? 'none' : 'flex';
-  document.getElementById('current-notes-view').style.display = notes ? 'flex' : 'none';
+  const views = { tasks:'current-tasks-view', notes:'current-notes-view', week:'current-week-view' };
+  Object.keys(views).forEach(k =>
+    document.getElementById(views[k]).style.display = (k === v) ? 'flex' : 'none');
 
-  const btn = document.getElementById('btn-current-notes');
-  btn.textContent = notes ? '◎' : '✎';
-  btn.title = notes ? "Back to today's tasks" : 'Notes';
-  btn.classList.toggle('active', notes);
+  // each header button toggles its own view; ◎ means "back to today"
+  const nb = document.getElementById('btn-current-notes');
+  const wb = document.getElementById('btn-current-week');
+  nb.textContent = v === 'notes' ? '◎' : '✎';
+  nb.title = v === 'notes' ? "Back to today's tasks" : 'Notes';
+  nb.classList.toggle('active', v === 'notes');
+  wb.textContent = v === 'week' ? '◎' : '▦';
+  wb.title = v === 'week' ? "Back to today's tasks" : 'Weekly schedule';
+  wb.classList.toggle('active', v === 'week');
 
-  document.getElementById('current-title').textContent = notes ? 'Notes' : 'Current';
+  document.getElementById('current-title').textContent =
+    v === 'notes' ? 'Notes' : (v === 'week' ? 'Week' : 'Current');
 
-  if(notes){
+  if(v === 'notes'){
     resetBg();                       // paper, not the completion gradient
-    initNotepadEvents();
+    applySeason();
+  initNotepadEvents();
     renderNotes();
     updateCurrentSubtitle();
     setTimeout(focusNotepad, 60);
+  } else if(v === 'week'){
+    resetBg();
+    renderWeekSchedule();
+    updateCurrentSubtitle();
   } else {
     const cur = tasks.filter(t=>t.current);
     const done = cur.filter(t=>t.done).length;
@@ -2464,6 +3149,9 @@ function setCurrentView(v){
 function toggleCurrentNotes(){
   setCurrentView(currentView === 'notes' ? 'tasks' : 'notes');
 }
+function toggleCurrentWeek(){
+  setCurrentView(currentView === 'week' ? 'tasks' : 'week');
+}
 
 function updateCurrentSubtitle(){
   const el = document.getElementById('current-subtitle');
@@ -2472,6 +3160,12 @@ function updateCurrentSubtitle(){
     const n = (typeof notepadLines !== 'undefined' ? notepadLines : [])
       .filter(l => l && (l.text || '').trim() !== '').length;
     el.textContent = n === 0 ? 'Empty' : `${n} line${n!==1?'s':''}`;
+    return;
+  }
+  if(currentView === 'week'){
+    el.textContent = schedule.length
+      ? `${schedule.length} block${schedule.length!==1?'s':''} across the week`
+      : 'No schedule yet';
     return;
   }
   const total = tasks.filter(t=>t.current).length;
@@ -2573,6 +3267,8 @@ async function init(){
   initNotepadEvents();
   await maybeShowSplash();
   setInterval(updateDates,60000);
+  setInterval(applySeason,60000);     // turns over on the first day of a season
+  setInterval(renderTodaySchedule,60000);   // move the Now / Next markers along
 }
 init().catch(err=>{console.error('init failed',err);document.getElementById('loading').textContent='failed to load — '+err.message;});
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
